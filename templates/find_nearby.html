@@ -1,0 +1,372 @@
+{% extends "base.html" %}
+
+{% block title %}Find Nearby Barbers - BookaBarber{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Search Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body p-4">
+                    <h2 class="card-title mb-3">
+                        <i class="fas fa-map-marker-alt me-2 text-primary"></i>Find Barbers Near You
+                    </h2>
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-6">
+                            <label for="location-input" class="form-label">Location</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </span>
+                                <input type="text" class="form-control" id="location-input" 
+                                       value="{{ location }}" placeholder="Enter city, ZIP code, or address">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="radius-select" class="form-label">Radius</label>
+                            <select class="form-select" id="radius-select">
+                                <option value="5">5 km</option>
+                                <option value="10" selected>10 km</option>
+                                <option value="25">25 km</option>
+                                <option value="50">50 km</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100" id="search-btn">
+                                <i class="fas fa-search me-2"></i>Search
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button class="btn btn-outline-primary btn-sm" id="use-location-btn">
+                            <i class="fas fa-crosshairs me-1"></i>Use My Location
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Filters</h5>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="service-filter" class="form-label">Service Type</label>
+                            <select class="form-select" id="service-filter">
+                                <option value="">All Services</option>
+                                <option value="haircut">Haircut</option>
+                                <option value="beard">Beard Styling</option>
+                                <option value="package">Premium Package</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="rating-filter" class="form-label">Minimum Rating</label>
+                            <select class="form-select" id="rating-filter">
+                                <option value="">Any Rating</option>
+                                <option value="4">4+ Stars</option>
+                                <option value="4.5">4.5+ Stars</option>
+                                <option value="5">5 Stars</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="availability-filter" class="form-label">Availability</label>
+                            <select class="form-select" id="availability-filter">
+                                <option value="">Any Time</option>
+                                <option value="today">Available Today</option>
+                                <option value="tomorrow">Available Tomorrow</option>
+                                <option value="weekend">Weekend Available</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button class="btn btn-outline-secondary w-100" id="clear-filters-btn">
+                                <i class="fas fa-times me-2"></i>Clear Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="mb-0">
+                    <span id="results-count">Loading...</span> Barbers Found
+                </h3>
+                <div class="btn-group" role="group">
+                    <input type="radio" class="btn-check" name="view-type" id="list-view" checked>
+                    <label class="btn btn-outline-secondary" for="list-view">
+                        <i class="fas fa-list"></i>
+                    </label>
+                    <input type="radio" class="btn-check" name="view-type" id="grid-view">
+                    <label class="btn btn-outline-secondary" for="grid-view">
+                        <i class="fas fa-th"></i>
+                    </label>
+                </div>
+            </div>
+            
+            <div id="barbers-container">
+                <!-- Results will be loaded here -->
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Searching for barbers near you...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const locationInput = document.getElementById('location-input');
+    const radiusSelect = document.getElementById('radius-select');
+    const searchBtn = document.getElementById('search-btn');
+    const useLocationBtn = document.getElementById('use-location-btn');
+    const barbersContainer = document.getElementById('barbers-container');
+    const resultsCount = document.getElementById('results-count');
+    const serviceFilter = document.getElementById('service-filter');
+    const ratingFilter = document.getElementById('rating-filter');
+    const availabilityFilter = document.getElementById('availability-filter');
+    const clearFiltersBtn = document.getElementById('clear-filters-btn');
+    
+    let allBarbers = [];
+    let filteredBarbers = [];
+
+    // Load barbers on page load
+    loadNearbyBarbers();
+
+    // Event listeners
+    searchBtn.addEventListener('click', loadNearbyBarbers);
+    useLocationBtn.addEventListener('click', getUserLocation);
+    serviceFilter.addEventListener('change', applyFilters);
+    ratingFilter.addEventListener('change', applyFilters);
+    availabilityFilter.addEventListener('change', applyFilters);
+    clearFiltersBtn.addEventListener('click', clearFilters);
+
+    // Handle enter key in location input
+    locationInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            loadNearbyBarbers();
+        }
+    });
+
+    async function loadNearbyBarbers() {
+        const location = locationInput.value.trim();
+        const radius = radiusSelect.value;
+
+        if (!location) {
+            alert('Please enter a location');
+            return;
+        }
+
+        // Show loading state
+        searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Searching...';
+        searchBtn.disabled = true;
+        
+        barbersContainer.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-muted">Searching for barbers near ${location}...</p>
+            </div>
+        `;
+
+        try {
+            const response = await fetch(`/api/nearby-barbers?location=${encodeURIComponent(location)}&radius=${radius}`);
+            const barbers = await response.json();
+
+            allBarbers = barbers;
+            filteredBarbers = barbers;
+            
+            displayBarbers(barbers);
+            updateResultsCount(barbers.length);
+
+        } catch (error) {
+            console.error('Error loading barbers:', error);
+            barbersContainer.innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error loading barbers. Please try again.
+                </div>
+            `;
+        } finally {
+            // Reset button
+            searchBtn.innerHTML = '<i class="fas fa-search me-2"></i>Search';
+            searchBtn.disabled = false;
+        }
+    }
+
+    function displayBarbers(barbers) {
+        if (barbers.length === 0) {
+            barbersContainer.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h4>No barbers found</h4>
+                    <p class="text-muted">Try expanding your search radius or changing your location.</p>
+                </div>
+            `;
+            return;
+        }
+
+        const barbersHtml = barbers.map(barber => `
+            <div class="card mb-3 hover-card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="card-title mb-2">
+                                <i class="fas fa-cut me-2 text-primary"></i>${barber.name}
+                            </h5>
+                            <p class="card-text mb-2">
+                                <strong>${barber.shop_name}</strong><br>
+                                <i class="fas fa-map-marker-alt me-1 text-muted"></i>${barber.address}
+                            </p>
+                            ${barber.specialties ? `
+                                <p class="card-text mb-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-star me-1"></i>Specialties: ${barber.specialties}
+                                    </small>
+                                </p>
+                            ` : ''}
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="rating">
+                                    ${generateStars(barber.rating)}
+                                    <span class="ms-1">${barber.rating}</span>
+                                </div>
+                                <span class="badge bg-success">${barber.distance}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="mb-2">
+                                <a href="/booking?barber_id=${barber.id}" class="btn btn-primary">
+                                    <i class="fas fa-calendar-plus me-2"></i>Book Now
+                                </a>
+                            </div>
+                            <div>
+                                <button class="btn btn-outline-secondary btn-sm" onclick="viewBarberDetails(${barber.id})">
+                                    <i class="fas fa-info-circle me-1"></i>Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        barbersContainer.innerHTML = barbersHtml;
+    }
+
+    function generateStars(rating) {
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating % 1 !== 0;
+        let starsHtml = '';
+
+        for (let i = 0; i < fullStars; i++) {
+            starsHtml += '<i class="fas fa-star text-warning"></i>';
+        }
+
+        if (hasHalfStar) {
+            starsHtml += '<i class="fas fa-star-half-alt text-warning"></i>';
+        }
+
+        const emptyStars = 5 - Math.ceil(rating);
+        for (let i = 0; i < emptyStars; i++) {
+            starsHtml += '<i class="far fa-star text-warning"></i>';
+        }
+
+        return starsHtml;
+    }
+
+    function updateResultsCount(count) {
+        resultsCount.textContent = count;
+    }
+
+    function applyFilters() {
+        const serviceType = serviceFilter.value;
+        const minRating = parseFloat(ratingFilter.value) || 0;
+        const availability = availabilityFilter.value;
+
+        filteredBarbers = allBarbers.filter(barber => {
+            // Service filter
+            if (serviceType && !barber.specialties.toLowerCase().includes(serviceType)) {
+                return false;
+            }
+
+            // Rating filter
+            if (barber.rating < minRating) {
+                return false;
+            }
+
+            // Availability filter (simplified - in real app would check actual availability)
+            if (availability && Math.random() < 0.3) {
+                return false;
+            }
+
+            return true;
+        });
+
+        displayBarbers(filteredBarbers);
+        updateResultsCount(filteredBarbers.length);
+    }
+
+    function clearFilters() {
+        serviceFilter.value = '';
+        ratingFilter.value = '';
+        availabilityFilter.value = '';
+        filteredBarbers = allBarbers;
+        displayBarbers(filteredBarbers);
+        updateResultsCount(filteredBarbers.length);
+    }
+
+    function getUserLocation() {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser');
+            return;
+        }
+
+        useLocationBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Getting location...';
+        useLocationBtn.disabled = true;
+
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                
+                // In a real app, you'd reverse geocode these coordinates
+                locationInput.value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                
+                useLocationBtn.innerHTML = '<i class="fas fa-check me-1"></i>Location found';
+                
+                setTimeout(() => {
+                    useLocationBtn.innerHTML = '<i class="fas fa-crosshairs me-1"></i>Use My Location';
+                    useLocationBtn.disabled = false;
+                    loadNearbyBarbers();
+                }, 1500);
+            },
+            function(error) {
+                alert('Unable to get your location. Please enter manually.');
+                useLocationBtn.innerHTML = '<i class="fas fa-crosshairs me-1"></i>Use My Location';
+                useLocationBtn.disabled = false;
+            }
+        );
+    }
+
+    // Global function for barber details
+    window.viewBarberDetails = function(barberId) {
+        alert(`Viewing details for barber ID: ${barberId}`);
+        // In a real app, this would open a modal or navigate to a details page
+    };
+});
+</script>
+{% endblock %}

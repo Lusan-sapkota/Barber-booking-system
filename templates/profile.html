@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - BookaBarber{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user me-2"></i>My Profile
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form id="profileForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="first_name" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="first_name" value="{{ user.first_name }}" readonly>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" value="{{ user.last_name }}" readonly>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" value="{{ user.email }}" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" value="{{ user.phone or '' }}" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="user_type" class="form-label">Account Type</label>
+                            <input type="text" class="form-control" id="user_type" value="{{ user.user_type.title() }}" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="created_at" class="form-label">Member Since</label>
+                            <input type="text" class="form-control" id="created_at" value="{{ user.created_at }}" readonly>
+                        </div>
+
+                        <div class="d-flex gap-3">
+                            <button type="button" class="btn btn-primary" id="edit-btn">
+                                <i class="fas fa-edit me-2"></i>Edit Profile
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="window.history.back()">
+                                <i class="fas fa-arrow-left me-2"></i>Back
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const editBtn = document.getElementById('edit-btn');
+    const formInputs = document.querySelectorAll('#profileForm input:not([type="hidden"])');
+    
+    let isEditing = false;
+
+    editBtn.addEventListener('click', function() {
+        if (!isEditing) {
+            // Enable editing
+            formInputs.forEach(input => {
+                if (input.id !== 'email' && input.id !== 'user_type' && input.id !== 'created_at') {
+                    input.readOnly = false;
+                    input.classList.add('border-primary');
+                }
+            });
+            
+            editBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+            editBtn.className = 'btn btn-success';
+            isEditing = true;
+        } else {
+            // Save changes
+            saveProfile();
+        }
+    });
+
+    function saveProfile() {
+        const formData = new FormData();
+        formData.append('first_name', document.getElementById('first_name').value);
+        formData.append('last_name', document.getElementById('last_name').value);
+        formData.append('phone', document.getElementById('phone').value);
+
+        // Show saving state
+        editBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+        editBtn.disabled = true;
+
+        // Simulate API call (replace with actual endpoint)
+        setTimeout(() => {
+            // Reset form state
+            formInputs.forEach(input => {
+                input.readOnly = true;
+                input.classList.remove('border-primary');
+            });
+            
+            editBtn.innerHTML = '<i class="fas fa-edit me-2"></i>Edit Profile';
+            editBtn.className = 'btn btn-primary';
+            editBtn.disabled = false;
+            isEditing = false;
+
+            // Show success message
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success alert-dismissible fade show mt-3';
+            alertDiv.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i>
+                Profile updated successfully!
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.card-body').insertBefore(alertDiv, document.getElementById('profileForm'));
+        }, 1500);
+    }
+});
+</script>
+{% endblock %}

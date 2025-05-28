@@ -1,0 +1,538 @@
+{% extends "base.html" %}
+
+{% block title %}BookaBarber - Find & Book Barbers Near You{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+        color: white;
+        padding: 80px 0;
+        width: 100%;
+        margin: 0;
+    }
+    
+    .hover-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .hover-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
+    
+    .service-icon, .feature-icon {
+        margin-bottom: 1rem;
+    }
+    
+    .price-badge {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        border-radius: 50px;
+        padding: 10px 20px;
+        margin: 10px 0;
+        display: inline-block;
+    }
+
+    .location-badge {
+        background: #e2f0d9;
+        border-radius: 50px;
+        padding: 5px 15px;
+        margin-top: 10px;
+        display: inline-block;
+        font-size: 0.875rem;
+        color: #3c763d;
+    }
+
+    .service-card {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+    }
+
+    .service-card:hover .card-body {
+        background: rgba(13, 110, 253, 0.05);
+    }
+
+    .feature-icon {
+        color: #0d6efd;
+    }
+
+    /* Ensure full width sections */
+    section {
+        width: 100% !important;
+        margin: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Find & Book the Best Barbers Near You</h1>
+                <p class="lead mb-4">Discover top-rated barbers in your area with BookaBarber. Easy online booking, verified professionals, and quality grooming services guaranteed.</p>
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    <a href="{{ url_for('booking_page') }}" class="btn btn-light btn-lg">
+                        <i class="fas fa-calendar-plus me-2"></i>Book Now
+                    </a>
+                    <a href="{{ url_for('find_nearby') }}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-map-marker-alt me-2"></i>Find Nearby
+                    </a>
+                </div>
+                {% if not session.get('user_id') %}
+                <div class="mt-3">
+                    <small class="text-light opacity-75">Join thousands of satisfied customers</small>
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-6 text-center">
+                <img src="{{ url_for('static', filename='image/logo/logo.svg') }}" alt="BookaBarber" class="img-fluid" style="max-height: 350px;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Location Search Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold">Find Barbers in Your Area</h2>
+                    <p class="lead text-muted">Enter your location to discover nearby barbers and shops</p>
+                </div>
+                <div class="card shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-8">
+                                <label for="location-search" class="form-label">Enter your location</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </span>
+                                    <input type="text" class="form-control form-control-lg" id="location-search" placeholder="City, ZIP code, or address">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-primary btn-lg w-100" id="search-location">
+                                    <i class="fas fa-search me-2"></i>Search
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button class="btn btn-outline-primary btn-sm" id="use-current-location">
+                                <i class="fas fa-crosshairs me-1"></i>Use Current Location
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Popular Services</h2>
+            <p class="lead text-muted">Choose from our wide range of professional grooming services</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center shadow-sm hover-card service-card">
+                    <div class="card-body">
+                        <div class="service-icon mb-3">
+                            <i class="fas fa-cut fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="card-title">Classic Haircut</h5>
+                        <p class="card-text">Professional haircut tailored to your style preferences and face shape</p>
+                        <div class="price-badge">
+                            <span class="h4 text-primary">From $25</span>
+                        </div>
+                        <small class="text-muted d-block">30-45 minutes</small>
+                        <div class="location-badge mt-3">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Available citywide
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center shadow-sm hover-card service-card">
+                    <div class="card-body">
+                        <div class="service-icon mb-3">
+                            <i class="fas fa-user-tie fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="card-title">Haircut + Beard</h5>
+                        <p class="card-text">Complete grooming package with precision haircut and beard styling</p>
+                        <div class="price-badge">
+                            <span class="h4 text-primary">From $35</span>
+                        </div>
+                        <small class="text-muted d-block">45-60 minutes</small>
+                        <div class="location-badge mt-3">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Available citywide
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center shadow-sm hover-card service-card">
+                    <div class="card-body">
+                        <div class="service-icon mb-3">
+                            <i class="fas fa-spray-can fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="card-title">Beard Styling</h5>
+                        <p class="card-text">Expert beard trimming, shaping, and styling for the perfect look</p>
+                        <div class="price-badge">
+                            <span class="h4 text-primary">From $15</span>
+                        </div>
+                        <small class="text-muted d-block">20-30 minutes</small>
+                        <div class="location-badge mt-3">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Available citywide
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center shadow-sm hover-card service-card">
+                    <div class="card-body">
+                        <div class="service-icon mb-3">
+                            <i class="fas fa-crown fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="card-title">Premium Package</h5>
+                        <p class="card-text">Luxury grooming experience with wash, cut, style, and premium treatments</p>
+                        <div class="price-badge">
+                            <span class="h4 text-primary">From $50</span>
+                        </div>
+                        <small class="text-muted d-block">60-90 minutes</small>
+                        <div class="location-badge mt-3">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Available citywide
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Why Choose BookaBarber?</h2>
+            <p class="lead text-muted">Experience the difference with our professional platform</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="text-center hover-card p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-map-marked-alt fa-3x text-primary"></i>
+                    </div>
+                    <h5>Location-Based Search</h5>
+                    <p class="text-muted">Find barbers and shops near your location with accurate distance tracking and directions.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center hover-card p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-star fa-3x text-primary"></i>
+                    </div>
+                    <h5>Verified Professionals</h5>
+                    <p class="text-muted">All barbers are verified and rated by real customers. Read reviews and choose with confidence.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center hover-card p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-mobile-alt fa-3x text-primary"></i>
+                    </div>
+                    <h5>Easy Mobile Booking</h5>
+                    <p class="text-muted">Book appointments instantly from any device. Manage your bookings and get reminders.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center hover-card p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-clock fa-3x text-primary"></i>
+                    </div>
+                    <h5>Flexible Scheduling</h5>
+                    <p class="text-muted">Book appointments that fit your schedule. Many locations offer extended hours and weekend availability.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center hover-card p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-shield-alt fa-3x text-primary"></i>
+                    </div>
+                    <h5>Quality Guarantee</h5>
+                    <p class="text-muted">Not satisfied? We'll make it right. Our quality guarantee ensures you're always happy with your service.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center hover-card p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-wallet fa-3x text-primary"></i>
+                    </div>
+                    <h5>Transparent Pricing</h5>
+                    <p class="text-muted">See prices upfront with no hidden fees. Compare prices across different shops and barbers.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Enhanced CTA Section with Stats Animation -->
+<section class="cta-section">
+    <div class="cta-background"></div>
+    <div class="container position-relative">
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <h2 class="cta-title mb-4">Ready to Find Your Perfect Barber?</h2>
+                    <p class="cta-subtitle mb-5">Join thousands of satisfied customers who trust BookaBarber for their grooming needs.</p>
+                    
+                    <!-- Animated Stats -->
+                    <div class="stats-container mb-5">
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="stat-item">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="stat-number" data-target="15000">0</div>
+                                    <div class="stat-label">Happy Customers</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-item">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-cut"></i>
+                                    </div>
+                                    <div class="stat-number" data-target="850">0</div>
+                                    <div class="stat-label">Expert Barbers</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-item">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </div>
+                                    <div class="stat-number" data-target="75">0</div>
+                                    <div class="stat-label">Cities Covered</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="cta-buttons">
+                        <a href="{{ url_for('booking_page') }}" class="btn btn-primary btn-lg me-3 mb-3">
+                            <i class="fas fa-calendar-plus me-2"></i>Book Appointment Now
+                        </a>
+                        <a href="{{ url_for('find_nearby') }}" class="btn btn-outline-light btn-lg mb-3">
+                            <i class="fas fa-search me-2"></i>Find Barbers Near Me
+                        </a>
+                    </div>
+
+                    <!-- Trust Indicators -->
+                    <div class="trust-indicators mt-4">
+                        <div class="d-flex flex-wrap justify-content-center align-items-center gap-4">
+                            <div class="trust-item">
+                                <i class="fas fa-shield-check me-2"></i>
+                                <span>Verified Professionals</span>
+                            </div>
+                            <div class="trust-item">
+                                <i class="fas fa-star me-2"></i>
+                                <span>4.9/5 Average Rating</span>
+                            </div>
+                            <div class="trust-item">
+                                <i class="fas fa-clock me-2"></i>
+                                <span>24/7 Support</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Enhanced Marquee Animation -->
+<section class="marquee-section">
+    <div class="marquee-track">
+        <div class="marquee-content">
+            <span class="marquee-item">
+                <i class="fas fa-cut"></i> Professional Haircuts
+            </span>
+            <span class="marquee-item">
+                <i class="fas fa-star"></i> 5-Star Reviews
+            </span>
+            <span class="marquee-item">
+                <i class="fas fa-map-marker-alt"></i> Location-Based Search
+            </span>
+            <span class="marquee-item">
+                <i class="fas fa-calendar-check"></i> Easy Booking
+            </span>
+            <span class="marquee-item">
+                <i class="fas fa-shield-alt"></i> Quality Guaranteed
+            </span>
+            <span class="marquee-item">
+                <i class="fas fa-mobile-alt"></i> Mobile Friendly
+            </span>
+            <span class="marquee-item">
+                <i class="fas fa-users"></i> Trusted Community
+            </span>
+            <span class="marquee-item">
+                <i class="fas fa-award"></i> Premium Service
+            </span>
+        </div>
+        <div class="marquee-content" aria-hidden="true">
+            <span class="marquee-item">
+                <i class="fas fa-cut"></i> Professional Haircuts
+            </span>
+            <span class="marquee-item">
+                <i class="fas fa-star"></i> 5-Star Reviews
+            </span>
+            <span class="marquee-item">
+                <i class="fas fa-map-marker-alt"></i> Location-Based Search
+            </span>
+            <span class="marquee-item">
+                <i class="fas fa-calendar-check"></i> Easy Booking
+            </span>
+            <span class="marquee-item">
+                <i class="fas fa-shield-alt"></i> Quality Guaranteed
+            </span>
+            <span class="marquee-item">
+                <i class="fas fa-mobile-alt"></i> Mobile Friendly
+            </span>
+            <span class="marquee-item">
+                <i class="fas fa-users"></i> Trusted Community
+            </span>
+            <span class="marquee-item">
+                <i class="fas fa-award"></i> Premium Service
+            </span>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const locationSearch = document.getElementById('location-search');
+    const searchBtn = document.getElementById('search-location');
+    const currentLocationBtn = document.getElementById('use-current-location');
+
+    // Handle search button click
+    if (searchBtn) {
+        searchBtn.addEventListener('click', function() {
+            const location = locationSearch.value.trim();
+            if (location) {
+                // Add loading state
+                searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Searching...';
+                searchBtn.disabled = true;
+                
+                // Simulate search (replace with actual API call)
+                setTimeout(() => {
+                    window.location.href = `/find-nearby?location=${encodeURIComponent(location)}`;
+                }, 1000);
+            } else {
+                alert('Please enter a location to search');
+            }
+        });
+    }
+
+    // Handle current location button
+    if (currentLocationBtn) {
+        currentLocationBtn.addEventListener('click', function() {
+            if (navigator.geolocation) {
+                currentLocationBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Getting location...';
+                currentLocationBtn.disabled = true;
+                
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        // Reverse geocoding to get address (you'd use a real API here)
+                        locationSearch.value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                        
+                        currentLocationBtn.innerHTML = '<i class="fas fa-check me-1"></i>Location found';
+                        
+                        setTimeout(() => {
+                            currentLocationBtn.innerHTML = '<i class="fas fa-crosshairs me-1"></i>Use Current Location';
+                            currentLocationBtn.disabled = false;
+                        }, 2000);
+                    },
+                    function(error) {
+                        alert('Unable to get your location. Please enter manually.');
+                        currentLocationBtn.innerHTML = '<i class="fas fa-crosshairs me-1"></i>Use Current Location';
+                        currentLocationBtn.disabled = false;
+                    }
+                );
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        });
+    }
+
+    // Handle enter key in search input
+    if (locationSearch) {
+        locationSearch.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchBtn.click();
+            }
+        });
+    }
+
+    // Animated Counter for Stats
+    const animateCounters = () => {
+        const counters = document.querySelectorAll('.stat-number');
+        
+        counters.forEach(counter => {
+            const target = parseInt(counter.getAttribute('data-target'));
+            const duration = 2000; // 2 seconds
+            const increment = target / (duration / 16); // 60fps
+            let current = 0;
+            
+            const updateCounter = () => {
+                if (current < target) {
+                    current += increment;
+                    counter.textContent = Math.floor(current).toLocaleString();
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.textContent = target.toLocaleString();
+                }
+            };
+            
+            updateCounter();
+        });
+    };
+
+    // Intersection Observer to trigger animations only once
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
+                entry.target.classList.add('animated');
+                animateCounters();
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    const statsContainer = document.querySelector('.stats-container');
+    if (statsContainer) {
+        observer.observe(statsContainer);
+    }
+});
+</script>
+{% endblock %}
