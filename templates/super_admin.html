@@ -1,0 +1,803 @@
+{% extends "base.html" %}
+
+{% block title %}Super Admin Dashboard - BookaBarber{% endblock %}
+
+{% block extra_css %}
+<style>
+.super-admin-dashboard {
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+.admin-header {
+    background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+    border-left: 4px solid #dc3545;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.admin-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.section-header {
+    background: #f8f9fa;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 12px 12px 0 0;
+}
+
+.action-btn {
+    margin: 0.25rem;
+}
+
+.status-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.recent-activity {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    padding: 0.75rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.chart-container {
+    height: 300px;
+    position: relative;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="super-admin-dashboard">
+    <!-- Header -->
+    <section class="admin-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="mb-2">
+                        <i class="fas fa-crown me-2"></i>Super Admin Dashboard
+                    </h1>
+                    <p class="mb-0 opacity-75">Complete system management and oversight</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <div class="dropdown">
+                        <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog me-2"></i>System Actions
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="sendTestEmail()">
+                                <i class="fas fa-envelope me-2"></i>Send Test Email
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="optimizeDatabase()">
+                                <i class="fas fa-database me-2"></i>Optimize Database
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="clearCache()">
+                                <i class="fas fa-trash me-2"></i>Clear Cache
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#" onclick="backupSystem()">
+                                <i class="fas fa-download me-2"></i>Backup System
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- System Overview Stats -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card text-center">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-store fa-3x text-primary"></i>
+                    </div>
+                    <h3 class="mb-1" id="total-shops">{{ stats.total_shops }}</h3>
+                    <small class="text-muted">Total Shops</small>
+                    <div class="mt-2">
+                        <small class="text-success">
+                            <i class="fas fa-arrow-up"></i> {{ stats.active_shops }} Active
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card text-center">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-users fa-3x text-info"></i>
+                    </div>
+                    <h3 class="mb-1" id="total-users">{{ stats.total_users }}</h3>
+                    <small class="text-muted">Total Users</small>
+                    <div class="mt-2">
+                        <small class="text-info">
+                            <i class="fas fa-user"></i> {{ stats.customers }} Customers
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card text-center">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-calendar-check fa-3x text-success"></i>
+                    </div>
+                    <h3 class="mb-1" id="total-bookings">{{ stats.total_bookings }}</h3>
+                    <small class="text-muted">Total Bookings</small>
+                    <div class="mt-2">
+                        <small class="text-success">
+                            <i class="fas fa-chart-line"></i> {{ stats.bookings_today }} Today
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card text-center">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-dollar-sign fa-3x text-warning"></i>
+                    </div>
+                    <h3 class="mb-1" id="total-revenue">${{ stats.total_revenue }}</h3>
+                    <small class="text-muted">Total Revenue</small>
+                    <div class="mt-2">
+                        <small class="text-warning">
+                            <i class="fas fa-calendar"></i> ${{ stats.revenue_this_month }} This Month
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Management Sections -->
+        <div class="row">
+            <!-- User Management -->
+            <div class="col-lg-6 mb-4">
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-users me-2"></i>User Management
+                        </h5>
+                    </div>
+                    <div class="p-3">
+                        <div class="d-flex justify-content-between mb-3">
+                            <div>
+                                <input type="text" class="form-control" placeholder="Search users..." id="user-search">
+                            </div>
+                            <div>
+                                <button class="btn btn-primary btn-sm" onclick="createUser()">
+                                    <i class="fas fa-plus"></i> Add User
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-responsive" style="max-height: 300px;">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table">
+                                    {% for user in users[:10] %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-user-circle me-2"></i>
+                                                <div>
+                                                    <div class="fw-bold">{{ user[2] }} {{ user[3] }}</div>
+                                                    <small class="text-muted">{{ user[1] }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ user[6] }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge status-badge bg-{{ 'success' if user[8] == 'active' else 'danger' }}">
+                                                {{ user[8] }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-primary" onclick="editUser('{{ user[0] }}')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-{{ 'danger' if user[8] == 'active' else 'success' }}" 
+                                                        onclick="toggleUserStatus('{{ user[0] }}', '{{ user[8] }}')">
+                                                    <i class="fas fa-{{ 'ban' if user[8] == 'active' else 'check' }}"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shop Management -->
+            <div class="col-lg-6 mb-4">
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-store me-2"></i>Shop Management
+                        </h5>
+                    </div>
+                    <div class="p-3">
+                        <div class="d-flex justify-content-between mb-3">
+                            <div>
+                                <input type="text" class="form-control" placeholder="Search shops..." id="shop-search">
+                            </div>
+                            <div>
+                                <button class="btn btn-primary btn-sm" onclick="createShop()">
+                                    <i class="fas fa-plus"></i> Add Shop
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-responsive" style="max-height: 300px;">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Owner</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="shops-table">
+                                    {% for shop in shops[:10] %}
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold">{{ shop[1] }}</div>
+                                            <small class="text-muted">{{ shop[2] }}</small>
+                                        </td>
+                                        <td>
+                                            {% if shop[9] and shop[10] %}
+                                                {{ shop[9] }} {{ shop[10] }}
+                                            {% else %}
+                                                <span class="text-muted">No owner</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge status-badge bg-{{ 'success' if shop[6] == 'active' else 'danger' }}">
+                                                {{ shop[6] }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-primary" onclick="editShop('{{ shop[0] }}')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-{{ 'danger' if shop[6] == 'active' else 'success' }}" 
+                                                        onclick="toggleShopStatus('{{ shop[0] }}', '{{ shop[6] }}')">
+                                                    <i class="fas fa-{{ 'ban' if shop[6] == 'active' else 'check' }}"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Activity and Settings -->
+        <div class="row">
+            <!-- Recent Admin Actions -->
+            <div class="col-lg-8 mb-4">
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-history me-2"></i>Recent Admin Actions
+                        </h5>
+                    </div>
+                    <div class="p-3">
+                        <div class="recent-activity" id="admin-actions">
+                            {% for action in recent_actions %}
+                            <div class="activity-item">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <div class="fw-bold">{{ action[6] }} {{ action[7] }}</div>
+                                        <div class="text-muted">{{ action[5] }}</div>
+                                        <small class="text-muted">{{ action[2] }} on {{ action[3] }} #{{ action[4] }}</small>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted">{{ action[9] }}</small>
+                                        {% if action[8] %}
+                                        <br><small class="text-info">{{ action[8] }}</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Settings -->
+            <div class="col-lg-4 mb-4">
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-cogs me-2"></i>System Settings
+                        </h5>
+                    </div>
+                    <div class="p-3">
+                        <form id="settings-form">
+                            {% for setting in system_settings %}
+                            <div class="mb-3">
+                                <label class="form-label">{{ setting[3] or setting[1] }}</label>
+                                {% if setting[1] in ['email_notifications_enabled', 'auto_assign_barbers'] %}
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" 
+                                           id="setting_{{ setting[1] }}" 
+                                           name="{{ setting[1] }}"
+                                           {{ 'checked' if setting[2] == 'true' else '' }}>
+                                </div>
+                                {% else %}
+                                <input type="text" class="form-control" 
+                                       id="setting_{{ setting[1] }}" 
+                                       name="{{ setting[1] }}"
+                                       value="{{ setting[2] }}">
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-save me-2"></i>Save Settings
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Logs -->
+        <div class="admin-section">
+            <div class="section-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-envelope me-2"></i>Email Logs
+                </h5>
+            </div>
+            <div class="p-3">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Recipient</th>
+                                <th>Subject</th>
+                                <th>Status</th>
+                                <th>Sent At</th>
+                                <th>Error</th>
+                            </tr>
+                        </thead>
+                        <tbody id="email-logs">
+                            {% for log in email_logs %}
+                            <tr>
+                                <td>{{ log[1] }}</td>
+                                <td>{{ log[2] }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if log[3] == 'sent' else 'danger' }}">
+                                        {{ log[3] }}
+                                    </span>
+                                </td>
+                                <td>{{ log[5] or '-' }}</td>
+                                <td>
+                                    {% if log[4] %}
+                                    <small class="text-danger">{{ log[4][:50] }}...</small>
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Newsletter Management Section -->
+        <div class="row">
+            <div class="col-12">
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h4 class="mb-0">
+                            <i class="fas fa-envelope me-2"></i>Newsletter Subscribers
+                        </h4>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-success btn-sm" onclick="exportSubscribers()">
+                                <i class="fas fa-download me-1"></i>Export CSV
+                            </button>
+                            <button class="btn btn-info btn-sm" onclick="refreshSubscribers()">
+                                <i class="fas fa-sync me-1"></i>Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="subscribersTable">
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Name</th>
+                                    <th>Subscribed At</th>
+                                    <th>IP Address</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subscribersTableBody">
+                                <tr>
+                                    <td colspan="5" class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <div class="mt-2">Loading subscribers...</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals would go here -->
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Real-time updates
+    setInterval(updateStats, 30000); // Update every 30 seconds
+    
+    // Settings form
+    document.getElementById('settings-form').addEventListener('submit', saveSettings);
+    
+    // Search functionality
+    document.getElementById('user-search').addEventListener('input', searchUsers);
+    document.getElementById('shop-search').addEventListener('input', searchShops);
+});
+
+async function updateStats() {
+    try {
+        const response = await fetch('/api/super-admin/stats');
+        const stats = await response.json();
+        
+        document.getElementById('total-shops').textContent = stats.total_shops;
+        document.getElementById('total-users').textContent = stats.total_users;
+        document.getElementById('total-bookings').textContent = stats.total_bookings;
+        document.getElementById('total-revenue').textContent = `$${stats.total_revenue}`;
+    } catch (error) {
+        console.error('Error updating stats:', error);
+    }
+}
+
+async function saveSettings(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const settings = {};
+    
+    for (let [key, value] of formData.entries()) {
+        settings[key] = value;
+    }
+    
+    // Handle checkboxes
+    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        if (!formData.has(checkbox.name)) {
+            settings[checkbox.name] = 'false';
+        } else {
+            settings[checkbox.name] = 'true';
+        }
+    });
+    
+    try {
+        const response = await fetch('/api/super-admin/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(settings)
+        });
+        
+        if (response.ok) {
+            showNotification('Settings saved successfully!', 'success');
+        } else {
+            throw new Error('Failed to save settings');
+        }
+    } catch (error) {
+        showNotification('Error saving settings', 'error');
+    }
+}
+
+async function toggleUserStatus(userId, currentStatus) {
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    
+    try {
+        const response = await fetch(`/api/super-admin/users/${userId}/status`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+        });
+        
+        if (response.ok) {
+            location.reload();
+        }
+    } catch (error) {
+        showNotification('Error updating user status', 'error');
+    }
+}
+
+async function toggleShopStatus(shopId, currentStatus) {
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    
+    try {
+        const response = await fetch(`/api/super-admin/shops/${shopId}/status`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+        });
+        
+        if (response.ok) {
+            location.reload();
+        }
+    } catch (error) {
+        showNotification('Error updating shop status', 'error');
+    }
+}
+
+function sendTestEmail() {
+    fetch('/api/super-admin/test-email', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            showNotification(data.message, data.success ? 'success' : 'error');
+        });
+}
+
+function optimizeDatabase() {
+    fetch('/api/super-admin/optimize-db', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            showNotification(data.message, data.success ? 'success' : 'error');
+        });
+}
+
+function clearCache() {
+    showNotification('Cache cleared successfully!', 'success');
+}
+
+function backupSystem() {
+    if (confirm('Create a system backup? This may take a few minutes.')) {
+        fetch('/api/super-admin/backup', { method: 'POST' })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `backup_${new Date().toISOString().split('T')[0]}.db`;
+                a.click();
+            });
+    }
+}
+
+function searchUsers(e) {
+    // Implement user search
+}
+
+function searchShops(e) {
+    // Implement shop search
+}
+
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+// Subscribers management functions
+async function fetchSubscribers() {
+    try {
+        const response = await fetch('/api/super-admin/subscribers');
+        const subscribers = await response.json();
+        
+        const tbody = document.getElementById('subscribersTableBody');
+        tbody.innerHTML = '';
+        
+        subscribers.forEach(subscriber => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${subscriber.email}</td>
+                <td>${subscriber.name || '-'}</td>
+                <td>${new Date(subscriber.subscribed_at).toLocaleString()}</td>
+                <td>${subscriber.ip_address || '-'}</td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-danger" onclick="deleteSubscriber('${subscriber.email}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error('Error fetching subscribers:', error);
+    }
+}
+
+async function loadNewsletterSubscribers() {
+    try {
+        const response = await fetch('/api/super-admin/newsletter-subscribers');
+        const data = await response.json();
+        
+        const tbody = document.getElementById('subscribersTableBody');
+        
+        if (data.success && data.subscribers.length > 0) {
+            tbody.innerHTML = data.subscribers.map(subscriber => `
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-envelope text-primary me-2"></i>
+                            ${subscriber.email}
+                        </div>
+                    </td>
+                    <td>${subscriber.name || 'N/A'}</td>
+                    <td>
+                        <small class="text-muted">
+                            ${new Date(subscriber.subscribed_at).toLocaleDateString()}
+                        </small>
+                    </td>
+                    <td>
+                        <small class="text-muted">${subscriber.ip_address || 'N/A'}</small>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger" 
+                                onclick="removeSubscriber('${subscriber.email}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        } else {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center text-muted">
+                        <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                        No newsletter subscribers yet
+                    </td>
+                </tr>
+            `;
+        }
+        
+        // Update stats if exists
+        const statsElement = document.querySelector('[data-stat="newsletter_subscribers"]');
+        if (statsElement) {
+            statsElement.textContent = data.total || 0;
+        }
+        
+    } catch (error) {
+        console.error('Error loading newsletter subscribers:', error);
+        document.getElementById('subscribersTableBody').innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center text-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error loading subscribers
+                </td>
+            </tr>
+        `;
+    }
+}
+
+async function exportSubscribers() {
+    try {
+        const response = await fetch('/api/super-admin/newsletter-export');
+        const blob = await response.blob();
+        
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `newsletter_subscribers_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        showNotification('success', 'Newsletter subscribers exported successfully!');
+    } catch (error) {
+        showNotification('error', 'Failed to export subscribers');
+    }
+}
+
+async function refreshSubscribers() {
+    const refreshBtn = event.target.closest('button');
+    const originalContent = refreshBtn.innerHTML;
+    
+    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
+    refreshBtn.disabled = true;
+    
+    await loadNewsletterSubscribers();
+    
+    setTimeout(() => {
+        refreshBtn.innerHTML = originalContent;
+        refreshBtn.disabled = false;
+    }, 1000);
+}
+
+async function removeSubscriber(email) {
+    if (!confirm(`Are you sure you want to remove ${email} from the newsletter?`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/super-admin/newsletter-remove', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: email })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('success', 'Subscriber removed successfully');
+            loadNewsletterSubscribers();
+        } else {
+            showNotification('error', result.message || 'Failed to remove subscriber');
+        }
+    } catch (error) {
+        showNotification('error', 'An error occurred while removing subscriber');
+    }
+}
+
+// Call fetchSubscribers on page load
+fetchSubscribers();
+
+// Load newsletter subscribers when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadNewsletterSubscribers();
+});
+</script>
+{% endblock %}

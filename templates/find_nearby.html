@@ -2,124 +2,187 @@
 
 {% block title %}Find Nearby Barbers - BookaBarber{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <!-- Search Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body p-4">
-                    <h2 class="card-title mb-3">
-                        <i class="fas fa-map-marker-alt me-2 text-primary"></i>Find Barbers Near You
-                    </h2>
-                    <div class="row g-3 align-items-end">
-                        <div class="col-md-6">
-                            <label for="location-input" class="form-label">Location</label>
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </span>
-                                <input type="text" class="form-control" id="location-input" 
-                                       value="{{ location }}" placeholder="Enter city, ZIP code, or address">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="radius-select" class="form-label">Radius</label>
-                            <select class="form-select" id="radius-select">
-                                <option value="5">5 km</option>
-                                <option value="10" selected>10 km</option>
-                                <option value="25">25 km</option>
-                                <option value="50">50 km</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <button class="btn btn-primary w-100" id="search-btn">
-                                <i class="fas fa-search me-2"></i>Search
-                            </button>
-                        </div>
+<div class="find-nearby-page">
+    <!-- Enhanced Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <div class="page-header-content">
+                <h1 class="page-title">Find Barbers Near You</h1>
+                <p class="page-subtitle">
+                    Discover top-rated barbers and barbershops in your area. Browse profiles, read reviews, and book appointments with verified professionals.
+                </p>
+                
+                <div class="page-header-actions">
+                    <a href="{{ url_for('booking_page') }}" class="header-btn header-btn-primary">
+                        <i class="fas fa-magic"></i>
+                        Use Auto-Assignment
+                    </a>
+                    <a href="#filters" class="header-btn header-btn-outline">
+                        <i class="fas fa-filter"></i>
+                        Advanced Filters
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- System Notifications -->
+        <div class="system-notification">
+            <div class="notification-content">
+                <div class="notification-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="notification-text">
+                    <div class="notification-title">
+                        <i class="fas fa-store"></i>
+                        Choose Your Preferred Shop & Barber
                     </div>
-                    <div class="mt-3">
-                        <button class="btn btn-outline-primary btn-sm" id="use-location-btn">
-                            <i class="fas fa-crosshairs me-1"></i>Use My Location
-                        </button>
+                    <div class="notification-message">
+                        Here you can browse and select specific shops and barbers in your area. View ratings, specialties, and availability to make the perfect choice for your grooming needs.
+                    </div>
+                    <div class="notification-actions">
+                        <a href="{{ url_for('booking_page') }}" class="notification-btn notification-btn-secondary">
+                            <i class="fas fa-magic"></i>
+                            Use Auto-Assignment Instead
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Filters -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">Filters</h5>
-                    <div class="row g-3">
-                        <div class="col-md-3">
-                            <label for="service-filter" class="form-label">Service Type</label>
-                            <select class="form-select" id="service-filter">
-                                <option value="">All Services</option>
-                                <option value="haircut">Haircut</option>
-                                <option value="beard">Beard Styling</option>
-                                <option value="package">Premium Package</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="rating-filter" class="form-label">Minimum Rating</label>
-                            <select class="form-select" id="rating-filter">
-                                <option value="">Any Rating</option>
-                                <option value="4">4+ Stars</option>
-                                <option value="4.5">4.5+ Stars</option>
-                                <option value="5">5 Stars</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="availability-filter" class="form-label">Availability</label>
-                            <select class="form-select" id="availability-filter">
-                                <option value="">Any Time</option>
-                                <option value="today">Available Today</option>
-                                <option value="tomorrow">Available Tomorrow</option>
-                                <option value="weekend">Weekend Available</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3 d-flex align-items-end">
-                            <button class="btn btn-outline-secondary w-100" id="clear-filters-btn">
-                                <i class="fas fa-times me-2"></i>Clear Filters
-                            </button>
-                        </div>
+        {% if not session.get('user_id') %}
+        <div class="login-required-notification">
+            <div class="notification-content">
+                <div class="notification-icon">
+                    <i class="fas fa-user-cog"></i>
+                </div>
+                <div class="notification-text">
+                    <div class="notification-title">
+                        <i class="fas fa-bookmark"></i>
+                        Enhanced Features with Account
+                    </div>
+                    <div class="notification-message">
+                        To manage your bookings, save favorite barbers, receive notifications, and access your booking history, please create an account or sign in. Without an account, bookings will only be confirmed via email.
+                    </div>
+                    <div class="notification-actions">
+                        <a href="{{ url_for('login') }}" class="notification-btn notification-btn-primary">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Sign In
+                        </a>
+                        <a href="{{ url_for('signup') }}" class="notification-btn notification-btn-secondary">
+                            <i class="fas fa-user-plus"></i>
+                            Create Account
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+        {% endif %}
 
-    <!-- Results -->
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="mb-0">
-                    <span id="results-count">Loading...</span> Barbers Found
-                </h3>
-                <div class="btn-group" role="group">
-                    <input type="radio" class="btn-check" name="view-type" id="list-view" checked>
-                    <label class="btn btn-outline-secondary" for="list-view">
-                        <i class="fas fa-list"></i>
-                    </label>
-                    <input type="radio" class="btn-check" name="view-type" id="grid-view">
-                    <label class="btn btn-outline-secondary" for="grid-view">
-                        <i class="fas fa-th"></i>
-                    </label>
+        <!-- Enhanced Search Section -->
+        <div class="search-section">
+            <h2>
+                <i class="fas fa-search text-primary"></i>
+                Search for Barbers
+            </h2>
+            
+            <div class="search-form-row">
+                <div class="search-location-group">
+                    <input type="text" class="form-control search-location-input" id="location-input" 
+                           value="{{ location }}" placeholder="Enter city, ZIP code, or address">
                 </div>
+                
+                <select class="form-select search-radius-select" id="radius-select">
+                    <option value="5">5 km radius</option>
+                    <option value="10" selected>10 km radius</option>
+                    <option value="25">25 km radius</option>
+                    <option value="50">50 km radius</option>
+                </select>
+                
+                <button class="btn btn-primary search-btn" id="search-btn">
+                    <i class="fas fa-search me-2"></i>Search
+                </button>
             </div>
             
-            <div id="barbers-container">
-                <!-- Results will be loaded here -->
-                <div class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="mt-3 text-muted">Searching for barbers near you...</p>
+            <div class="location-actions">
+                <button class="use-location-btn" id="use-location-btn">
+                    <i class="fas fa-crosshairs me-1"></i>Use My Current Location
+                </button>
+            </div>
+        </div>
+
+        <!-- Enhanced Filters Section -->
+        <div class="filters-section" id="filters">
+            <h3 class="filters-title">
+                <i class="fas fa-filter"></i>
+                Filter Results
+            </h3>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label class="filter-label">Service Type</label>
+                    <select class="form-select" id="service-filter">
+                        <option value="">All Services</option>
+                        <option value="haircut">Haircut</option>
+                        <option value="beard">Beard Styling</option>
+                        <option value="package">Premium Package</option>
+                    </select>
                 </div>
+                <div class="filter-group">
+                    <label class="filter-label">Minimum Rating</label>
+                    <select class="form-select" id="rating-filter">
+                        <option value="">Any Rating</option>
+                        <option value="4">4+ Stars</option>
+                        <option value="4.5">4.5+ Stars</option>
+                        <option value="5">5 Stars</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Availability</label>
+                    <select class="form-select" id="availability-filter">
+                        <option value="">Any Time</option>
+                        <option value="today">Available Today</option>
+                        <option value="tomorrow">Available Tomorrow</option>
+                        <option value="weekend">Weekend Available</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <button class="clear-filters-btn" id="clear-filters-btn">
+                        <i class="fas fa-times me-2"></i>Clear All Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-header">
+            <h3 class="results-count">
+                <span id="results-count">Loading...</span> Barbers Found
+            </h3>
+            <div class="view-toggle btn-group" role="group">
+                <input type="radio" class="btn-check" name="view-type" id="list-view" checked>
+                <label class="btn btn-outline-secondary" for="list-view">
+                    <i class="fas fa-list"></i> List
+                </label>
+                <input type="radio" class="btn-check" name="view-type" id="grid-view">
+                <label class="btn btn-outline-secondary" for="grid-view">
+                    <i class="fas fa-th"></i> Grid
+                </label>
+            </div>
+        </div>
+        
+        <div id="barbers-container">
+            <!-- Results will be loaded here -->
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-muted">Searching for barbers near you...</p>
             </div>
         </div>
     </div>
@@ -221,7 +284,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const barbersHtml = barbers.map(barber => `
-            <div class="card mb-3 hover-card">
+            <div class="card mb-3">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col-md-8">
@@ -339,25 +402,57 @@ document.addEventListener('DOMContentLoaded', function() {
         useLocationBtn.disabled = true;
 
         navigator.geolocation.getCurrentPosition(
-            function(position) {
+            async function(position) {
                 const lat = position.coords.latitude;
                 const lng = position.coords.longitude;
                 
-                // In a real app, you'd reverse geocode these coordinates
-                locationInput.value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                try {
+                    // Use backend proxy for reverse geocoding
+                    const response = await fetch(`/api/reverse-geocode?lat=${lat}&lon=${lng}`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.address) {
+                        locationInput.value = data.address;
+                    } else {
+                        locationInput.value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                    }
+                } catch (error) {
+                    console.log('Geocoding failed, using coordinates:', error);
+                    locationInput.value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                }
                 
                 useLocationBtn.innerHTML = '<i class="fas fa-check me-1"></i>Location found';
                 
                 setTimeout(() => {
-                    useLocationBtn.innerHTML = '<i class="fas fa-crosshairs me-1"></i>Use My Location';
+                    useLocationBtn.innerHTML = '<i class="fas fa-crosshairs me-1"></i>Use My Current Location';
                     useLocationBtn.disabled = false;
                     loadNearbyBarbers();
                 }, 1500);
             },
             function(error) {
-                alert('Unable to get your location. Please enter manually.');
-                useLocationBtn.innerHTML = '<i class="fas fa-crosshairs me-1"></i>Use My Location';
+                console.log('Geolocation error:', error);
+                let errorMessage = 'Unable to get your location. Please enter manually.';
+                
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage = 'Location access denied. Please enable location services.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage = 'Location information is unavailable.';
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage = 'Location request timed out.';
+                        break;
+                }
+                
+                alert(errorMessage);
+                useLocationBtn.innerHTML = '<i class="fas fa-crosshairs me-1"></i>Use My Current Location';
                 useLocationBtn.disabled = false;
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 300000
             }
         );
     }

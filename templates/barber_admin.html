@@ -1,0 +1,470 @@
+{% extends "base.html" %}
+
+{% block title %}Barber Panel - BookaBarber{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
+<style>
+.barber-header {
+    background: linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+.schedule-grid {
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+    gap: 1px;
+    background: #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.schedule-cell {
+    background: white;
+    padding: 0.5rem;
+    min-height: 60px;
+    font-size: 0.8rem;
+}
+
+.schedule-header {
+    background: #495057;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+
+.time-slot {
+    background: #f8f9fa;
+    font-weight: bold;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.appointment-slot {
+    background: #e3f2fd;
+    border-left: 3px solid #2196f3;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.appointment-slot:hover {
+    background: #bbdefb;
+}
+
+.available-slot {
+    background: #e8f5e8;
+    border: 2px dashed #28a745;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #28a745;
+}
+
+.available-slot:hover {
+    background: #d4edda;
+}
+
+.today {
+    background: #fff3cd !important;
+    border: 2px solid #ffc107;
+}
+
+.earnings-card {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+.rating-card {
+    background: linear-gradient(135deg, #ffc107, #fd7e14);
+    color: white;
+}
+
+.clients-card {
+    background: linear-gradient(135deg, #6f42c1, #e83e8c);
+    color: white;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="barber-panel">
+    <!-- Barber Header -->
+    <section class="barber-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="mb-2">Barber Dashboard</h1>
+                    <p class="mb-0 opacity-75">Manage your schedule, clients, and services</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <button class="btn btn-light btn-lg" onclick="toggleAvailability()">
+                        <i class="fas fa-toggle-on me-2"></i>Available
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- Quick Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card earnings-card text-white">
+                    <div class="card-body text-center">
+                        <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+                        <h4 class="mb-1">$1,250</h4>
+                        <small>This Month</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card rating-card text-white">
+                    <div class="card-body text-center">
+                        <i class="fas fa-star fa-2x mb-2"></i>
+                        <h4 class="mb-1">4.9</h4>
+                        <small>Average Rating</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card clients-card text-white">
+                    <div class="card-body text-center">
+                        <i class="fas fa-users fa-2x mb-2"></i>
+                        <h4 class="mb-1">47</h4>
+                        <small>Clients Served</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <i class="fas fa-calendar-day fa-2x mb-2"></i>
+                        <h4 class="mb-1" id="todays-appointments">0</h4>
+                        <small>Today's Appointments</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Schedule -->
+        <div class="row mb-4">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calendar-day me-2"></i>Today's Schedule
+                        </h5>
+                        <div>
+                            <button class="btn btn-light btn-sm me-2" onclick="previousDay()">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <span id="current-date">Today</span>
+                            <button class="btn btn-light btn-sm ms-2" onclick="nextDay()">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="daily-schedule">
+                            <!-- Schedule will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Quick Actions -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h6 class="mb-0">Quick Actions</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" onclick="blockTimeSlot()">
+                                <i class="fas fa-ban me-2"></i>Block Time Slot
+                            </button>
+                            <button class="btn btn-success" onclick="addAvailability()">
+                                <i class="fas fa-plus me-2"></i>Add Availability
+                            </button>
+                            <button class="btn btn-info" onclick="viewEarnings()">
+                                <i class="fas fa-chart-line me-2"></i>View Earnings
+                            </button>
+                            <button class="btn btn-warning" onclick="manageServices()">
+                                <i class="fas fa-cut me-2"></i>Manage Services
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Upcoming Appointments -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Next Appointments</h6>
+                    </div>
+                    <div class="card-body" id="upcoming-appointments">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Schedule -->
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-week me-2"></i>Weekly Schedule
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="schedule-grid" id="weekly-schedule">
+                    <!-- Schedule grid will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Appointment Details Modal -->
+<div class="modal fade" id="appointmentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Appointment Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="appointment-details">
+                <!-- Content loaded via JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" onclick="completeAppointment()">
+                    <i class="fas fa-check me-2"></i>Mark Complete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let currentDate = new Date();
+    
+    // Initialize the dashboard
+    loadDailySchedule();
+    loadWeeklySchedule();
+    loadUpcomingAppointments();
+    
+    function loadDailySchedule() {
+        const scheduleContainer = document.getElementById('daily-schedule');
+        const today = new Date();
+        const timeSlots = generateTimeSlots();
+        
+        let appointmentsCount = 0;
+        
+        scheduleContainer.innerHTML = timeSlots.map(slot => {
+            const hasAppointment = Math.random() > 0.7; // Simulate appointments
+            if (hasAppointment) appointmentsCount++;
+            
+            return `
+                <div class="d-flex align-items-center p-2 border-bottom ${hasAppointment ? 'bg-light' : ''}">
+                    <div class="time-display me-3" style="min-width: 70px;">
+                        <strong>${slot.time}</strong>
+                    </div>
+                    <div class="flex-grow-1">
+                        ${hasAppointment ? `
+                            <div class="appointment-info">
+                                <h6 class="mb-1">John Doe - Haircut</h6>
+                                <small class="text-muted">Phone: +1-555-0123</small>
+                            </div>
+                        ` : `
+                            <div class="available-info text-success">
+                                <i class="fas fa-check-circle me-1"></i>Available
+                            </div>
+                        `}
+                    </div>
+                    <div class="actions">
+                        ${hasAppointment ? `
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewAppointment('${slot.time}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        ` : `
+                            <button class="btn btn-sm btn-outline-success" onclick="addWalkIn('${slot.time}')">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        `}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        document.getElementById('todays-appointments').textContent = appointmentsCount;
+    }
+    
+    function generateTimeSlots() {
+        const slots = [];
+        for (let hour = 10; hour <= 16; hour++) {
+            if (hour !== 12) { // Skip lunch hour
+                slots.push({ time: `${hour}:00`, value: `${hour}:00` });
+                if (hour !== 16) {
+                    slots.push({ time: `${hour}:30`, value: `${hour}:30` });
+                }
+            }
+        }
+        return slots;
+    }
+    
+    function loadWeeklySchedule() {
+        const scheduleGrid = document.getElementById('weekly-schedule');
+        const days = ['Time', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const timeSlots = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
+        
+        // Create headers
+        let gridContent = days.map(day => 
+            `<div class="schedule-cell schedule-header">${day}</div>`
+        ).join('');
+        
+        // Create time slots
+        timeSlots.forEach(time => {
+            gridContent += `<div class="schedule-cell time-slot">${time}</div>`;
+            
+            for (let day = 1; day <= 7; day++) {
+                const hasAppointment = Math.random() > 0.6;
+                const isToday = day === new Date().getDay();
+                
+                if (time === '12:00') {
+                    // Lunch break
+                    gridContent += `<div class="schedule-cell" style="background: #f8d7da; color: #721c24;">Lunch</div>`;
+                } else if (hasAppointment) {
+                    gridContent += `
+                        <div class="schedule-cell appointment-slot ${isToday ? 'today' : ''}" 
+                             onclick="viewAppointment('${time}', ${day})">
+                            <div><strong>Client Name</strong></div>
+                            <small>Haircut</small>
+                        </div>
+                    `;
+                } else {
+                    gridContent += `
+                        <div class="schedule-cell available-slot ${isToday ? 'today' : ''}" 
+                             onclick="addWalkIn('${time}', ${day})">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    `;
+                }
+            }
+        });
+        
+        scheduleGrid.innerHTML = gridContent;
+    }
+    
+    function loadUpcomingAppointments() {
+        const container = document.getElementById('upcoming-appointments');
+        const appointments = [
+            { time: '2:00 PM', client: 'Mike Johnson', service: 'Haircut + Beard' },
+            { time: '3:30 PM', client: 'Sarah Wilson', service: 'Styling' },
+            { time: '4:00 PM', client: 'David Brown', service: 'Haircut' }
+        ];
+        
+        container.innerHTML = appointments.map(apt => `
+            <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
+                <div>
+                    <h6 class="mb-0">${apt.time}</h6>
+                    <small class="text-muted">${apt.client} - ${apt.service}</small>
+                </div>
+                <button class="btn btn-sm btn-outline-primary" onclick="viewAppointment('${apt.time}')">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+});
+
+function toggleAvailability() {
+    const btn = event.target.closest('button');
+    const isAvailable = btn.innerHTML.includes('Available');
+    
+    if (isAvailable) {
+        btn.innerHTML = '<i class="fas fa-toggle-off me-2"></i>Unavailable';
+        btn.classList.remove('btn-light');
+        btn.classList.add('btn-secondary');
+    } else {
+        btn.innerHTML = '<i class="fas fa-toggle-on me-2"></i>Available';
+        btn.classList.remove('btn-secondary');
+        btn.classList.add('btn-light');
+    }
+}
+
+function viewAppointment(time, day = null) {
+    const modal = new bootstrap.Modal(document.getElementById('appointmentModal'));
+    const details = document.getElementById('appointment-details');
+    
+    details.innerHTML = `
+        <div class="row">
+            <div class="col-6">
+                <h6>Client Information</h6>
+                <ul class="list-unstyled">
+                    <li><strong>Name:</strong> John Doe</li>
+                    <li><strong>Phone:</strong> +1-555-0123</li>
+                    <li><strong>Email:</strong> john@example.com</li>
+                </ul>
+            </div>
+            <div class="col-6">
+                <h6>Service Details</h6>
+                <ul class="list-unstyled">
+                    <li><strong>Service:</strong> Premium Haircut</li>
+                    <li><strong>Duration:</strong> 45 minutes</li>
+                    <li><strong>Price:</strong> $35.00</li>
+                    <li><strong>Time:</strong> ${time}</li>
+                </ul>
+            </div>
+        </div>
+        <hr>
+        <div>
+            <h6>Notes</h6>
+            <p class="text-muted">Customer prefers shorter sides and wants styling advice.</p>
+        </div>
+    `;
+    
+    modal.show();
+}
+
+function addWalkIn(time, day = null) {
+    alert(`Add walk-in appointment for ${time}`);
+}
+
+function blockTimeSlot() {
+    alert('Block time slot functionality');
+}
+
+function addAvailability() {
+    alert('Add availability functionality');
+}
+
+function viewEarnings() {
+    alert('View earnings functionality');
+}
+
+function manageServices() {
+    alert('Manage services functionality');
+}
+
+function completeAppointment() {
+    alert('Appointment marked as complete');
+    bootstrap.Modal.getInstance(document.getElementById('appointmentModal')).hide();
+}
+
+function previousDay() {
+    alert('Previous day functionality');
+}
+
+function nextDay() {
+    alert('Next day functionality');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Appointment Reminder</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #28a745; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f8f9fa; }
+        .reminder-box { background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .booking-details { background: white; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .detail-row { display: flex; justify-content: space-between; margin: 10px 0; }
+        .footer { text-align: center; padding: 20px; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⏰ Appointment Reminder</h1>
+            <p>Don't forget your appointment tomorrow!</p>
+        </div>
+        
+        <div class="content">
+            <div class="reminder-box">
+                <h3>🔔 Reminder: Your appointment is tomorrow!</h3>
+                <p>Hi {{ booking.customer_name }}, this is a friendly reminder about your upcoming appointment.</p>
+            </div>
+            
+            <div class="booking-details">
+                <h3>📅 Appointment Details</h3>
+                <div class="detail-row">
+                    <strong>Service:</strong>
+                    <span>{{ booking.service_name }}</span>
+                </div>
+                <div class="detail-row">
+                    <strong>Date:</strong>
+                    <span>{{ booking.date }}</span>
+                </div>
+                <div class="detail-row">
+                    <strong>Time:</strong>
+                    <span>{{ booking.start_time }}</span>
+                </div>
+                <div class="detail-row">
+                    <strong>Barber:</strong>
+                    <span>{{ booking.barber_name }}</span>
+                </div>
+                <div class="detail-row">
+                    <strong>Shop:</strong>
+                    <span>{{ booking.shop_name }}</span>
+                </div>
+            </div>
+            
+            <p><strong>Please arrive 5-10 minutes early to ensure your appointment starts on time.</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>See you tomorrow! - BookaBarber Team</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Notification</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #dc3545; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f8f9fa; }
+        .data-box { background: white; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .footer { text-align: center; padding: 20px; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔔 Admin Notification</h1>
+            <p>{{ title }}</p>
+        </div>
+        
+        <div class="content">
+            <p>{{ message }}</p>
+            
+            {% if data %}
+            <div class="data-box">
+                <h3>📊 Details</h3>
+                <pre>{{ data | tojson(indent=2) }}</pre>
+            </div>
+            {% endif %}
+            
+            <p><strong>Timestamp:</strong> {{ timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+        </div>
+        
+        <div class="footer">
+            <p>BookaBarber Admin System</p>
+        </div>
+    </div>
+</body>
+</html>

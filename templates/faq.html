@@ -1,0 +1,514 @@
+{% extends "base.html" %}
+
+{% block title %}FAQ - BookaBarber{% endblock %}
+
+{% block extra_css %}
+<style>
+.faq-hero {
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    color: white;
+    padding: 4rem 0;
+}
+
+.faq-search {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 15px;
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+}
+
+.faq-category {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.faq-item {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.faq-question {
+    background: #f8f9fa;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    width: 100%;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 500;
+}
+
+.faq-question:hover {
+    background: #e9ecef;
+}
+
+.faq-question.active {
+    background: #0d6efd;
+    color: white;
+}
+
+.faq-answer {
+    padding: 1.5rem;
+    background: white;
+    display: none;
+    border-top: 1px solid #e9ecef;
+}
+
+.faq-answer.show {
+    display: block;
+}
+
+.category-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.popular-badge {
+    background: #ff6b6b;
+    color: white;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    margin-left: 0.5rem;
+}
+
+.search-stats {
+    background: #e7f3ff;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="faq-page">
+    <!-- Hero Section -->
+    <section class="faq-hero">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h1 class="display-4 mb-3">Frequently Asked Questions</h1>
+                    <p class="lead mb-4">Find quick answers to the most common questions about BookaBarber</p>
+                    
+                    <div class="faq-search">
+                        <div class="input-group input-group-lg">
+                            <input type="text" class="form-control" placeholder="Search FAQs..." id="faq-search">
+                            <button class="btn btn-light" type="button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                        <small class="text-white-50 d-block mt-2">
+                            <i class="fas fa-lightbulb me-1"></i>
+                            Try searching for "booking", "payment", "cancel", or "account"
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container py-5">
+        <!-- Search Results Stats -->
+        <div class="search-stats" id="search-stats" style="display: none;">
+            <i class="fas fa-search me-2"></i>
+            <span id="search-results-text">Showing all questions</span>
+        </div>
+
+        <!-- Popular Questions -->
+        <div class="faq-category">
+            <div class="category-icon">
+                <i class="fas fa-fire"></i>
+            </div>
+            <h3 class="mb-3">Most Popular Questions</h3>
+            
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>How do I book an appointment? <span class="popular-badge">Popular</span></span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p><strong>Booking is easy and takes just a few minutes:</strong></p>
+                    <ol>
+                        <li><strong>Find a Barber:</strong> Use our "Find Nearby" feature or browse available barbers</li>
+                        <li><strong>Select Service:</strong> Choose from haircut, beard trim, or premium packages</li>
+                        <li><strong>Pick Date & Time:</strong> Select your preferred appointment slot</li>
+                        <li><strong>Enter Details:</strong> Provide your contact information</li>
+                        <li><strong>Confirm:</strong> Review and confirm your booking</li>
+                    </ol>
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        You'll receive a confirmation email with all the details and can manage your booking from your dashboard.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>Can I cancel or reschedule my appointment? <span class="popular-badge">Popular</span></span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p><strong>Yes! We offer flexible cancellation and rescheduling:</strong></p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-times-circle text-danger me-2"></i>Cancellation</h6>
+                            <ul>
+                                <li><strong>Free:</strong> 24+ hours before appointment</li>
+                                <li><strong>Fee applies:</strong> 2-24 hours before</li>
+                                <li><strong>Full charge:</strong> No-show or last minute</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-calendar-alt text-primary me-2"></i>Rescheduling</h6>
+                            <ul>
+                                <li><strong>Free:</strong> Up to 2 hours before</li>
+                                <li><strong>Multiple times:</strong> No limit on changes</li>
+                                <li><strong>Easy process:</strong> Via dashboard or call us</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>What payment methods do you accept? <span class="popular-badge">Popular</span></span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p><strong>We accept all major payment methods:</strong></p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-credit-card text-primary me-2"></i>Cards</h6>
+                            <ul>
+                                <li>Visa, MasterCard, American Express</li>
+                                <li>Debit cards with Visa/MC logo</li>
+                                <li>Secure processing with encryption</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-mobile-alt text-success me-2"></i>Digital Wallets</h6>
+                            <ul>
+                                <li>PayPal and PayPal Credit</li>
+                                <li>Apple Pay and Google Pay</li>
+                                <li>Cash payment at the shop</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking & Appointments -->
+        <div class="faq-category" id="booking-category">
+            <div class="category-icon">
+                <i class="fas fa-calendar-plus"></i>
+            </div>
+            <h3 class="mb-3">Booking & Appointments</h3>
+            
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>How far in advance can I book?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>You can book appointments up to <strong>30 days in advance</strong>. Popular time slots (evenings and weekends) tend to fill up quickly, so we recommend booking as early as possible.</p>
+                    <p>For same-day appointments, check our app throughout the day as barbers often have last-minute availability.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>What if I'm running late?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p><strong>Please call the barber immediately if you're running late.</strong></p>
+                    <ul>
+                        <li><strong>5-10 minutes late:</strong> Usually accommodated</li>
+                        <li><strong>10-15 minutes late:</strong> Service may be shortened</li>
+                        <li><strong>15+ minutes late:</strong> Appointment may be canceled</li>
+                    </ul>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-clock me-2"></i>
+                        Late arrivals may affect the quality of service and impact other customers' appointments.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>Can I request a specific barber?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p><strong>Absolutely!</strong> You can choose a specific barber in two ways:</p>
+                    <ol>
+                        <li><strong>Browse & Select:</strong> Use our "Find Nearby" page to browse barbers and their profiles</li>
+                        <li><strong>Auto-Assignment:</strong> Use quick booking and we'll assign the best available barber based on your preferences</li>
+                    </ol>
+                    <p>Each barber's profile shows their specialties, ratings, and available time slots.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account & Profile -->
+        <div class="faq-category" id="account-category">
+            <div class="category-icon">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <h3 class="mb-3">Account & Profile</h3>
+            
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>Do I need to create an account to book?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p><strong>Yes, an account is required</strong> to ensure the best experience:</p>
+                    <ul>
+                        <li><strong>Track Appointments:</strong> View past and upcoming bookings</li>
+                        <li><strong>Quick Rebooking:</strong> Faster checkout with saved information</li>
+                        <li><strong>Preferences:</strong> Save your favorite barbers and services</li>
+                        <li><strong>Notifications:</strong> Receive appointment reminders</li>
+                        <li><strong>Reviews:</strong> Rate and review your experiences</li>
+                    </ul>
+                    <p>Creating an account takes less than 2 minutes!</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>How do I reset my password?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p><strong>Password reset is simple:</strong></p>
+                    <ol>
+                        <li>Go to the <a href="{{ url_for('login') }}">login page</a></li>
+                        <li>Click "Forgot Password?"</li>
+                        <li>Enter your email address</li>
+                        <li>Check your email for reset instructions</li>
+                        <li>Follow the link to create a new password</li>
+                    </ol>
+                    <div class="alert alert-info">
+                        <i class="fas fa-envelope me-2"></i>
+                        Don't see the email? Check your spam folder or try again with the correct email address.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>How do I delete my account?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p><strong>To delete your account:</strong></p>
+                    <ol>
+                        <li>Log into your account</li>
+                        <li>Go to Profile Settings</li>
+                        <li>Scroll down to "Account Management"</li>
+                        <li>Click "Delete Account"</li>
+                        <li>Confirm the deletion</li>
+                    </ol>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Warning:</strong> This action cannot be undone. All your booking history and preferences will be permanently deleted.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- For Barbers -->
+        <div class="faq-category" id="barber-category">
+            <div class="category-icon">
+                <i class="fas fa-cut"></i>
+            </div>
+            <h3 class="mb-3">For Barbers & Shop Owners</h3>
+            
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>How do I join BookaBarber as a barber?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p><strong>Joining is easy and free:</strong></p>
+                    <ol>
+                        <li><strong>Sign Up:</strong> Create a barber account on our platform</li>
+                        <li><strong>Profile Setup:</strong> Add your photo, specialties, and experience</li>
+                        <li><strong>Verification:</strong> Upload required certifications and ID</li>
+                        <li><strong>Shop Association:</strong> Connect with a barbershop or register as independent</li>
+                        <li><strong>Go Live:</strong> Start accepting bookings!</li>
+                    </ol>
+                    <p>Our team will review your application within 24-48 hours.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>How do I get paid?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p><strong>Payment is simple and secure:</strong></p>
+                    <ul>
+                        <li><strong>Direct Deposit:</strong> Weekly payments to your bank account</li>
+                        <li><strong>Dashboard Tracking:</strong> Real-time earnings tracking</li>
+                        <li><strong>Fee Structure:</strong> Competitive commission rates</li>
+                        <li><strong>Instant Payouts:</strong> Available for premium members</li>
+                    </ul>
+                    <p>Set up your payment information in your barber dashboard.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>Can I set my own prices?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p><strong>Yes!</strong> You have full control over your pricing:</p>
+                    <ul>
+                        <li>Set individual prices for each service</li>
+                        <li>Offer package deals and discounts</li>
+                        <li>Adjust prices based on demand</li>
+                        <li>Set different rates for peak hours</li>
+                    </ul>
+                    <p>We provide pricing recommendations based on your location and experience level.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Still Need Help -->
+        <div class="faq-category">
+            <div class="text-center">
+                <h4 class="mb-3">Still have questions?</h4>
+                <p class="text-muted mb-4">Can't find what you're looking for? Our support team is here to help!</p>
+                <div class="row justify-content-center">
+                    <div class="col-md-4 mb-3">
+                        <a href="{{ url_for('contact_us') }}" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-envelope me-2"></i>Contact Support
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{{ url_for('help_center') }}" class="btn btn-outline-primary btn-lg w-100">
+                            <i class="fas fa-question-circle me-2"></i>Help Center
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleFaq(button) {
+    const answer = button.nextElementSibling;
+    const icon = button.querySelector('i');
+    const isActive = answer.classList.contains('show');
+    
+    // Close all other FAQ items
+    document.querySelectorAll('.faq-answer.show').forEach(item => {
+        if (item !== answer) {
+            item.classList.remove('show');
+            item.previousElementSibling.classList.remove('active');
+            item.previousElementSibling.querySelector('i').className = 'fas fa-chevron-down';
+        }
+    });
+    
+    // Toggle current item
+    answer.classList.toggle('show');
+    button.classList.toggle('active');
+    
+    if (answer.classList.contains('show')) {
+        icon.className = 'fas fa-chevron-up';
+    } else {
+        icon.className = 'fas fa-chevron-down';
+    }
+}
+
+// Enhanced search functionality
+document.getElementById('faq-search').addEventListener('keyup', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const faqItems = document.querySelectorAll('.faq-item');
+    const searchStats = document.getElementById('search-stats');
+    const searchResultsText = document.getElementById('search-results-text');
+    let visibleCount = 0;
+    
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question span').textContent.toLowerCase();
+        const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
+        
+        if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+            item.style.display = 'block';
+            visibleCount++;
+            
+            // Highlight search terms
+            if (searchTerm) {
+                const questionElement = item.querySelector('.faq-question span');
+                const originalText = questionElement.textContent;
+                const highlightedText = originalText.replace(new RegExp(searchTerm, 'gi'), `<mark>$&</mark>`);
+                questionElement.innerHTML = highlightedText;
+            }
+        } else {
+            item.style.display = searchTerm ? 'none' : 'block';
+            if (!searchTerm) visibleCount++;
+        }
+    });
+    
+    // Update search stats
+    if (searchTerm) {
+        searchStats.style.display = 'block';
+        searchResultsText.textContent = `Found ${visibleCount} question${visibleCount !== 1 ? 's' : ''} matching "${searchTerm}"`;
+    } else {
+        searchStats.style.display = 'none';
+        // Reset highlighting
+        document.querySelectorAll('.faq-question span').forEach(span => {
+            span.innerHTML = span.textContent;
+        });
+    }
+});
+
+// Category filtering
+function filterByCategory(category) {
+    const faqItems = document.querySelectorAll('.faq-item');
+    
+    faqItems.forEach(item => {
+        const categoryElement = item.closest('.faq-category');
+        const categoryId = categoryElement.id;
+        
+        if (category === 'all' || categoryId === category) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

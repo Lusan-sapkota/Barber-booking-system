@@ -1,66 +1,639 @@
 {% extends "base.html" %}
 
-{% block title %}Sign In - BookaBarber{% endblock %}
+{% block title %}Login - BookaBarber{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Enhanced Login Page Animations */
+.login-page {
+    position: relative;
+    min-height: 100vh;
+    background: linear-gradient(135deg, 
+        var(--primary-color) 0%, 
+        var(--primary-hover) 50%, 
+        #1a365d 100%);
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+}
+
+/* Animated Background Particles */
+.login-bg-animation {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.floating-particles {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    animation: floatParticle 15s infinite linear;
+    backdrop-filter: blur(2px);
+}
+
+.particle-1 {
+    width: 4px;
+    height: 4px;
+    top: 20%;
+    left: 10%;
+    animation-delay: 0s;
+    animation-duration: 20s;
+}
+
+.particle-2 {
+    width: 6px;
+    height: 6px;
+    top: 60%;
+    left: 20%;
+    animation-delay: -3s;
+    animation-duration: 18s;
+}
+
+.particle-3 {
+    width: 8px;
+    height: 8px;
+    top: 80%;
+    left: 60%;
+    animation-delay: -7s;
+    animation-duration: 22s;
+}
+
+.particle-4 {
+    width: 5px;
+    height: 5px;
+    top: 30%;
+    left: 80%;
+    animation-delay: -12s;
+    animation-duration: 16s;
+}
+
+.particle-5 {
+    width: 3px;
+    height: 3px;
+    top: 50%;
+    left: 90%;
+    animation-delay: -8s;
+    animation-duration: 25s;
+}
+
+.particle-6 {
+    width: 7px;
+    height: 7px;
+    top: 10%;
+    left: 50%;
+    animation-delay: -15s;
+    animation-duration: 19s;
+}
+
+@keyframes floatParticle {
+    0% {
+        transform: translateY(100vh) translateX(0px) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) translateX(100px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Enhanced Panel Animations */
+.auth-left-panel {
+    animation: slideInLeft 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+    z-index: 2;
+}
+
+.login-right-panel {
+    animation: slideInRight 1.2s cubic-bezier(0.23, 1, 0.32, 1) 0.3s both;
+    position: relative;
+    z-index: 2;
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Form Animation */
+.login-form-container {
+    animation: fadeInUp 1s ease-out 0.5s both;
+}
+
+@keyframes fadeInUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Enhanced Form Input Animations */
+.form-group {
+    animation: slideInForm 0.6s ease-out both;
+    position: relative;
+}
+
+.form-group:nth-child(1) { animation-delay: 0.1s; }
+.form-group:nth-child(2) { animation-delay: 0.2s; }
+.form-group:nth-child(3) { animation-delay: 0.3s; }
+.form-group:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes slideInForm {
+    from {
+        transform: translateX(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Input Field Enhancements */
+.input-wrapper {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.input-wrapper .form-control {
+    padding: 1rem 1rem 1rem 3rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+}
+
+.input-wrapper .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    transform: translateY(-2px);
+    background: white;
+}
+
+.input-wrapper .input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.input-wrapper .form-control:focus + .input-icon {
+    color: var(--primary-color);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.floating-label {
+    position: absolute;
+    left: 3rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: white;
+    padding: 0 0.5rem;
+    color: #6c757d;
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.input-wrapper .form-control:focus ~ .floating-label,
+.input-wrapper .form-control:not(:placeholder-shown) ~ .floating-label {
+    top: 0;
+    left: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    transform: translateY(-50%);
+}
+
+/* Demo Account Cards Enhanced Animation */
+.left-demo-account {
+    animation: popIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+}
+
+.left-demo-account:nth-child(1) { animation-delay: 1.2s; }
+.left-demo-account:nth-child(2) { animation-delay: 1.4s; }
+.left-demo-account:nth-child(3) { animation-delay: 1.6s; }
+
+@keyframes popIn {
+    0% {
+        transform: scale(0.5) translateY(30px) rotate(-10deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1) translateY(-10px) rotate(2deg);
+    }
+    100% {
+        transform: scale(1) translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.left-demo-account:hover {
+    transform: translateX(10px) scale(1.02);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+/* Ripple Effect on Demo Accounts */
+.left-demo-account::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.left-demo-account:active::after {
+    width: 300px;
+    height: 300px;
+}
+
+/* Enhanced Loading Button Animation */
+.login-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    border: none;
+    color: white;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.login-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent);
+    transition: left 0.6s ease;
+}
+
+.login-btn:hover::before {
+    left: 100%;
+}
+
+.login-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(13, 110, 253, 0.4);
+}
+
+.login-btn.loading {
+    background: linear-gradient(45deg, 
+        var(--primary-color), 
+        var(--primary-hover), 
+        var(--primary-color));
+    background-size: 300% 300%;
+    animation: gradientShift 2s ease infinite;
+    pointer-events: none;
+}
+
+.login-btn.success {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    animation: successPulse 0.6s ease;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes successPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Enhanced Notification System */
+.login-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    min-width: 300px;
+    transform: translateX(400px);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(20px);
+}
+
+.login-notification.show {
+    transform: translateX(0);
+}
+
+.login-notification.success {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border-left: 4px solid #fff;
+}
+
+.login-notification.error {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    border-left: 4px solid #fff;
+}
+
+.login-notification.info {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    border-left: 4px solid #fff;
+}
+
+/* User Type Selection Enhancement */
+.user-type-card {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+}
+
+.user-type-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(13, 110, 253, 0.1), 
+        transparent);
+    transition: left 0.5s ease;
+}
+
+.user-type-card:hover::before {
+    left: 100%;
+}
+
+.user-type-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 15px 35px rgba(13, 110, 253, 0.2);
+}
+
+/* Password Toggle Enhancement */
+.password-toggle-btn {
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.password-toggle-btn:hover {
+    color: var(--primary-color);
+    transform: translateY(-50%) scale(1.2) rotate(10deg);
+}
+
+/* Remember Me Checkbox Enhancement */
+.form-check-input {
+    transition: all 0.3s ease;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    transform: scale(1.1);
+}
+
+/* Form Options Animation */
+.form-options {
+    animation: slideInForm 0.6s ease-out 0.5s both;
+}
+
+/* Signup Prompt Animation */
+.signup-prompt {
+    animation: slideInForm 0.6s ease-out 0.6s both;
+}
+
+/* Mobile Responsive Enhancements */
+@media (max-width: 768px) {
+    .login-page {
+        padding: 1rem 0;
+    }
+    
+    .auth-left-panel,
+    .login-right-panel {
+        min-height: auto;
+    }
+    
+    .login-form-container {
+        padding: 2rem 1rem;
+    }
+    
+    .form-title {
+        font-size: 1.8rem;
+    }
+    
+    .left-demo-accounts {
+        gap: 0.75rem;
+    }
+    
+    .left-demo-account {
+        padding: 1rem;
+    }
+    
+    .login-notification {
+        min-width: 280px;
+        margin: 0 1rem;
+    }
+    
+    .particle {
+        display: none; /* Hide particles on mobile for performance */
+    }
+}
+
+/* Location Display Enhancements */
+.location-display {
+    animation: slideInLeft 1s ease-out 1.8s both;
+}
+
+.location-display:hover .location-edit-btn {
+    transform: scale(1.2) rotate(15deg);
+}
+
+/* Focus Management */
+.input-wrapper .form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Accessibility Enhancements */
+.left-demo-account:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 2px;
+}
+
+.login-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.5);
+}
+
+/* Advanced Hover Effects */
+.left-demo-icon {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.left-demo-account:hover .left-demo-icon {
+    transform: scale(1.2) rotate(15deg);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Loading State for Demo Accounts */
+.left-demo-account.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.left-demo-account.loading .left-demo-icon {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="login-page">
-    <!-- Animated Background -->
+    <!-- Enhanced Background Animation -->
     <div class="login-bg-animation">
-        <div class="floating-shapes">
-            <div class="shape shape-1"></div>
-            <div class="shape shape-2"></div>
-            <div class="shape shape-3"></div>
-            <div class="shape shape-4"></div>
-            <div class="shape shape-5"></div>
+        <div class="floating-particles">
+            <div class="particle particle-1"></div>
+            <div class="particle particle-2"></div>
+            <div class="particle particle-3"></div>
+            <div class="particle particle-4"></div>
+            <div class="particle particle-5"></div>
+            <div class="particle particle-6"></div>
         </div>
     </div>
 
-    <div class="container-fluid h-100">
-        <div class="row h-100 g-0">
-            <!-- Welcome Panel -->
-            <div class="col-lg-5 login-left-panel">
-                <div class="login-welcome-panel">
-                    <div class="login-brand">
-                        <img src="{{ url_for('static', filename='image/logo/logo.svg') }}" alt="BookaBarber" class="login-logo">
+    <div class="container-fluid p-0">
+        <div class="row g-0 min-vh-100">
+            <!-- Enhanced Left Panel -->
+            <div class="col-lg-6 auth-left-panel">
+                <div class="auth-welcome-panel">
+                    <!-- Brand Section -->
+                    <div class="auth-brand">
+                        <img src="{{ url_for('static', filename='image/logo.png') }}" alt="BookaBarber" class="auth-logo">
                     </div>
-                    
-                    <div class="welcome-content">
-                        <h2 class="welcome-title">Welcome Back!</h2>
-                        <p class="welcome-subtitle">Sign in to manage your appointments and discover amazing barbershops near you.</p>
+
+                    <!-- Enhanced Demo Section -->
+                    <div class="left-demo-section">
+                        <div class="left-demo-header">
+                            <div class="left-demo-title-wrapper">
+                                <i class="fas fa-bolt demo-lightning"></i>
+                                <span class="left-demo-title">Quick Demo Access</span>
+                            </div>
+                            <p class="left-demo-subtitle">Experience our platform instantly with demo accounts</p>
+                        </div>
                         
-                        <div class="features-list">
-                            <div class="feature-item">
-                                <div class="feature-icon">
-                                    <i class="fas fa-calendar-check"></i>
+                        <div class="left-demo-accounts">
+                            <button type="button" class="left-demo-account" data-email="customer@demo.com" data-password="password" data-type="customer">
+                                <div class="left-demo-icon customer-demo">
+                                    <i class="fas fa-user"></i>
                                 </div>
-                                <div class="feature-text">
-                                    <h4>Easy Booking</h4>
-                                    <p>Schedule appointments with your favorite barbers</p>
+                                <div class="left-demo-info">
+                                    <div class="left-demo-role">Customer</div>
+                                    <div class="left-demo-email">customer@demo.com</div>
                                 </div>
-                            </div>
+                                <div class="left-demo-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </button>
                             
-                            <div class="feature-item">
-                                <div class="feature-icon">
-                                    <i class="fas fa-star"></i>
+                            <button type="button" class="left-demo-account" data-email="barber@demo.com" data-password="password" data-type="barber">
+                                <div class="left-demo-icon barber-demo">
+                                    <i class="fas fa-cut"></i>
                                 </div>
-                                <div class="feature-text">
-                                    <h4>Premium Experience</h4>
-                                    <p>Access exclusive deals and premium services</p>
+                                <div class="left-demo-info">
+                                    <div class="left-demo-role">Barber</div>
+                                    <div class="left-demo-email">barber@demo.com</div>
                                 </div>
-                            </div>
+                                <div class="left-demo-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </button>
                             
-                            <div class="feature-item">
-                                <div class="feature-icon">
-                                    <i class="fas fa-mobile-alt"></i>
+                            <button type="button" class="left-demo-account" data-email="owner@demo.com" data-password="password" data-type="shop_owner">
+                                <div class="left-demo-icon owner-demo">
+                                    <i class="fas fa-store"></i>
                                 </div>
-                                <div class="feature-text">
-                                    <h4>Mobile Friendly</h4>
-                                    <p>Book on-the-go with our mobile-optimized platform</p>
+                                <div class="left-demo-info">
+                                    <div class="left-demo-role">Shop Owner</div>
+                                    <div class="left-demo-email">owner@demo.com</div>
                                 </div>
-                            </div>
+                                <div class="left-demo-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </button>
+                        </div>
+
+                        <div class="left-demo-note">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Click any demo account to auto-fill login details</span>
                         </div>
                     </div>
-                    
+
                     <!-- Enhanced Location Display -->
                     <div class="location-display">
                         <div class="location-content">
@@ -69,29 +642,31 @@
                                 <span class="location-label">Your Location</span>
                             </div>
                             <div class="location-text">
-                                <span id="user-location">Detecting location...</span>
-                                <button id="change-location" class="location-edit-btn" aria-label="Change location">
-                                    <i class="fas fa-edit"></i>
+                                <span id="userLocation">Detecting location...</span>
+                                <button type="button" class="location-edit-btn" onclick="detectLocation()">
+                                    <i class="fas fa-sync-alt"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Login Form Panel -->
-            <div class="col-lg-7 login-right-panel">
+
+            <!-- Enhanced Right Panel -->
+            <div class="col-lg-6 login-right-panel">
                 <div class="login-form-panel">
                     <div class="login-form-container">
+                        <!-- Form Header -->
                         <div class="form-header">
-                            <h3 class="form-title">Sign In</h3>
-                            <p class="form-subtitle">Enter your credentials to access your account</p>
+                            <h2 class="form-title">Welcome Back!</h2>
+                            <p class="form-subtitle">Sign in to access your account and manage your bookings</p>
                         </div>
-                        
-                        <form id="loginForm" method="POST" class="login-form">
+
+                        <!-- Enhanced Login Form -->
+                        <form id="loginForm" method="POST" action="javascript:void(0);">
                             <!-- User Type Selection -->
                             <div class="user-type-selector">
-                                <div class="selector-label">I am a:</div>
+                                <div class="selector-label">I am logging in as:</div>
                                 <div class="user-type-options">
                                     <input type="radio" name="user_type" id="customer" value="customer" checked>
                                     <label for="customer" class="user-type-card">
@@ -134,7 +709,7 @@
                                     <i class="fas fa-lock input-icon"></i>
                                     <input type="password" class="form-control" id="password" name="password" placeholder=" " required>
                                     <label for="password" class="floating-label">Password</label>
-                                    <button type="button" id="togglePassword" class="password-toggle-btn" aria-label="Toggle password visibility">
+                                    <button type="button" id="togglePassword" class="password-toggle-btn">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
@@ -143,61 +718,23 @@
                             <!-- Form Options -->
                             <div class="form-options">
                                 <div class="remember-me">
-                                    <input class="form-check-input" type="checkbox" id="remember" name="remember">
-                                    <label class="form-check-label" for="remember">Remember me</label>
+                                    <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
+                                    <label class="form-check-label" for="remember_me">
+                                        Remember me
+                                    </label>
                                 </div>
-                                <a href="#" class="forgot-password">Forgot password?</a>
+                                <a href="{{ url_for('forgot_password') }}" class="forgot-password">Forgot Password?</a>
                             </div>
                             
-                            <!-- Submit Button -->
-                            <button type="submit" class="btn btn-primary login-btn">
+                            <!-- Enhanced Submit Button -->
+                            <button type="submit" class="login-btn">
                                 <span class="btn-text">Sign In</span>
-                                <i class="fas fa-arrow-right btn-icon"></i>
                             </button>
-                            
-                            <!-- Demo Accounts -->
-                            <div class="demo-section">
-                                <div class="demo-header">
-                                    <span class="demo-title">Quick Demo Access</span>
-                                    <small class="demo-subtitle">Try our platform with demo accounts</small>
-                                </div>
-                                <div class="demo-accounts">
-                                    <button type="button" class="demo-account" data-email="customer@demo.com" data-password="password" data-type="customer">
-                                        <div class="demo-icon">
-                                            <i class="fas fa-user"></i>
-                                        </div>
-                                        <div class="demo-info">
-                                            <div class="demo-title-text">Customer Demo</div>
-                                            <div class="demo-email">customer@demo.com</div>
-                                        </div>
-                                    </button>
-                                    
-                                    <button type="button" class="demo-account" data-email="barber@demo.com" data-password="password" data-type="barber">
-                                        <div class="demo-icon">
-                                            <i class="fas fa-cut"></i>
-                                        </div>
-                                        <div class="demo-info">
-                                            <div class="demo-title-text">Barber Demo</div>
-                                            <div class="demo-email">barber@demo.com</div>
-                                        </div>
-                                    </button>
-                                    
-                                    <button type="button" class="demo-account" data-email="owner@demo.com" data-password="password" data-type="shop_owner">
-                                        <div class="demo-icon">
-                                            <i class="fas fa-store"></i>
-                                        </div>
-                                        <div class="demo-info">
-                                            <div class="demo-title-text">Owner Demo</div>
-                                            <div class="demo-email">owner@demo.com</div>
-                                        </div>
-                                    </button>
-                                </div>
-                            </div>
                         </form>
-                        
-                        <!-- Sign Up Link -->
+
+                        <!-- Signup Prompt -->
                         <div class="signup-prompt">
-                            <p>Don't have an account? <a href="{{ url_for('signup') }}" class="signup-link">Create Account</a></p>
+                            <p>Don't have an account? <a href="{{ url_for('signup') }}" class="signup-link">Create one here</a></p>
                         </div>
                     </div>
                 </div>
@@ -213,174 +750,301 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('loginForm');
     const togglePassword = document.getElementById('togglePassword');
     const passwordInput = document.getElementById('password');
-    const locationSpan = document.getElementById('user-location');
-    const changeLocationBtn = document.getElementById('change-location');
-    const demoAccounts = document.querySelectorAll('.demo-account');
+    const demoAccounts = document.querySelectorAll('.left-demo-account');
     
-    // Handle password visibility toggle
+    // Enhanced Password Toggle
     togglePassword.addEventListener('click', function() {
         const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
         passwordInput.setAttribute('type', type);
         
         const icon = this.querySelector('i');
-        icon.classList.toggle('fa-eye');
-        icon.classList.toggle('fa-eye-slash');
+        icon.style.transform = 'translateY(-50%) scale(0.8)';
+        setTimeout(() => {
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+            icon.style.transform = 'translateY(-50%) scale(1)';
+        }, 150);
     });
     
-    // Handle demo account click
+    // Enhanced Demo Account Selection
     demoAccounts.forEach(account => {
         account.addEventListener('click', function() {
+            // Add loading state
+            this.classList.add('loading');
+            
+            // Remove active class from all accounts
+            demoAccounts.forEach(acc => acc.classList.remove('active'));
+            
+            // Add active class to clicked account
+            this.classList.add('active');
+            
             const email = this.dataset.email;
             const password = this.dataset.password;
             const userType = this.dataset.type;
             
-            document.getElementById('email').value = email;
-            document.getElementById('password').value = password;
-            document.getElementById(userType).checked = true;
-            
-            // Highlight the selected account
-            demoAccounts.forEach(acc => acc.classList.remove('active'));
-            this.classList.add('active');
-            
-            // Add ripple effect
-            const ripple = document.createElement('div');
-            ripple.className = 'ripple-effect';
-            this.appendChild(ripple);
-            setTimeout(() => ripple.remove(), 600);
+            // Fill form with animation
+            setTimeout(() => {
+                document.getElementById('email').value = email;
+                document.getElementById('password').value = password;
+                
+                // Select correct user type
+                const userTypeRadio = document.querySelector(`input[name="user_type"][value="${userType}"]`);
+                if (userTypeRadio) {
+                    userTypeRadio.checked = true;
+                }
+                
+                // Trigger floating label animation
+                document.getElementById('email').dispatchEvent(new Event('input'));
+                document.getElementById('password').dispatchEvent(new Event('input'));
+                
+                // Remove loading state
+                this.classList.remove('loading');
+                
+                // Show notification
+                showNotification('info', `Demo account selected: ${this.querySelector('.left-demo-role').textContent}`);
+            }, 800);
         });
     });
     
-    // Detect user location
-    detectUserLocation();
-    
-    // Handle location change
-    changeLocationBtn.addEventListener('click', function() {
-        const newLocation = prompt('Enter your location:', locationSpan.textContent);
-        if (newLocation && newLocation.trim()) {
-            locationSpan.textContent = newLocation.trim();
-            localStorage.setItem('userLocation', newLocation.trim());
-        }
-    });
-    
-    // Handle form submission
+    // FIXED: Enhanced Form Submission
     loginForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
+        e.preventDefault(); // Prevent default form submission
         
-        const formData = new FormData(this);
-        const submitBtn = this.querySelector('button[type="submit"]');
+        const submitBtn = this.querySelector('.login-btn');
         const originalText = submitBtn.innerHTML;
         
-        // Show loading state
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Signing in...';
+        // Get form data
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const userType = document.querySelector('input[name="user_type"]:checked')?.value || 'customer';
+        const rememberMe = document.getElementById('remember_me').checked;
+        
+        // Validate form data
+        if (!email || !password) {
+            showNotification('error', 'Please fill in all required fields');
+            return;
+        }
+        
+        // Enhanced loading state
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Signing In...';
         submitBtn.disabled = true;
         submitBtn.classList.add('loading');
         
         try {
             const response = await fetch('/api/login', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                    user_type: userType,
+                    remember_me: rememberMe
+                })
+            });
+            
+            // Check if response is ok
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Success animation
+                submitBtn.classList.remove('loading');
+                submitBtn.classList.add('success');
+                submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Welcome Back!';
+                
+                showNotification('success', 'Login successful! Redirecting...');
+                
+                // Redirect after success
+                setTimeout(() => {
+                    window.location.href = result.redirect || '/';
+                }, 1500);
+            } else {
+                // Handle API error response
+                throw new Error(result.message || 'Login failed');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            
+            // Show specific error message based on error type
+            let errorTitle = 'Login Failed';
+            let errorMessage = 'Please check your credentials and try again.';
+            
+            if (error.message) {
+                // Check for specific error types
+                if (error.message.includes('password')) {
+                    errorTitle = 'Incorrect Password';
+                    errorMessage = 'The password you entered is incorrect. Please try again.';
+                } else if (error.message.includes('email') || error.message.includes('account')) {
+                    errorTitle = 'Account Not Found';
+                    errorMessage = error.message;
+                } else if (error.message.includes('deactivated')) {
+                    errorTitle = 'Account Deactivated';
+                    errorMessage = error.message;
+                } else {
+                    errorMessage = error.message;
+                }
+            }
+            
+            showSystemNotification('error', errorTitle, errorMessage);
+            
+            // Reset button immediately on error
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('loading', 'success');
+        }
+    });
+    
+    // Add this to your login form handling
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        // Add loading state
+        submitBtn.disabled = true;
+        submitBtn.classList.add('loading');
+        submitBtn.innerHTML = 'Signing in...';
+        
+        try {
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
             });
             
             const result = await response.json();
             
             if (result.success) {
-                // Create success notification
-                showNotification('success', 'Login successful! Redirecting...');
-                
-                // Redirect based on user type
+                showSystemNotification('success', 'Login Successful', result.message);
                 setTimeout(() => {
-                    if (result.user_type === 'barber') {
-                        window.location.href = '/admin';
-                    } else if (result.user_type === 'shop_owner') {
-                        window.location.href = '/shop-admin';
-                    } else {
-                        window.location.href = '/';
-                    }
-                }, 1500);
+                    window.location.href = result.redirect || '/';
+                }, 1000);
             } else {
-                showNotification('error', result.message);
+                // Show specific error messages
+                let errorTitle = 'Login Failed';
+                let errorMessage = result.message;
+                
+                if (result.error_type === 'wrong_password') {
+                    errorTitle = 'Incorrect Password';
+                    errorMessage = 'The password you entered is incorrect. Please try again.';
+                } else if (result.error_type === 'user_not_found') {
+                    errorTitle = 'Account Not Found';
+                    errorMessage = result.message;
+                } else if (result.error_type === 'account_inactive') {
+                    errorTitle = 'Account Deactivated';
+                    errorMessage = result.message;
+                }
+                
+                showSystemNotification('error', errorTitle, errorMessage);
             }
         } catch (error) {
             console.error('Login error:', error);
-            showNotification('error', 'An error occurred. Please try again.');
+            showSystemNotification('error', 'Connection Error', 'Unable to connect to server. Please try again.');
         } finally {
-            // Reset button
-            submitBtn.innerHTML = originalText;
+            // Reset button state
             submitBtn.disabled = false;
             submitBtn.classList.remove('loading');
+            submitBtn.innerHTML = originalText;
         }
     });
     
-    function detectUserLocation() {
-        // Check if location is stored
-        const savedLocation = localStorage.getItem('userLocation');
-        if (savedLocation) {
-            locationSpan.textContent = savedLocation;
-            return;
-        }
-
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                async function(position) {
-                    try {
-                        const response = await fetch('/api/reverse-geocode', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                lat: position.coords.latitude,
-                                lng: position.coords.longitude
-                            })
-                        });
-                        
-                        const result = await response.json();
-                        if (result.success) {
-                            const displayLocation = result.city || result.formatted_address.split(',')[0];
-                            locationSpan.textContent = displayLocation;
-                            localStorage.setItem('userLocation', displayLocation);
-                        } else {
-                            locationSpan.textContent = 'Location not available';
-                        }
-                    } catch (error) {
-                        console.error('Reverse geocoding error:', error);
-                        locationSpan.textContent = 'Location not available';
-                    }
-                },
-                function(error) {
-                    locationSpan.textContent = 'Location access denied';
-                }
-            );
-        } else {
-            locationSpan.textContent = 'Location not supported';
-        }
-    }
-    
-    function showNotification(type, message) {
-        const notification = document.createElement('div');
-        notification.className = `login-notification ${type}`;
-        notification.innerHTML = `
-            <div class="notification-content">
-                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-                <span>${message}</span>
-            </div>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // Animate in
-        setTimeout(() => {
-            notification.classList.add('show');
-        }, 10);
-        
-        // Animate out and remove
-        setTimeout(() => {
-            notification.classList.remove('show');
-            setTimeout(() => {
-                notification.remove();
-            }, 300);
-        }, 3000);
-    }
+    // Enhanced Location Detection
+    detectLocation();
 });
+
+// Enhanced Notification System
+function showNotification(type, message) {
+    const notification = document.createElement('div');
+    notification.className = `login-notification ${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'} me-2"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+    
+    // Animate out and remove
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            notification.remove();
+        }, 400);
+    }, 4000);
+}
+
+// Enhanced Location Detection
+function detectLocation() {
+    const locationText = document.getElementById('userLocation');
+    
+    if (navigator.geolocation) {
+        locationText.textContent = 'Detecting location...';
+        
+        navigator.geolocation.getCurrentPosition(
+            async function(position) {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                
+                try {
+                    // Use our backend proxy to avoid CORS issues
+                    const response = await fetch(`/api/reverse-geocode?lat=${lat}&lon=${lon}`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.address) {
+                        locationText.textContent = data.address;
+                        locationText.title = data.full_address; // Show full address on hover
+                    } else {
+                        locationText.textContent = `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+                    }
+                } catch (error) {
+                    console.log('Geocoding failed, showing coordinates:', error);
+                    locationText.textContent = `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+                }
+            },
+            function(error) {
+                console.log('Geolocation error:', error);
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        locationText.textContent = 'Location access denied';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        locationText.textContent = 'Location unavailable';
+                        break;
+                    case error.TIMEOUT:
+                        locationText.textContent = 'Location request timeout';
+                        break;
+                    default:
+                        locationText.textContent = 'Location error occurred';
+                        break;
+                }
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 300000 // 5 minutes
+            }
+        );
+    } else {
+        locationText.textContent = 'Location not supported';
+    }
+}
 </script>
 {% endblock %}

@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+
+{% block title %}Help Center - BookaBarber{% endblock %}
+
+{% block extra_css %}
+<style>
+.help-hero {
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    color: white;
+    padding: 4rem 0;
+}
+
+.help-search {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 15px;
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+}
+
+.help-category {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.help-category:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.help-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.faq-item {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.faq-question {
+    background: #f8f9fa;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    width: 100%;
+    text-align: left;
+    display: flex;
+    justify-content: between;
+    align-items: center;
+}
+
+.faq-question:hover {
+    background: #e9ecef;
+}
+
+.faq-answer {
+    padding: 1.5rem;
+    background: white;
+    display: none;
+}
+
+.faq-answer.show {
+    display: block;
+}
+
+.contact-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    text-align: center;
+    height: 100%;
+}
+
+.contact-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    margin: 0 auto 1rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="help-center-page">
+    <!-- Hero Section -->
+    <section class="help-hero">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h1 class="display-4 mb-3">How can we help you?</h1>
+                    <p class="lead mb-4">Find answers to common questions or get in touch with our support team</p>
+                    
+                    <div class="help-search">
+                        <div class="input-group input-group-lg">
+                            <input type="text" class="form-control" placeholder="Search for help..." id="help-search">
+                            <button class="btn btn-light" type="button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container py-5">
+        <!-- Help Categories -->
+        <div class="row mb-5">
+            <div class="col-md-4 mb-4">
+                <div class="help-category">
+                    <div class="help-icon">
+                        <i class="fas fa-calendar-plus"></i>
+                    </div>
+                    <h5>Booking & Appointments</h5>
+                    <p class="text-muted mb-3">Learn how to book, manage, and modify your appointments</p>
+                    <ul class="list-unstyled">
+                        <li><a href="#booking-faq" class="text-decoration-none">How to book an appointment</a></li>
+                        <li><a href="#booking-faq" class="text-decoration-none">Cancelling bookings</a></li>
+                        <li><a href="#booking-faq" class="text-decoration-none">Rescheduling appointments</a></li>
+                        <li><a href="#booking-faq" class="text-decoration-none">Payment methods</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="help-category">
+                    <div class="help-icon">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <h5>Account Management</h5>
+                    <p class="text-muted mb-3">Manage your profile, preferences, and account settings</p>
+                    <ul class="list-unstyled">
+                        <li><a href="#account-faq" class="text-decoration-none">Creating an account</a></li>
+                        <li><a href="#account-faq" class="text-decoration-none">Updating profile</a></li>
+                        <li><a href="#account-faq" class="text-decoration-none">Password reset</a></li>
+                        <li><a href="#account-faq" class="text-decoration-none">Account deletion</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="help-category">
+                    <div class="help-icon">
+                        <i class="fas fa-cut"></i>
+                    </div>
+                    <h5>For Barbers</h5>
+                    <p class="text-muted mb-3">Information for barbers and shop owners</p>
+                    <ul class="list-unstyled">
+                        <li><a href="#barber-faq" class="text-decoration-none">Joining as a barber</a></li>
+                        <li><a href="#barber-faq" class="text-decoration-none">Managing schedule</a></li>
+                        <li><a href="#barber-faq" class="text-decoration-none">Payment & earnings</a></li>
+                        <li><a href="#barber-faq" class="text-decoration-none">Shop management</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Contact Options -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h3 class="text-center mb-4">Need Immediate Help?</h3>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <h5>Call Us</h5>
+                    <p class="text-muted">Speak with our support team</p>
+                    <a href="tel:+15551234567" class="btn btn-primary">+1 (555) 123-4567</a>
+                    <small class="d-block mt-2 text-muted">Mon-Fri 9AM-6PM EST</small>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <h5>Email Support</h5>
+                    <p class="text-muted">Get help via email</p>
+                    <a href="mailto:support@bookabarber.com" class="btn btn-primary">Send Email</a>
+                    <small class="d-block mt-2 text-muted">Response within 24 hours</small>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h5>Live Chat</h5>
+                    <p class="text-muted">Chat with our team</p>
+                    <button class="btn btn-primary" onclick="openLiveChat()">Start Chat</button>
+                    <small class="d-block mt-2 text-muted">Available 24/7</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Common Questions -->
+        <div class="row">
+            <div class="col-12">
+                <h3 class="mb-4">Frequently Asked Questions</h3>
+                
+                <div class="faq-section" id="booking-faq">
+                    <h5 class="mb-3">Booking & Appointments</h5>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFaq(this)">
+                            <span>How do I book an appointment?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>To book an appointment:</p>
+                            <ol>
+                                <li>Click "Book Appointment" in the navigation or homepage</li>
+                                <li>Select your preferred service type</li>
+                                <li>Choose a date and available time slot</li>
+                                <li>Fill in your contact information</li>
+                                <li>Confirm your booking</li>
+                            </ol>
+                            <p>You'll receive a confirmation email with all the details.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFaq(this)">
+                            <span>Can I cancel or reschedule my appointment?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Yes, you can cancel or reschedule your appointment:</p>
+                            <ul>
+                                <li><strong>Cancellation:</strong> Free cancellation up to 24 hours before your appointment</li>
+                                <li><strong>Rescheduling:</strong> You can reschedule up to 2 hours before your appointment</li>
+                                <li>Use your customer dashboard or contact us directly</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFaq(this)">
+                            <span>What payment methods do you accept?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>We accept various payment methods:</p>
+                            <ul>
+                                <li>Credit/Debit cards (Visa, MasterCard, American Express)</li>
+                                <li>PayPal</li>
+                                <li>Apple Pay</li>
+                                <li>Google Pay</li>
+                                <li>Cash payment at the shop</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-section mt-4" id="account-faq">
+                    <h5 class="mb-3">Account Management</h5>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFaq(this)">
+                            <span>How do I create an account?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Creating an account is easy:</p>
+                            <ol>
+                                <li>Click "Sign Up" in the top navigation</li>
+                                <li>Choose your account type (Customer, Barber, or Shop Owner)</li>
+                                <li>Fill in your personal information</li>
+                                <li>Verify your email address</li>
+                                <li>Complete your profile setup</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFaq(this)">
+                            <span>I forgot my password. How do I reset it?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>To reset your password:</p>
+                            <ol>
+                                <li>Go to the login page</li>
+                                <li>Click "Forgot Password?"</li>
+                                <li>Enter your email address</li>
+                                <li>Check your email for reset instructions</li>
+                                <li>Follow the link to create a new password</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleFaq(button) {
+    const answer = button.nextElementSibling;
+    const icon = button.querySelector('i');
+    
+    answer.classList.toggle('show');
+    icon.classList.toggle('fa-chevron-down');
+    icon.classList.toggle('fa-chevron-up');
+}
+
+function openLiveChat() {
+    alert('Live chat feature coming soon! Please email us at support@bookabarber.com for immediate assistance.');
+}
+
+// Search functionality
+document.getElementById('help-search').addEventListener('keyup', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const faqItems = document.querySelectorAll('.faq-item');
+    
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question span').textContent.toLowerCase();
+        const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
+        
+        if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = searchTerm ? 'none' : 'block';
+        }
+    });
+});
+</script>
+{% endblock %}

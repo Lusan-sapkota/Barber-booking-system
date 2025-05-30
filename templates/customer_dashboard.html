@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+
+{% block title %}My Bookings - BookaBarber{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
+<style>
+.dashboard-header {
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.booking-card {
+    border-left: 4px solid #0d6efd;
+    transition: all 0.3s ease;
+}
+
+.booking-card:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.status-badge {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.8rem;
+}
+
+.upcoming-booking {
+    border-left-color: #28a745;
+}
+
+.completed-booking {
+    border-left-color: #6c757d;
+}
+
+.cancelled-booking {
+    border-left-color: #dc3545;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="customer-dashboard">
+    <!-- Dashboard Header -->
+    <section class="dashboard-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="mb-2">Welcome back, {{ session.get('user_name', 'Customer') }}!</h1>
+                    <p class="mb-0 opacity-75">Manage your appointments and booking history</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <a href="{{ url_for('booking_page') }}" class="btn btn-light btn-lg">
+                        <i class="fas fa-plus me-2"></i>New Booking
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- Quick Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-calendar-check fa-2x text-success"></i>
+                    </div>
+                    <h4 class="mb-1" id="upcoming-count">0</h4>
+                    <small class="text-muted">Upcoming</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-history fa-2x text-primary"></i>
+                    </div>
+                    <h4 class="mb-1" id="total-count">{{ bookings|length }}</h4>
+                    <small class="text-muted">Total Bookings</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-star fa-2x text-warning"></i>
+                    </div>
+                    <h4 class="mb-1">4.8</h4>
+                    <small class="text-muted">Avg Rating</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-dollar-sign fa-2x text-info"></i>
+                    </div>
+                    <h4 class="mb-1" id="total-spent">$0</h4>
+                    <small class="text-muted">Total Spent</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Appointments -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-day me-2"></i>Upcoming Appointments
+                </h5>
+            </div>
+            <div class="card-body" id="upcoming-bookings">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Booking History -->
+        <div class="card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-history me-2"></i>Booking History
+                </h5>
+                <div class="d-flex gap-2">
+                    <select class="form-select form-select-sm" id="filter-status">
+                        <option value="">All Status</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                    <select class="form-select form-select-sm" id="filter-period">
+                        <option value="">All Time</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="year">This Year</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row" id="bookings-container">
+                    {% if bookings %}
+                        {% for booking in bookings %}
+                        <div class="col-lg-6 mb-3 booking-item" 
+                             data-status="{{ booking[6] if booking|length > 6 else 'confirmed' }}"
+                             data-date="{{ booking[2] }}">
+                            <div class="card booking-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="card-title mb-0">{{ booking[1] }}</h6>
+                                        <span class="badge status-badge bg-primary">Confirmed</span>
+                                    </div>
+                                    <div class="booking-details">
+                                        <p class="mb-1">
+                                            <i class="fas fa-calendar me-2 text-muted"></i>
+                                            <strong>{{ booking[2] }}</strong> at {{ booking[3] }}
+                                        </p>
+                                        <p class="mb-1">
+                                            <i class="fas fa-user-tie me-2 text-muted"></i>
+                                            Barber: {{ booking[5] }}
+                                        </p>
+                                        <p class="mb-2">
+                                            <i class="fas fa-clock me-2 text-muted"></i>
+                                            Duration: {{ booking[3] }} - {{ booking[4] }}
+                                        </p>
+                                    </div>
+                                    <div class="booking-actions">
+                                        <button class="btn btn-sm btn-outline-primary me-2" onclick="viewBookingDetails('{{ booking[0] }}')">
+                                            <i class="fas fa-eye me-1"></i>Details
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="cancelBooking('{{ booking[0] }}')">
+                                            <i class="fas fa-times me-1"></i>Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-12">
+                            <div class="text-center py-5">
+                                <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                                <h5>No bookings yet</h5>
+                                <p class="text-muted mb-3">Start by booking your first appointment</p>
+                                <a href="{{ url_for('booking_page') }}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Book Now
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Booking Details Modal -->
+<div class="modal fade" id="bookingDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Booking Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="booking-details-content">
+                <!-- Content loaded via JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="reschedule-btn">
+                    <i class="fas fa-calendar-alt me-2"></i>Reschedule
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const bookingsDataScript = document.getElementById('bookings-data');
+    let bookings = [];
+
+    try {
+        bookings = JSON.parse(bookingsDataScript.textContent);
+    } catch (e) {
+        console.error("Failed to parse bookings JSON:", e);
+    }
+
+    const filterStatus = document.getElementById('filter-status');
+    const filterPeriod = document.getElementById('filter-period');
+    
+    calculateStats();
+    filterStatus.addEventListener('change', filterBookings);
+    filterPeriod.addEventListener('change', filterBookings);
+
+    function calculateStats() {
+        const today = new Date();
+        let upcomingCount = 0;
+        let totalSpent = 0;
+
+        bookings.forEach(booking => {
+            const bookingDate = new Date(booking[2]);
+            if (bookingDate >= today) {
+                upcomingCount++;
+            }
+            totalSpent += Math.floor(Math.random() * 50) + 25;
+        });
+
+        document.getElementById('upcoming-count').textContent = upcomingCount;
+        document.getElementById('total-spent').textContent = `$${totalSpent}`;
+        
+        displayUpcomingBookings();
+    }
+
+    function displayUpcomingBookings() {
+        const upcomingContainer = document.getElementById('upcoming-bookings');
+        const today = new Date();
+        const upcomingBookings = bookings.filter(booking => new Date(booking[2]) >= today);
+
+        if (upcomingBookings.length === 0) {
+            upcomingContainer.innerHTML = `
+                <div class="text-center py-3">
+                    <i class="fas fa-calendar-plus fa-2x text-muted mb-2"></i>
+                    <p class="text-muted mb-0">No upcoming appointments</p>
+                </div>`;
+            return;
+        }
+
+        upcomingContainer.innerHTML = upcomingBookings.map(booking => `
+            <div class="alert alert-success d-flex align-items-center mb-2">
+                <i class="fas fa-calendar-check fa-2x me-3"></i>
+                <div class="flex-grow-1">
+                    <h6 class="mb-1">${booking[1]}</h6>
+                    <small><strong>${booking[2]}</strong> at ${booking[3]} with ${booking[5]}</small>
+                </div>
+                <button class="btn btn-sm btn-outline-success" onclick="viewBookingDetails('${booking[0]}')">View</button>
+            </div>
+        `).join('');
+    }
+
+    function filterBookings() {
+        const statusValue = filterStatus.value;
+        const periodValue = filterPeriod.value;
+
+        const container = document.getElementById('bookings-container');
+        const today = new Date();
+
+        let filtered = [...bookings];
+
+        if (statusValue) {
+            filtered = filtered.filter(b => (b[6] || 'confirmed') === statusValue);
+        }
+
+        if (periodValue) {
+            filtered = filtered.filter(b => {
+                const date = new Date(b[2]);
+                const diffDays = (today - date) / (1000 * 3600 * 24);
+                if (periodValue === 'week') return diffDays <= 7;
+                if (periodValue === 'month') return diffDays <= 30;
+                if (periodValue === 'year') return diffDays <= 365;
+                return true;
+            });
+        }
+
+        container.innerHTML = filtered.map(booking => `
+            <div class="col-lg-6 mb-3 booking-item"
+                 data-status="${booking[6] || 'confirmed'}"
+                 data-date="${booking[2]}">
+                <div class="card booking-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="card-title mb-0">${booking[1]}</h6>
+                            <span class="badge status-badge bg-primary">Confirmed</span>
+                        </div>
+                        <div class="booking-details">
+                            <p class="mb-1">
+                                <i class="fas fa-calendar me-2 text-muted"></i>
+                                <strong>${booking[2]}</strong> at ${booking[3]}
+                            </p>
+                            <p class="mb-1">
+                                <i class="fas fa-user-tie me-2 text-muted"></i>
+                                Barber: ${booking[5]}
+                            </p>
+                            <p class="mb-2">
+                                <i class="fas fa-clock me-2 text-muted"></i>
+                                Duration: ${booking[3]} - ${booking[4]}
+                            </p>
+                        </div>
+                        <div class="booking-actions">
+                            <button class="btn btn-sm btn-outline-primary me-2" onclick="viewBookingDetails('${booking[0]}')">
+                                <i class="fas fa-eye me-1"></i>Details
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="cancelBooking('${booking[0]}')">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+});
+</script>
+{% endblock %}

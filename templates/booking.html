@@ -2,202 +2,429 @@
 
 {% block title %}Book an Appointment{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="text-center">Book Your Appointment</h1>
-            <p class="text-center text-muted">Choose your service, date, and preferred time slot</p>
-        </div>
-    </div>
-
-    <div class="row">
-        <!-- Service Selection -->
-        <div class="col-md-4">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Select Service</h5>
-                </div>
-                <div class="card-body">
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="radio" name="service" id="haircut" value="1">
-                        <label class="form-check-label d-flex justify-content-between" for="haircut">
-                            <span>Haircut</span>
-                            <span class="badge bg-dark">$25</span>
-                        </label>
-                        <small class="text-muted d-block">30 minutes</small>
-                    </div>
-                    
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="radio" name="service" id="haircut-beard" value="2">
-                        <label class="form-check-label d-flex justify-content-between" for="haircut-beard">
-                            <span>Haircut + Beard Trim</span>
-                            <span class="badge bg-dark">$35</span>
-                        </label>
-                        <small class="text-muted d-block">45 minutes</small>
-                    </div>
-                    
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="radio" name="service" id="beard-trim" value="3">
-                        <label class="form-check-label d-flex justify-content-between" for="beard-trim">
-                            <span>Beard Trim</span>
-                            <span class="badge bg-dark">$15</span>
-                        </label>
-                        <small class="text-muted d-block">15 minutes</small>
-                    </div>
-                    
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="radio" name="service" id="premium" value="4">
-                        <label class="form-check-label d-flex justify-content-between" for="premium">
-                            <span>Premium Package</span>
-                            <span class="badge bg-dark">$50</span>
-                        </label>
-                        <small class="text-muted d-block">60 minutes - Includes haircut, beard trim, and styling</small>
-                    </div>
+<div class="booking-page">
+    <!-- Enhanced Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <div class="page-header-content">
+                <h1 class="page-title">Book Your Perfect Appointment</h1>
+                <p class="page-subtitle">
+                    Choose your preferred service, select a convenient time slot, and get ready for a premium grooming experience with our professional barbers.
+                </p>
+                
+                <div class="page-header-actions">
+                    <a href="{{ url_for('find_nearby') }}" class="header-btn header-btn-outline">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Find Specific Barber
+                    </a>
+                    <a href="{{ url_for('home') }}#services" class="header-btn header-btn-outline">
+                        <i class="fas fa-info-circle"></i>
+                        View All Services
+                    </a>
                 </div>
             </div>
+        </div>
+    </section>
 
-            <!-- Date Selection -->
-            <div class="card shadow-sm">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Select Date</h5>
+    <div class="container">
+        <!-- Auto Assignment Notification -->
+        <div class="auto-assignment-notification">
+            <div class="notification-content">
+                <div class="notification-icon">
+                    <i class="fas fa-magic"></i>
                 </div>
-                <div class="card-body">
-                    <input type="date" id="appointment-date" class="form-control" min="{{ today_date }}" required>
-                    <small class="text-muted d-block mt-2">We're open Monday to Friday: 10:00 AM - 4:00 PM</small>
+                <div class="notification-text">
+                    <div class="notification-title">
+                        <i class="fas fa-robot"></i>
+                        Smart Auto-Assignment System
+                    </div>
+                    <div class="notification-message">
+                        Please note that we will automatically assign the best available barber for you based on your service selection and preferred time. Our system optimizes appointments for the best customer experience.
+                    </div>
+                    <div class="notification-actions">
+                        <a href="{{ url_for('find_nearby') }}" class="notification-btn notification-btn-primary">
+                            <i class="fas fa-search"></i>
+                            Choose Specific Shop & Barber
+                        </a>
+                        <button class="notification-btn notification-btn-secondary" onclick="this.parentElement.parentElement.parentElement.parentElement.style.display='none'">
+                            <i class="fas fa-check"></i>
+                            I Understand
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Time Slots -->
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Available Time Slots</h5>
+        {% if not session.get('user_id') %}
+        <!-- Login Required Notification -->
+        <div class="login-required-notification">
+            <div class="notification-content">
+                <div class="notification-icon">
+                    <i class="fas fa-user-lock"></i>
                 </div>
-                <div class="card-body">
-                    <div id="time-slots" class="time-slots-container">
-                        <div class="text-center py-5 text-muted">
-                            <i class="fas fa-calendar-day fa-3x mb-3"></i>
-                            <p>Please select a service and date to view available time slots</p>
-                        </div>
+                <div class="notification-text">
+                    <div class="notification-title">
+                        <i class="fas fa-info-circle"></i>
+                        Booking Without Account
+                    </div>
+                    <div class="notification-message">
+                        Without logging in, your booking confirmation will only be sent to your email with basic information. To manage your bookings, view history, and receive notifications, please create an account or sign in first.
+                    </div>
+                    <div class="notification-actions">
+                        <a href="{{ url_for('login') }}" class="notification-btn notification-btn-primary">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Login First
+                        </a>
+                        <a href="{{ url_for('signup') }}" class="notification-btn notification-btn-secondary">
+                            <i class="fas fa-user-plus"></i>
+                            Create Account
+                        </a>
                     </div>
                 </div>
             </div>
-            
-            <!-- Customer Information (only shown after selecting a time slot) -->
-            <div id="customer-info" class="card shadow-sm mt-4 d-none">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Your Information</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="customer-name" class="form-label">Full Name</label>
-                            <input type="text" class="form-control" id="customer-name" required>
+        </div>
+        {% endif %}
+
+        <!-- Step 1: Service Selection -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">
+                    <span class="step-number">1</span>
+                    <i class="fas fa-list me-2"></i>Select Service
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row">
+                    <!-- Haircut Services -->
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check service-option">
+                            <input class="form-check-input" type="radio" name="service" id="haircut" value="1" data-price="25" data-duration="30">
+                            <label class="form-check-label" for="haircut">
+                                <div class="service-info">
+                                    <div class="service-header">
+                                        <div class="service-icon">
+                                            <i class="fas fa-cut"></i>
+                                        </div>
+                                        <span class="service-name">Classic Haircut</span>
+                                        <span class="badge bg-primary ms-auto">$25</span>
+                                    </div>
+                                    <small class="text-muted">30 minutes • Professional haircut with styling</small>
+                                </div>
+                            </label>
                         </div>
-                        <div class="col-md-6">
-                            <label for="customer-phone" class="form-label">Phone Number</label>
-                            <input type="tel" class="form-control" id="customer-phone" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check service-option">
+                            <input class="form-check-input" type="radio" name="service" id="haircut-beard" value="2" data-price="35" data-duration="45">
+                            <label class="form-check-label" for="haircut-beard">
+                                <div class="service-info">
+                                    <div class="service-header">
+                                        <div class="service-icon">
+                                            <i class="fas fa-user-tie"></i>
+                                        </div>
+                                        <span class="service-name">Haircut + Beard Trim</span>
+                                        <span class="badge bg-primary ms-auto">$35</span>
+                                    </div>
+                                    <small class="text-muted">45 minutes • Complete grooming package</small>
+                                </div>
+                            </label>
                         </div>
-                        <div class="col-12">
-                            <label for="customer-email" class="form-label">Email Address</label>
-                            <input type="email" class="form-control" id="customer-email" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check service-option">
+                            <input class="form-check-input" type="radio" name="service" id="beard-trim" value="3" data-price="15" data-duration="15">
+                            <label class="form-check-label" for="beard-trim">
+                                <div class="service-info">
+                                    <div class="service-header">
+                                        <div class="service-icon">
+                                            <i class="fas fa-scissors"></i>
+                                        </div>
+                                        <span class="service-name">Beard Trim & Style</span>
+                                        <span class="badge bg-primary ms-auto">$15</span>
+                                    </div>
+                                    <small class="text-muted">15 minutes • Precision beard trimming</small>
+                                </div>
+                            </label>
                         </div>
-                        <div class="col-12">
-                            <label for="customer-notes" class="form-label">Special Requests (Optional)</label>
-                            <textarea class="form-control" id="customer-notes" rows="2"></textarea>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check service-option">
+                            <input class="form-check-input" type="radio" name="service" id="facial" value="4" data-price="45" data-duration="60">
+                            <label class="form-check-label" for="facial">
+                                <div class="service-info">
+                                    <div class="service-header">
+                                        <div class="service-icon">
+                                            <i class="fas fa-spa"></i>
+                                        </div>
+                                        <span class="service-name">Gentleman's Facial</span>
+                                        <span class="badge bg-primary ms-auto">$45</span>
+                                    </div>
+                                    <small class="text-muted">60 minutes • Deep cleansing & moisturizing</small>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check service-option">
+                            <input class="form-check-input" type="radio" name="service" id="hot-shave" value="5" data-price="30" data-duration="30">
+                            <label class="form-check-label" for="hot-shave">
+                                <div class="service-info">
+                                    <div class="service-header">
+                                        <div class="service-icon">
+                                            <i class="fas fa-fire"></i>
+                                        </div>
+                                        <span class="service-name">Hot Towel Shave</span>
+                                        <span class="badge bg-primary ms-auto">$30</span>
+                                    </div>
+                                    <small class="text-muted">30 minutes • Traditional hot towel experience</small>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check service-option">
+                            <input class="form-check-input" type="radio" name="service" id="premium" value="6" data-price="70" data-duration="90">
+                            <label class="form-check-label" for="premium">
+                                <div class="service-info">
+                                    <div class="service-header">
+                                        <div class="service-icon">
+                                            <i class="fas fa-crown"></i>
+                                        </div>
+                                        <span class="service-name">Premium Package</span>
+                                        <span class="badge bg-warning ms-auto">$70</span>
+                                    </div>
+                                    <small class="text-muted">90 minutes • Full service: Cut, Beard, Facial & Massage</small>
+                                </div>
+                            </label>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Bottom Booking Action -->
-    <div class="row mt-4">
-        <div class="col-12 text-center">
-            <button id="book-btn" class="btn btn-primary btn-lg px-5" disabled>
-                <i class="fas fa-calendar-check me-2"></i>Book Appointment
-            </button>
-        </div>
-    </div>
-
-    <!-- Booking Summary Modal -->
-    <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title" id="bookingModalLabel">Confirm Your Booking</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="booking-summary">
-                        <div class="d-flex justify-content-between mb-2">
-                            <strong>Service:</strong>
-                            <span id="summary-service"></span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <strong>Date:</strong>
-                            <span id="summary-date"></span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <strong>Time:</strong>
-                            <span id="summary-time"></span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <strong>Barber:</strong>
-                            <span id="summary-barber">Available barber</span>
-                        </div>
-                        <hr>
-                        <div class="d-flex justify-content-between">
-                            <strong>Total:</strong>
-                            <span id="summary-price" class="text-primary fw-bold"></span>
+        <!-- Step 2: Date Selection -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">
+                    <span class="step-number">2</span>
+                    <i class="fas fa-calendar-alt me-2"></i>Select Date
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <input type="date" id="appointment-date" class="form-control form-control-lg" min="{{ today_date }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Business Hours:</strong> Monday to Friday, 10:00 AM - 4:00 PM
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="confirm-booking">Confirm Booking</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Time Slots -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">
+                    <span class="step-number">3</span>
+                    <i class="fas fa-clock me-2"></i>Available Time Slots
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="time-slots" class="time-slots-container">
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-calendar-day fa-3x mb-3"></i>
+                        <h5>Select a Service and Date</h5>
+                        <p class="mb-0">Please choose your preferred service and date to view available time slots</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Information (shown after selecting time slot) -->
+        <div id="customer-info" class="card shadow-sm mb-4 d-none">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">
+                    <span class="step-number">4</span>
+                    <i class="fas fa-user me-2"></i>Your Information
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="customer-name" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="customer-name" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="customer-phone" class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" id="customer-phone" required>
+                    </div>
+                    <div class="col-12">
+                        <label for="customer-email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="customer-email" required>
+                    </div>
+                    <div class="col-12">
+                        <label for="customer-notes" class="form-label">Special Requests (Optional)</label>
+                        <textarea class="form-control" id="customer-notes" rows="3" placeholder="Any specific requirements or preferences..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Summary -->
+        <div class="card shadow-sm mb-4" id="booking-summary-card" style="display: none;">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-clipboard-check me-2"></i>Booking Summary
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="summary-details">
+                            <div class="row mb-3">
+                                <div class="col-sm-4">
+                                    <strong>Service:</strong>
+                                </div>
+                                <div class="col-sm-8">
+                                    <span id="summary-service-name">-</span>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-4">
+                                    <strong>Date:</strong>
+                                </div>
+                                <div class="col-sm-8">
+                                    <span id="summary-date">-</span>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-4">
+                                    <strong>Time:</strong>
+                                </div>
+                                <div class="col-sm-8">
+                                    <span id="summary-time">-</span>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-4">
+                                    <strong>Duration:</strong>
+                                </div>
+                                <div class="col-sm-8">
+                                    <span id="summary-duration">-</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <strong>Barber:</strong>
+                                </div>
+                                <div class="col-sm-8">
+                                    <span class="badge bg-info">Auto-assigned</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="total-section">
+                            <div class="total-label">Total Amount</div>
+                            <div class="total-amount" id="summary-total">$0</div>
+                            <button id="book-btn" class="btn btn-primary btn-lg w-100 mt-3" disabled>
+                                <i class="fas fa-calendar-check me-2"></i>Book Appointment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Confirmation Modal -->
+        <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title" id="bookingModalLabel">
+                            <i class="fas fa-check-circle me-2"></i>Confirm Your Booking
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="booking-confirmation">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold mb-3">Service Details</h6>
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td><strong>Service:</strong></td>
+                                            <td id="modal-service">-</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Date:</strong></td>
+                                            <td id="modal-date">-</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Time:</strong></td>
+                                            <td id="modal-time">-</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Duration:</strong></td>
+                                            <td id="modal-duration">-</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold mb-3">Customer Information</h6>
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td><strong>Name:</strong></td>
+                                            <td id="modal-customer-name">-</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Phone:</strong></td>
+                                            <td id="modal-customer-phone">-</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Email:</strong></td>
+                                            <td id="modal-customer-email">-</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Barber:</strong></td>
+                                            <td><span class="badge bg-info">Auto-assigned</span></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="text-center">
+                                <h4>Total: <span id="modal-total" class="text-success">$0</span></h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </button>
+                        <button type="button" class="btn btn-success" id="confirm-booking">
+                            <i class="fas fa-check me-2"></i>Confirm Booking
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .time-slots-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-        gap: 10px;
-    }
-    
-    .time-slot {
-        padding: 10px;
-        border: 1px solid #dee2e6;
-        border-radius: 4px;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-    
-    .time-slot:hover {
-        background-color: #f8f9fa;
-        border-color: #ced4da;
-    }
-    
-    .time-slot.selected {
-        background-color: #0d6efd;
-        color: white;
-        border-color: #0d6efd;
-    }
-    
-    .booking-summary {
-        font-size: 1.1em;
-    }
-</style>
 {% endblock %}
 
 {% block scripts %}

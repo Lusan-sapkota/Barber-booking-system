@@ -26,6 +26,7 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/signup.css') }}">
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -34,7 +35,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{{ url_for('home') }}">
-                <img src="{{ url_for('static', filename='image/logo/logo.svg') }}" alt="BookaBarber Logo">
+                <img src="{{ url_for('static', filename='image/logo/logo.png') }}" alt="BookaBarber Logo">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -87,6 +88,32 @@
                     
                     {% if session.get('user_id') %}
                     <li class="nav-item dropdown">
+                        <a class="nav-link position-relative" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notification-badge">
+                                0
+                            </span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationDropdown">
+                            <li class="dropdown-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>Notifications</span>
+                                    <a href="{{ url_for('notifications') }}" class="small">View All</a>
+                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <div id="notification-preview">
+                                <!-- Notifications will be loaded here -->
+                            </div>
+                            <li><hr class="dropdown-divider"></li>
+                            <li class="text-center">
+                                <a class="dropdown-item" href="{{ url_for('notifications') }}">
+                                    <i class="fas fa-bell me-2"></i>View All Notifications
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-user me-1"></i>{{ session.get('user_name', 'User') }}
                         </a>
@@ -122,20 +149,48 @@
         </div>
     </nav>
 
-    <!-- Flash Messages -->
-    <div class="container mt-3">
+    <!-- Enhanced Flash Messages -->
+    <div class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                        <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'info-circle' }} me-2"></i>
-                        {{ message }}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show enhanced-alert" role="alert">
+                        <div class="alert-content">
+                            <div class="alert-icon">
+                                {% if category == 'error' %}
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                {% elif category == 'success' %}
+                                    <i class="fas fa-check-circle"></i>
+                                {% elif category == 'warning' %}
+                                    <i class="fas fa-exclamation-circle"></i>
+                                {% else %}
+                                    <i class="fas fa-info-circle"></i>
+                                {% endif %}
+                            </div>
+                            <div class="alert-text">
+                                <div class="alert-title">
+                                    {% if category == 'error' %}
+                                        Error
+                                    {% elif category == 'success' %}
+                                        Success
+                                    {% elif category == 'warning' %}
+                                        Warning
+                                    {% else %}
+                                        Information
+                                    {% endif %}
+                                </div>
+                                <div class="alert-message">{{ message }}</div>
+                            </div>
+                        </div>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
     </div>
+
+    <!-- Enhanced Notification Container for JS notifications -->
+    <div id="notification-container" class="notification-container"></div>
 
     <!-- Main Content -->
     <main>
@@ -161,7 +216,7 @@
                     <div class="col-lg-4">
                         <div class="footer-brand-section">
                             <div class="footer-logo">
-                                <img src="{{ url_for('static', filename='image/logo/logo.svg') }}" alt="BookaBarber" class="logo-img">
+                                <img src="{{ url_for('static', filename='image/logo/logo.png') }}" alt="BookaBarber" class="logo-img">
                             </div>
                             <p class="brand-description">
                                 Your trusted platform to find and book the best barbers near you. 
@@ -221,32 +276,24 @@
                         <div class="footer-section">
                             <h6 class="footer-title">Support</h6>
                             <ul class="footer-links">
-                                <li><a href="#">Help Center</a></li>
-                                <li><a href="#">Contact Us</a></li>
-                                <li><a href="#">FAQs</a></li>
-                                <li><a href="#">Terms of Service</a></li>
+                                <li><a href="{{ url_for('help_center') }}">Help Center</a></li>
+                                <li><a href="{{ url_for('contact_us') }}">Contact Us</a></li>
+                                <li><a href="{{ url_for('faq') }}">FAQs</a></li>
+                                <li><a href="{{ url_for('terms_of_service') }}">Terms of Service</a></li>
                             </ul>
                         </div>
                     </div>
 
-                    <!-- Contact Info -->
+                    <!-- Legal -->
                     <div class="col-lg-2 col-md-6">
                         <div class="footer-section">
-                            <h6 class="footer-title">Contact</h6>
-                            <div class="contact-info">
-                                <div class="contact-item">
-                                    <i class="fas fa-envelope"></i>
-                                    <span>support@bookabarber.com</span>
-                                </div>
-                                <div class="contact-item">
-                                    <i class="fas fa-phone"></i>
-                                    <span>+1 (555) 123-4567</span>
-                                </div>
-                                <div class="contact-item">
-                                    <i class="fas fa-clock"></i>
-                                    <span>24/7 Support</span>
-                                </div>
-                            </div>
+                            <h6 class="footer-title">Legal</h6>
+                            <ul class="footer-links">
+                                <li><a href="{{ url_for('privacy_policy') }}">Privacy Policy</a></li>
+                                <li><a href="{{ url_for('terms_of_service') }}">Terms of Service</a></li>
+                                <li><a href="{{ url_for('faq') }}">FAQ</a></li>
+                                <li><a href="mailto:legal@bookabarber.com">Legal Inquiries</a></li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -299,6 +346,335 @@
     <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
     
     <!-- Custom JS -->
-    {% block scripts %}{% endblock %}
+    {% block scripts %}
+    {% if session.get('user_id') %}
+    <script>
+    // Load notifications on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadNotifications();
+        
+        // Refresh notifications every 30 seconds
+        setInterval(loadNotifications, 30000);
+    });
+
+    async function loadNotifications() {
+        try {
+            const response = await fetch('/api/notifications/preview');
+            const data = await response.json();
+            
+            // Update notification badge
+            const badge = document.getElementById('notification-badge');
+            badge.textContent = data.unread_count;
+            badge.style.display = data.unread_count > 0 ? 'inline' : 'none';
+            
+            // Update notification preview
+            const preview = document.getElementById('notification-preview');
+            if (data.notifications.length > 0) {
+                preview.innerHTML = data.notifications.map(notification => `
+                    <li class="dropdown-item notification-item small">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-2">
+                                <i class="fas fa-${getNotificationIcon(notification.type)} text-${getNotificationColor(notification.type)}"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold">${notification.title}</div>
+                                <div class="text-muted small">${notification.message.substring(0, 50)}...</div>
+                                <div class="text-muted small">${notification.time}</div>
+                            </div>
+                        </div>
+                    </li>
+                `).join('');
+            } else {
+                preview.innerHTML = '<li class="dropdown-item text-center text-muted">No new notifications</li>';
+            }
+        } catch (error) {
+            console.error('Error loading notifications:', error);
+        }
+    }
+
+    function getNotificationIcon(type) {
+        const icons = {
+            'success': 'check-circle',
+            'warning': 'exclamation-triangle',
+            'error': 'times-circle',
+            'info': 'info-circle'
+        };
+        return icons[type] || 'bell';
+    }
+
+    function getNotificationColor(type) {
+        const colors = {
+            'success': 'success',
+            'warning': 'warning',
+            'error': 'danger',
+            'info': 'info'
+        };
+        return colors[type] || 'primary';
+    }
+    </script>
+    {% endif %}
+    {% endblock %}
+
+    <style>
+/* Enhanced Notification System */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 400px;
+    pointer-events: none;
+}
+
+.system-notification {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-left: 4px solid #2563eb;
+    animation: slideInRight 0.5s ease-out;
+    pointer-events: auto;
+    transform: translateX(400px);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.system-notification.show {
+    transform: translateX(0);
+}
+
+.system-notification.success {
+    border-left-color: #16a34a;
+}
+
+.system-notification.error {
+    border-left-color: #dc2626;
+}
+
+.system-notification.warning {
+    border-left-color: #d97706;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.notification-icon {
+    font-size: 1.25rem;
+    color: #2563eb;
+}
+
+.notification-icon.success {
+    color: #16a34a;
+}
+
+.notification-icon.error {
+    color: #dc2626;
+}
+
+.notification-icon.warning {
+    color: #d97706;
+}
+
+.notification-text {
+    flex: 1;
+}
+
+.notification-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.notification-message {
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+/* Enhanced Flash Messages */
+.enhanced-alert {
+    border: none;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    animation: slideInDown 0.5s ease-out;
+}
+
+.alert-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.alert-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.alert-text {
+    flex: 1;
+}
+
+.alert-title {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.alert-message {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* Alert Colors */
+.alert-danger {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #dc2626;
+    border-left: 4px solid #dc2626;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    color: #16a34a;
+    border-left: 4px solid #16a34a;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #d97706;
+    border-left: 4px solid #d97706;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #2563eb;
+    border-left: 4px solid #2563eb;
+}
+
+/* Animations */
+@keyframes slideInDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .notification-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+    
+    .system-notification {
+        transform: translateY(-100px);
+    }
+    
+    .system-notification.show {
+        transform: translateY(0);
+    }
+}
+</style>
+
+<script>
+// Enhanced notification system
+function showSystemNotification(type, title, message, duration = 5000) {
+    const container = document.getElementById('notification-container');
+    if (!container) return;
+    
+    const notification = document.createElement('div');
+    notification.className = `system-notification ${type}`;
+    
+    const iconMap = {
+        'success': 'fa-check-circle',
+        'error': 'fa-exclamation-triangle',
+        'warning': 'fa-exclamation-circle',
+        'info': 'fa-info-circle'
+    };
+    
+    notification.innerHTML = `
+        <div class="notification-content">
+            <div class="notification-icon ${type}">
+                <i class="fas ${iconMap[type] || 'fa-info-circle'}"></i>
+            </div>
+            <div class="notification-text">
+                <div class="notification-title">${title}</div>
+                <div class="notification-message">${message}</div>
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+    
+    // Auto remove
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 300);
+    }, duration);
+    
+    // Click to dismiss
+    notification.addEventListener('click', () => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 300);
+    });
+}
+
+// Backward compatibility function
+function showNotification(type, message, duration = 5000) {
+    const titleMap = {
+        'success': 'Success',
+        'error': 'Error',
+        'warning': 'Warning',
+        'info': 'Information'
+    };
+    
+    showSystemNotification(type, titleMap[type] || 'Notification', message, duration);
+}
+
+// Auto-dismiss alerts after 5 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    const alerts = document.querySelectorAll('.enhanced-alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        }, 5000);
+    });
+});
+</script>
 </body>
 </html>

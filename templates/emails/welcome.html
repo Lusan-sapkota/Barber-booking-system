@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to BookaBarber</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #0d6efd; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f8f9fa; }
+        .feature-box { background: white; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .footer { text-align: center; padding: 20px; font-size: 12px; color: #666; }
+        .btn { background: #0d6efd; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Welcome to BookaBarber!</h1>
+            <p>Thank you for joining our community</p>
+        </div>
+        
+        <div class="content">
+            <h2>Hello {{ user.first_name }}!</h2>
+            <p>Welcome to BookaBarber! We're excited to have you on board as a {{ user.user_type }}.</p>
+            
+            <div class="feature-box">
+                <h3>🚀 Get Started</h3>
+                {% if user.user_type == 'customer' %}
+                <ul>
+                    <li>Browse and book appointments with top-rated barbers</li>
+                    <li>Manage your bookings through your personal dashboard</li>
+                    <li>Rate and review your experiences</li>
+                    <li>Receive email reminders for upcoming appointments</li>
+                </ul>
+                {% elif user.user_type == 'barber' %}
+                <ul>
+                    <li>Manage your schedule and availability</li>
+                    <li>View and accept booking requests</li>
+                    <li>Track your earnings and performance</li>
+                    <li>Build your profile and showcase your skills</li>
+                </ul>
+                {% elif user.user_type == 'shop_owner' %}
+                <ul>
+                    <li>Manage your shop details and services</li>
+                    <li>Add and manage barbers in your shop</li>
+                    <li>Track bookings and revenue</li>
+                    <li>Access detailed analytics and reports</li>
+                </ul>
+                {% endif %}
+            </div>
+            
+            <div style="text-align: center;">
+                {% if user.user_type == 'customer' %}
+                <a href="{{ url_for('booking_page', _external=True) }}" class="btn">Book Your First Appointment</a>
+                {% else %}
+                <a href="{{ url_for('profile', _external=True) }}" class="btn">Complete Your Profile</a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Need help getting started? Contact us at support@bookabarber.com</p>
+            <p>© 2024 BookaBarber. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

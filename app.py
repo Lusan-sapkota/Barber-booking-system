@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash, send_file
 import sqlite3
 from datetime import datetime, date
 import hashlib
-from models import init_db, Booking, Barber, Customer, Service
+from models import (init_db, Booking, Barber, Customer, Service, User, Shop, 
+                   Notification, AdminAction, SystemSettings)
 from algorithms import find_available_slots, optimize_barber_schedule
 import os
 import requests
@@ -14,15 +15,24 @@ import math
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your-default-secret-key')
 
+# Add this configuration for better session security
+app.config.update(
+    SESSION_COOKIE_SECURE=False,  # Set to True in production with HTTPS
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    PERMANENT_SESSION_LIFETIME=3600  # 1 hour
+)
+
 # Initialize database
 init_db()
 
 # Add user authentication tables
 def init_auth_tables():
+    """Initialize authentication tables with all required columns"""
     conn = sqlite3.connect('barbershop.db')
     cursor = conn.cursor()
     
-    # Create users table for authentication
+    # Create users table with all required columns
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY,
@@ -31,14 +41,71 @@ def init_auth_tables():
         first_name TEXT NOT NULL,
         last_name TEXT NOT NULL,
         phone TEXT,
-        user_type TEXT NOT NULL,
+        user_type TEXT NOT NULL DEFAULT 'customer',
         shop_id INTEGER,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        status TEXT DEFAULT 'active',
+        last_login TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    ''')
+    
+    # Create password_resets table for forgot password functionality
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS password_resets (
+        id INTEGER PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        token TEXT NOT NULL,
+        expires_at INTEGER NOT NULL,
+        used BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+    )
+    ''')
+    
+    # Create admin_actions table for logging
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS admin_actions (
+        id INTEGER PRIMARY KEY,
+        admin_id INTEGER NOT NULL,
+        action_type TEXT NOT NULL,
+        target_type TEXT NOT NULL,
+        target_id INTEGER NOT NULL,
+        description TEXT,
+        ip_address TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (admin_id) REFERENCES users (id)
+    )
+    ''')
+    
+    # Create system_settings table
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS system_settings (
+        id INTEGER PRIMARY KEY,
+        setting_key TEXT UNIQUE NOT NULL,
+        setting_value TEXT,
+        updated_by INTEGER,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (updated_by) REFERENCES users (id)
+    )
+    ''')
+    
+    # Create newsletter_subscribers table
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+        id INTEGER PRIMARY KEY,
+        email TEXT UNIQUE NOT NULL,
+        name TEXT,
+        subscribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        ip_address TEXT,
+        user_agent TEXT,
+        status TEXT DEFAULT 'active'
     )
     ''')
     
     conn.commit()
     conn.close()
+    print("Authentication tables initialized successfully!")
 
 # Initialize auth tables
 init_auth_tables()
@@ -50,72 +117,6 @@ def hash_password(password):
 def verify_password(password, password_hash):
     """Verify password against hash"""
     return hash_password(password) == password_hash
-
-# # Seed some initial data if needed
-# def seed_data():
-#     conn = sqlite3.connect('barbershop.db')
-#     cursor = conn.cursor()
-    
-#     # Check if we already have data
-#     cursor.execute("SELECT COUNT(*) FROM services")
-#     if cursor.fetchone()[0] > 0:
-#         conn.close()
-#         return
-    
-#     # Add some shops first
-#     shops_data = [
-#         ("Downtown Cuts", "123 Main St, Downtown", "+1-555-0101", "downtown@cuts.com", 1),
-#         ("Style Studio", "456 Oak Ave, Midtown", "+1-555-0102", "info@stylestudio.com", 1),
-#         ("Classic Barber Shop", "789 Pine Rd, Uptown", "+1-555-0103", "classic@barber.com", 1),
-#         ("Modern Cuts", "321 Elm St, Eastside", "+1-555-0104", "modern@cuts.com", 1),
-#     ]
-    
-#     for shop in shops_data:
-#         cursor.execute("""
-#             INSERT INTO shops (name, address, phone, email, owner_id)
-#             VALUES (?, ?, ?, ?, ?)
-#         """, shop)
-    
-#     # Add services
-#     services_data = [
-#         ("Haircut", 30, 25.00, 1),
-#         ("Haircut + Beard Trim", 45, 35.00, 1),
-#         ("Beard Trim Only", 20, 15.00, 1),
-#         ("Premium Package", 60, 50.00, 1),
-#         ("Kids Haircut", 25, 20.00, 1),
-#         ("Senior Haircut", 30, 20.00, 1)
-#     ]
-    
-#     for service in services_data:
-#         cursor.execute("""
-#             INSERT INTO services (name, duration, price, shop_id)
-#             VALUES (?, ?, ?, ?)
-#         """, service)
-    
-#     # Add barbers
-#     barbers_data = [
-#         ("Mike Johnson", 1, "Haircuts, Beard styling"),
-#         ("Sarah Wilson", 1, "Modern cuts, Color"),
-#         ("David Brown", 2, "Classic cuts, Straight razor"),
-#         ("Lisa Garcia", 2, "Trendy styles, Beard art"),
-#         ("Tom Miller", 3, "Traditional cuts, Hot towel"),
-#         ("Anna Davis", 3, "Creative styles, Fades"),
-#         ("Chris Lee", 4, "Precision cuts, Styling"),
-#         ("Maria Rodriguez", 4, "Hair design, Treatments")
-#     ]
-    
-#     for barber in barbers_data:
-#         cursor.execute("""
-#             INSERT INTO barbers (name, shop_id, specialties)
-#             VALUES (?, ?, ?)
-#         """, barber)
-    
-#     conn.commit()
-#     conn.close()
-#     print("Sample data seeded successfully!")
-
-# # Call seed data function when app starts
-# seed_data()
 
 @app.route('/')
 def home():
@@ -133,7 +134,7 @@ def admin_page():
     if session.get('user_type') != 'barber':
         flash('You need to be a barber to access this page', 'danger')
         return redirect(url_for('home'))
-    return render_template('admin.html')
+    return render_template('barber_admin.html')
 
 @app.route('/login')
 def login():
@@ -163,20 +164,53 @@ def user_dashboard():
     conn = sqlite3.connect('barbershop.db')
     cursor = conn.cursor()
     
-    cursor.execute("""
-        SELECT b.id, s.name, b.date, b.start_time, b.end_time, br.name as barber_name
-        FROM bookings b
-        JOIN services s ON b.service_id = s.id
-        JOIN barbers br ON b.barber_id = br.id
-        JOIN users u ON b.customer_id = u.id
-        WHERE u.id = ?
-        ORDER BY b.date DESC, b.start_time DESC
-    """, (session['user_id'],))
-    
-    bookings = cursor.fetchall()
-    conn.close()
-    
-    return render_template('user_dashboard.html', bookings=bookings)
+    try:
+        # First, check if customer record exists for this user
+        cursor.execute("SELECT id FROM customers WHERE user_id = ?", (session['user_id'],))
+        customer = cursor.fetchone()
+        
+        if customer:
+            # Customer record exists with user_id
+            cursor.execute("""
+                SELECT b.id, s.name, b.date, b.start_time, b.end_time, br.name as barber_name, 
+                       COALESCE(b.status, 'confirmed') as status
+                FROM bookings b
+                JOIN services s ON b.service_id = s.id
+                JOIN barbers br ON b.barber_id = br.id
+                JOIN customers c ON b.customer_id = c.id
+                WHERE c.user_id = ?
+                ORDER BY b.date DESC, b.start_time DESC
+            """, (session['user_id'],))
+        else:
+            # Try to find customer by email (fallback)
+            user_email = session.get('email')
+            if user_email:
+                cursor.execute("""
+                    SELECT b.id, s.name, b.date, b.start_time, b.end_time, br.name as barber_name, 
+                           COALESCE(b.status, 'confirmed') as status
+                    FROM bookings b
+                    JOIN services s ON b.service_id = s.id
+                    JOIN barbers br ON b.barber_id = br.id
+                    JOIN customers c ON b.customer_id = c.id
+                    WHERE c.email = ?
+                    ORDER BY b.date DESC, b.start_time DESC
+                """, (user_email,))
+            else:
+                # No bookings found
+                bookings = []
+                conn.close()
+                return render_template('customer_dashboard.html', bookings=bookings)
+        
+        bookings = cursor.fetchall()
+        conn.close()
+        
+        return render_template('customer_dashboard.html', bookings=bookings)
+        
+    except Exception as e:
+        print(f"Error in user dashboard: {e}")
+        conn.close()
+        flash('Error loading dashboard', 'error')
+        return redirect(url_for('home'))
 
 @app.route('/find-nearby')
 def find_nearby():
@@ -223,516 +257,1515 @@ def shop_admin():
     if session.get('user_type') != 'shop_owner':
         flash('You need to be a shop owner to access this page', 'danger')
         return redirect(url_for('home'))
-    return render_template('shop_admin.html')
+    return render_template('shop_owner_admin.html')
 
+# Super Admin Routes
 @app.route('/super-admin')
 def super_admin():
     """Super admin panel"""
     if session.get('user_type') != 'super_admin':
         flash('You need to be a super admin to access this page', 'danger')
         return redirect(url_for('home'))
-    return render_template('super_admin.html')
-
-@app.route('/api/login', methods=['POST'])
-def api_login():
-    try:
-        email = request.form.get('email')
-        password = request.form.get('password')
-        user_type = request.form.get('user_type')
-        
-        if not all([email, password, user_type]):
-            return jsonify({"success": False, "message": "All fields are required"}), 400
-        
-        # Verify user credentials
-        conn = sqlite3.connect('barbershop.db')
-        cursor = conn.cursor()
-        
-        cursor.execute("""
-            SELECT id, password_hash, first_name, last_name, user_type, shop_id
-            FROM users WHERE email = ? AND user_type = ?
-        """, (email, user_type))
-        
-        user = cursor.fetchone()
-        conn.close()
-        
-        if user and verify_password(password, user[1]):
-            # Set session data
-            session['user_id'] = user[0]
-            session['user_name'] = f"{user[2]} {user[3]}"
-            session['user_type'] = user[4]
-            session['shop_id'] = user[5]
-            
-            return jsonify({
-                "success": True, 
-                "message": "Login successful",
-                "user_type": user[4]
-            })
-        else:
-            return jsonify({"success": False, "message": "Invalid credentials"}), 401
-            
-    except Exception as e:
-        print(f"Login error: {e}")
-        return jsonify({"success": False, "message": "An error occurred during login"}), 500
-
-@app.route('/api/slots', methods=['GET'])
-def get_available_slots():
-    date = request.args.get('date')
-    service_id = request.args.get('service_id')
     
-    # Validate inputs
-    if not date or not service_id:
-        return jsonify({"error": "Date and service_id are required"}), 400
+    # Get statistics
+    stats = get_admin_stats()
     
-    try:
-        # Use our custom algorithm to find available slots
-        slots = find_available_slots(date, service_id)
-        return jsonify(slots)
-    except Exception as e:
-        print(f"Error finding slots: {e}")
-        return jsonify({"error": str(e)}), 500
+    # Get users
+    users = User.get_all()
+    
+    # Get shops
+    shops = Shop.get_all()
+    
+    # Get recent admin actions
+    recent_actions = AdminAction.get_recent(20)
+    
+    # Get system settings
+    system_settings = SystemSettings.get_all()
+    
+    # Get email logs
+    email_logs = get_email_logs(50)
+    
+    return render_template('super_admin.html', 
+                         stats=stats,
+                         users=users,
+                         shops=shops,
+                         recent_actions=recent_actions,
+                         system_settings=system_settings,
+                         email_logs=email_logs)
 
-@app.route('/api/book', methods=['POST'])
-def book_appointment():
+@app.route('/barber-admin')
+def barber_admin():
+    """Barber admin panel"""
+    if session.get('user_type') != 'barber':
+        flash('You need to be a barber to access this page', 'danger')
+        return redirect(url_for('home'))
+    
+    # Get barber's bookings and stats
+    barber_stats = get_barber_stats(session.get('user_id'))
+    
+    return render_template('barber_admin.html', stats=barber_stats)
+
+@app.route('/shop-owner-admin')
+def shop_owner_admin():
+    """Shop owner admin panel"""
+    if session.get('user_type') != 'shop_owner':
+        flash('You need to be a shop owner to access this page', 'danger')
+        return redirect(url_for('home'))
+    
+    # Get shop owner's data
+    shop_stats = get_shop_owner_stats(session.get('user_id'))
+    
+    return render_template('shop_owner_admin.html', stats=shop_stats)
+
+# Notifications route
+@app.route('/notifications')
+def notifications():
+    """Notifications page for all users"""
+    if not session.get('user_id'):
+        flash('Please log in to view notifications', 'warning')
+        return redirect(url_for('login'))
+    
+    user_notifications = Notification.get_by_user(session.get('user_id'))
+    unread_count = Notification.get_unread_count(session.get('user_id'))
+    
+    return render_template('notification.html', 
+                         notifications=user_notifications,
+                         unread_count=unread_count)
+
+# API Routes
+@app.route('/api/book-appointment', methods=['POST'])
+def api_book_appointment():
+    """Enhanced booking API using algorithms"""
     try:
-        # Get data from request
         booking_data = request.json
         
         if not booking_data:
             return jsonify({"success": False, "message": "No data provided"}), 400
         
-        # Extract booking details
-        date = booking_data.get('date')
-        service_id = booking_data.get('service_id')
-        barber_id = booking_data.get('barber_id')
-        start_time = booking_data.get('time')
-        customer_data = booking_data.get('customer', {})
+        # Use the enhanced booking service
+        from booking_service import booking_service
+        result = booking_service.create_booking(booking_data, session.get('user_id'))
         
-        # Validate required fields
-        if not all([date, service_id, barber_id, start_time, customer_data]):
-            return jsonify({"success": False, "message": "Missing required booking information"}), 400
+        if result['success']:
+            # Log admin action if user is logged in
+            if session.get('user_id'):
+                AdminAction.log(
+                    admin_id=session.get('user_id'),
+                    action_type='create',
+                    target_type='booking',
+                    target_id=result['booking_id'],
+                    description=f"Created booking for {booking_data.get('customer_name')}",
+                    ip_address=request.remote_addr
+                )
+            
+            return jsonify({
+                "success": True,
+                "booking_id": result['booking_id'],
+                "assigned_barber": {
+                    "name": result.get('barber_name'),
+                    "specialization": "Professional Barber"
+                },
+                "message": "Appointment booked successfully"
+            })
+        else:
+            return jsonify(result), 400
+            
+    except Exception as e:
+        print(f"Error in booking API: {e}")
+        return jsonify({"success": False, "message": f"An error occurred: {str(e)}"}), 500
+
+# Authentication API Routes
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    """User login API with better error handling"""
+    try:
+        # Get JSON data from request
+        if request.is_json:
+            data = request.get_json()
+        else:
+            # Fallback for form data
+            data = {
+                'email': request.form.get('email'),
+                'password': request.form.get('password'),
+                'user_type': request.form.get('user_type', 'customer'),
+                'remember_me': request.form.get('remember_me') == 'on'
+            }
         
-        # Connect to database
+        email = data.get('email', '').strip().lower()
+        password = data.get('password', '')
+        user_type = data.get('user_type', 'customer')
+        
+        # Validate input
+        if not email or not password:
+            return jsonify({
+                "success": False, 
+                "message": "Email and password are required",
+                "error_type": "validation"
+            }), 400
+        
+        # Validate email format
+        import re
+        email_pattern = r'^[^\s@]+@[^\s@]+\.[^\s@]+$'
+        if not re.match(email_pattern, email):
+            return jsonify({
+                "success": False, 
+                "message": "Please enter a valid email address",
+                "error_type": "validation"
+            }), 400
+        
         conn = sqlite3.connect('barbershop.db')
         cursor = conn.cursor()
         
-        # Check if the time slot is still available
-        cursor.execute("""
-            SELECT COUNT(*) FROM bookings 
-            WHERE date = ? AND barber_id = ? AND start_time = ?
-        """, (date, barber_id, start_time))
+        # Check what columns exist in the users table
+        cursor.execute("PRAGMA table_info(users)")
+        columns = [column[1] for column in cursor.fetchall()]
         
-        if cursor.fetchone()[0] > 0:
-            return jsonify({"success": False, "message": "This time slot is no longer available"}), 409
-        
-        # Get service duration to calculate end time
-        cursor.execute("SELECT duration FROM services WHERE id = ?", (service_id,))
-        service = cursor.fetchone()
-        
-        if not service:
-            return jsonify({"success": False, "message": "Invalid service selected"}), 400
-            
-        service_duration = service[0] # Duration in minutes
-        
-        # Calculate end time
-        from algorithms import time_to_minutes, minutes_to_time
-        start_minutes = time_to_minutes(start_time)
-        end_minutes = start_minutes + service_duration
-        end_time = minutes_to_time(end_minutes)
-        
-        # Create or get customer
-        customer_name = customer_data.get('name')
-        customer_email = customer_data.get('email')
-        customer_phone = customer_data.get('phone')
-        
-        cursor.execute("""
-            SELECT id FROM customers WHERE email = ?
-        """, (customer_email,))
-        
-        customer_result = cursor.fetchone()
-        
-        if customer_result:
-            customer_id = customer_result[0]
-            # Update customer info
-            cursor.execute("""
-                UPDATE customers SET name = ?, phone = ? WHERE id = ?
-            """, (customer_name, customer_phone, customer_id))
+        # Build query based on available columns
+        if 'status' in columns:
+            cursor.execute('''
+                SELECT id, password_hash, first_name, last_name, user_type, status 
+                FROM users 
+                WHERE email = ? AND user_type = ?
+            ''', (email, user_type))
         else:
-            # Insert new customer
-            cursor.execute("""
-                INSERT INTO customers (name, email, phone) VALUES (?, ?, ?)
-            """, (customer_name, customer_email, customer_phone))
-            customer_id = cursor.lastrowid
+            # Fallback if status column doesn't exist
+            cursor.execute('''
+                SELECT id, password_hash, first_name, last_name, user_type, 'active' as status 
+                FROM users 
+                WHERE email = ? AND user_type = ?
+            ''', (email, user_type))
         
-        # Create booking
-        cursor.execute("""
-            INSERT INTO bookings (customer_id, barber_id, service_id, date, start_time, end_time)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (customer_id, barber_id, service_id, date, start_time, end_time))
+        user = cursor.fetchone()
         
-        booking_id = cursor.lastrowid
+        # Check if user exists
+        if not user:
+            conn.close()
+            return jsonify({
+                "success": False, 
+                "message": f"No {user_type} account found with this email address",
+                "error_type": "user_not_found"
+            }), 401
         
-        conn.commit()
+        # Check password
+        if not verify_password(password, user[1]):
+            conn.close()
+            return jsonify({
+                "success": False, 
+                "message": "Incorrect password. Please try again.",
+                "error_type": "wrong_password"
+            }), 401
+        
+        # Check if user is active (if status column exists)
+        if len(user) > 5 and user[5] != 'active':
+            conn.close()
+            return jsonify({
+                "success": False, 
+                "message": "Your account has been deactivated. Please contact support.",
+                "error_type": "account_inactive"
+            }), 403
+        
+        # Set session data
+        session.permanent = data.get('remember_me', False)
+        session['user_id'] = user[0]
+        session['user_type'] = user[4]
+        session['user_name'] = f"{user[2]} {user[3]}"
+        session['email'] = email
+        
+        # Update last login if column exists
+        if 'last_login' in columns:
+            try:
+                cursor.execute(
+                    'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?', 
+                    (user[0],)
+                )
+                conn.commit()
+            except Exception as e:
+                print(f"Error updating last login: {e}")
+        
         conn.close()
         
-        # You could send confirmation email here
+        # Log successful login
+        try:
+            AdminAction.log(
+                admin_id=user[0],
+                action_type='login',
+                target_type='user',
+                target_id=user[0],
+                description=f"Successful login as {user_type}",
+                ip_address=request.remote_addr
+            )
+        except Exception as e:
+            print(f"Error logging admin action: {e}")
         
         return jsonify({
             "success": True, 
-            "booking_id": booking_id,
-            "message": "Appointment booked successfully"
+            "message": f"Welcome back, {user[2]}!",
+            "user_type": user[4],
+            "user_name": f"{user[2]} {user[3]}",
+            "redirect": get_dashboard_url(user[4])
         })
-        
-    except Exception as e:
-        print(f"Error booking appointment: {e}")
-        return jsonify({"success": False, "message": f"An error occurred: {str(e)}"}), 500
-
-@app.route('/api/shops', methods=['GET'])
-def get_shops():
-    """API endpoint to get all active shops"""
-    try:
-        conn = sqlite3.connect('barbershop.db')
-        cursor = conn.cursor()
-        
-        cursor.execute("""
-            SELECT id, name, address, phone, email 
-            FROM shops 
-            WHERE status = 'active'
-            ORDER BY name
-        """)
-        
-        shops = []
-        for row in cursor.fetchall():
-            shops.append({
-                'id': row[0],
-                'name': row[1],
-                'address': row[2],
-                'phone': row[3],
-                'email': row[4]
-            })
-        
-        conn.close()
-        return jsonify(shops)
-        
-    except Exception as e:
-        print(f"Error fetching shops: {e}")
-        return jsonify({"error": "Failed to fetch shops"}), 500
-
-@app.route('/api/geocode', methods=['POST'])
-def geocode_address():
-    """Convert address to coordinates using OpenStreetMap Nominatim API"""
-    try:
-        address = request.json.get('address')
-        if not address:
-            return jsonify({"success": False, "message": "Address is required"}), 400
-        
-        # Use OpenStreetMap Nominatim API (free)
-        url = "https://nominatim.openstreetmap.org/search"
-        params = {
-            'q': address,
-            'format': 'json',
-            'limit': 1,
-            'addressdetails': 1
-        }
-        headers = {
-            'User-Agent': 'BookaBarber/1.0 (contact@bookabarber.com)'
-        }
-        
-        response = requests.get(url, params=params, headers=headers, timeout=5)
-        data = response.json()
-        
-        if data:
-            location = data[0]
-            return jsonify({
-                "success": True,
-                "coordinates": {
-                    "lat": float(location['lat']),
-                    "lng": float(location['lon'])
-                },
-                "formatted_address": location['display_name'],
-                "city": location.get('address', {}).get('city', ''),
-                "state": location.get('address', {}).get('state', ''),
-                "country": location.get('address', {}).get('country', '')
-            })
-        else:
-            return jsonify({"success": False, "message": "Location not found"}), 404
             
     except Exception as e:
-        print(f"Geocoding error: {e}")
-        return jsonify({"success": False, "message": "Geocoding service unavailable"}), 500
-
-@app.route('/api/reverse-geocode', methods=['POST'])
-def reverse_geocode():
-    """Convert coordinates to address using OpenStreetMap Nominatim API"""
-    try:
-        data = request.json
-        lat = data.get('lat')
-        lng = data.get('lng')
-        
-        if not lat or not lng:
-            return jsonify({"success": False, "message": "Coordinates are required"}), 400
-        
-        # Use OpenStreetMap Nominatim API (free)
-        url = "https://nominatim.openstreetmap.org/reverse"
-        params = {
-            'lat': lat,
-            'lon': lng,
-            'format': 'json',
-            'addressdetails': 1
-        }
-        headers = {
-            'User-Agent': 'BookaBarber/1.0 (contact@bookabarber.com)'
-        }
-        
-        response = requests.get(url, params=params, headers=headers, timeout=5)
-        data = response.json()
-        
-        if 'address' in data:
-            address = data['address']
-            city = address.get('city') or address.get('town') or address.get('village', '')
-            state = address.get('state', '')
-            
-            return jsonify({
-                "success": True,
-                "formatted_address": data['display_name'],
-                "city": city,
-                "state": state,
-                "country": address.get('country', ''),
-                "coordinates": {
-                    "lat": float(lat),
-                    "lng": float(lng)
-                }
-            })
-        else:
-            return jsonify({"success": False, "message": "Address not found"}), 404
-            
-    except Exception as e:
-        print(f"Reverse geocoding error: {e}")
-        return jsonify({"success": False, "message": "Reverse geocoding service unavailable"}), 500
-
-def calculate_distance(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
-    """Calculate distance between two points using Haversine formula"""
-    # Convert latitude and longitude from degrees to radians
-    lat1, lng1, lat2, lng2 = map(math.radians, [lat1, lng1, lat2, lng2])
-    
-    # Haversine formula
-    dlat = lat2 - lat1
-    dlng = lat2 - lng1
-    a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlng/2)**2
-    c = 2 * math.asin(math.sqrt(a))
-    
-    # Radius of earth in kilometers
-    r = 6371
-    
-    return c * r
-
-@app.route('/api/nearby-barbers-advanced', methods=['POST'])
-def get_nearby_barbers_advanced():
-    """Get nearby barbers with real distance calculation"""
-    try:
-        data = request.json
-        user_lat = data.get('lat')
-        user_lng = data.get('lng')
-        radius = float(data.get('radius', 10))  # Default 10km
-        service_type = data.get('service_type', '')
-        min_rating = float(data.get('min_rating', 0))
-        
-        if not user_lat or not user_lng:
-            return jsonify({"success": False, "message": "Coordinates are required"}), 400
-        
-        conn = sqlite3.connect('barbershop.db')
-        cursor = conn.cursor()
-        
-        # Get all active barbers with shop info
-        cursor.execute("""
-            SELECT b.id, b.name, s.name as shop_name, s.address, b.specialties,
-                   s.latitude, s.longitude, b.experience_years, b.working_days,
-                   b.start_time, b.end_time
-            FROM barbers b
-            JOIN shops s ON b.shop_id = s.id
-            WHERE b.status = 'active' AND s.status = 'active'
-            ORDER BY s.name, b.name
-        """)
-        
-        barbers = []
-        for row in cursor.fetchall():
-            # For now, generate random coordinates near the user for demo
-            # In production, you'd have real shop coordinates
-            shop_lat = user_lat + (random.uniform(-0.1, 0.1))
-            shop_lng = user_lng + (random.uniform(-0.1, 0.1))
-            
-            distance = calculate_distance(user_lat, user_lng, shop_lat, shop_lng)
-            
-            # Filter by radius
-            if distance <= radius:
-                # Apply filters
-                specialties = row[4] or ''
-                if service_type and service_type.lower() not in specialties.lower():
-                    continue
-                
-                # Generate rating (in production, this would come from reviews)
-                rating = 4.0 + (row[0] % 10) * 0.1
-                if rating < min_rating:
-                    continue
-                
-                barbers.append({
-                    'id': row[0],
-                    'name': row[1],
-                    'shop_name': row[2],
-                    'address': row[3],
-                    'specialties': specialties,
-                    'distance': round(distance, 1),
-                    'rating': round(rating, 1),
-                    'experience_years': row[7],
-                    'working_days': row[8],
-                    'working_hours': f"{row[9]} - {row[10]}" if row[9] and row[10] else "Not specified",
-                    'coordinates': {'lat': shop_lat, 'lng': shop_lng},
-                    'available_today': random.choice([True, False])  # Simulate availability
-                })
-        
-        # Sort by distance
-        barbers.sort(key=lambda x: x['distance'])
-        
-        conn.close()
-        
+        print(f"Login API error: {e}")
         return jsonify({
-            "success": True,
-            "barbers": barbers,
-            "total_found": len(barbers),
-            "search_radius": radius,
-            "user_location": {"lat": user_lat, "lng": user_lng}
-        })
-        
-    except Exception as e:
-        print(f"Error finding nearby barbers: {e}")
-        return jsonify({"success": False, "message": "Failed to find nearby barbers"}), 500
+            "success": False, 
+            "message": "A technical error occurred. Please try again later.",
+            "error_type": "server_error"
+        }), 500
 
-# Update the existing API endpoints to include shop owner in login
 @app.route('/api/signup', methods=['POST'])
 def api_signup():
+    """User signup API"""
     try:
-        email = request.form.get('email')
-        password = request.form.get('password')
-        confirm_password = request.form.get('confirm_password')
-        first_name = request.form.get('first_name')
-        last_name = request.form.get('last_name')
-        phone = request.form.get('phone')
-        user_type = request.form.get('user_type')
-        location = request.form.get('location')
+        data = request.form
         
-        # Additional fields for professionals
-        shop_id = request.form.get('shop_id') if user_type == 'barber' else None
-        shop_name = request.form.get('shop_name') if user_type == 'shop_owner' else None
-        shop_address = request.form.get('shop_address') if user_type == 'shop_owner' else None
-        working_days = request.form.get('working_days', '')
-        specialties = request.form.get('specialties', '') if user_type == 'barber' else None
-        experience_years = request.form.get('experience_years') if user_type == 'barber' else None
-        start_time = request.form.get('barber_start_time') if user_type == 'barber' else request.form.get('opening_time')
-        end_time = request.form.get('barber_end_time') if user_type == 'barber' else request.form.get('closing_time')
+        email = data.get('email')
+        password = data.get('password')
+        first_name = data.get('first_name')
+        last_name = data.get('last_name')
+        phone = data.get('phone')
+        user_type = data.get('user_type', 'customer')
         
-        # Validation
-        if not all([email, password, confirm_password, first_name, last_name, phone, user_type, location]):
-            return jsonify({"success": False, "message": "All required fields must be filled"}), 400
-        
-        if password != confirm_password:
-            return jsonify({"success": False, "message": "Passwords do not match"}), 400
-        
-        if len(password) < 6:
-            return jsonify({"success": False, "message": "Password must be at least 6 characters"}), 400
-        
-        if user_type == 'barber' and not shop_id:
-            return jsonify({"success": False, "message": "Barbers must select a shop"}), 400
-            
-        if user_type == 'shop_owner' and not shop_name:
-            return jsonify({"success": False, "message": "Shop owners must provide shop name"}), 400
-        
-        conn = sqlite3.connect('barbershop.db')
-        cursor = conn.cursor()
+        if not all([email, password, first_name, last_name]):
+            return jsonify({"success": False, "message": "All fields are required"}), 400
         
         # Check if user already exists
-        cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT id FROM users WHERE email = ?', (email,))
         if cursor.fetchone():
             conn.close()
             return jsonify({"success": False, "message": "Email already registered"}), 409
         
-        # Create new user
+        # Create user
         password_hash = hash_password(password)
-        cursor.execute("""
-            INSERT INTO users (email, password_hash, first_name, last_name, phone, user_type, location)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (email, password_hash, first_name, last_name, phone, user_type, location))
+        user_id = User.create(email, password_hash, first_name, last_name, phone, user_type)
         
-        user_id = cursor.lastrowid
+        # Send welcome email
+        try:
+            from email_service import email_service
+            email_service.send_welcome_email({
+                'email': email,
+                'first_name': first_name,
+                'user_type': user_type
+            })
+        except Exception as e:
+            print(f"Failed to send welcome email: {e}")
         
-        # Handle shop owner registration
-        if user_type == 'shop_owner':
-            cursor.execute("""
-                INSERT INTO shops (name, address, phone, email, owner_id, working_days, opening_time, closing_time)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """, (shop_name, shop_address, phone, email, user_id, working_days, start_time, end_time))
-            shop_id = cursor.lastrowid
+        conn.close()
+        return jsonify({"success": True, "message": "Account created successfully"})
+        
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Registration failed: {str(e)}"}), 500
+
+# Super Admin API Routes
+@app.route('/api/super-admin/stats')
+def api_super_admin_stats():
+    """Get real-time stats for super admin"""
+    if session.get('user_type') != 'super_admin':
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    stats = get_admin_stats()
+    return jsonify(stats)
+
+@app.route('/api/super-admin/settings', methods=['POST'])
+def api_save_settings():
+    """Save system settings"""
+    if session.get('user_type') != 'super_admin':
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    settings = request.json
+    
+    try:
+        for key, value in settings.items():
+            SystemSettings.set(key, value, session.get('user_id'))
+        
+        # Log action
+        AdminAction.log(
+            admin_id=session.get('user_id'),
+            action_type='update',
+            target_type='settings',
+            target_id=0,
+            description="Updated system settings",
+            ip_address=request.remote_addr
+        )
+        
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/super-admin/users/<int:user_id>/status', methods=['POST'])
+def api_toggle_user_status(user_id):
+    """Toggle user status"""
+    if session.get('user_type') != 'super_admin':
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    data = request.json
+    new_status = data.get('status')
+    
+    try:
+        User.update_status(user_id, new_status)
+        
+        # Log action
+        AdminAction.log(
+            admin_id=session.get('user_id'),
+            action_type='update',
+            target_type='user',
+            target_id=user_id,
+            description=f"Changed user status to {new_status}",
+            ip_address=request.remote_addr
+        )
+        
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/super-admin/shops/<int:shop_id>/status', methods=['POST'])
+def api_toggle_shop_status(shop_id):
+    """Toggle shop status"""
+    if session.get('user_type') != 'super_admin':
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    data = request.json
+    new_status = data.get('status')
+    
+    try:
+        Shop.update_status(shop_id, new_status)
+        
+        # Log action
+        AdminAction.log(
+            admin_id=session.get('user_id'),
+            action_type='update',
+            target_type='shop',
+            target_id=shop_id,
+            description=f"Changed shop status to {new_status}",
+            ip_address=request.remote_addr
+        )
+        
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/super-admin/test-email', methods=['POST'])
+def api_test_email():
+    """Send test email"""
+    if session.get('user_type') != 'super_admin':
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    try:
+        # Get admin email
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT email FROM users WHERE id = ?', (session.get('user_id'),))
+        result = cursor.fetchone()
+        conn.close()
+        
+        if not result:
+            return jsonify({"success": False, "message": "Admin email not found"})
+        
+        admin_email = result[0]
+        
+        from email_service import email_service
+        success = email_service.send_admin_notification(
+            admin_email,
+            "Test Email",
+            "This is a test email from the BookaBarber system.",
+            {"timestamp": datetime.now().isoformat()}
+        )
+        
+        return jsonify({
+            "success": success,
+            "message": "Test email sent successfully!" if success else "Failed to send test email"
+        })
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
+
+@app.route('/api/super-admin/optimize-db', methods=['POST'])
+def api_optimize_database():
+    """Optimize database"""
+    if session.get('user_type') != 'super_admin':
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    try:
+        conn = sqlite3.connect('barbershop.db')
+        conn.execute('VACUUM')
+        conn.close()
+        
+        # Log action
+        AdminAction.log(
+            admin_id=session.get('user_id'),
+            action_type='system',
+            target_type='database',
+            target_id=0,
+            description="Optimized database",
+            ip_address=request.remote_addr
+        )
+        
+        return jsonify({"success": True, "message": "Database optimized successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
+
+@app.route('/api/super-admin/backup', methods=['POST'])
+def api_backup_system():
+    """Create system backup"""
+    if session.get('user_type') != 'super_admin':
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    try:
+        import shutil
+        backup_name = f"backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db"
+        shutil.copy2('barbershop.db', backup_name)
+        
+        # Log action
+        AdminAction.log(
+            admin_id=session.get('user_id'),
+            action_type='system',
+            target_type='backup',
+            target_id=0,
+            description=f"Created backup: {backup_name}",
+            ip_address=request.remote_addr
+        )
+        
+        return send_file(backup_name, as_attachment=True)
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
+
+@app.route('/api/notifications/mark-read/<int:notification_id>', methods=['POST'])
+def api_mark_notification_read(notification_id):
+    """Mark notification as read"""
+    if not session.get('user_id'):
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    try:
+        Notification.mark_as_read(notification_id)
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/notifications/preview')
+def api_notifications_preview():
+    """Get notification preview for navbar"""
+    if not session.get('user_id'):
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    try:
+        notifications = Notification.get_by_user(session.get('user_id'), 5)  # Get latest 5
+        unread_count = Notification.get_unread_count(session.get('user_id'))
+        
+        notification_data = []
+        for notification in notifications:
+            notification_data.append({
+                'id': notification[0],
+                'title': notification[2],
+                'message': notification[3],
+                'type': notification[4],
+                'is_read': notification[5],
+                'time': notification[7]
+            })
+        
+        return jsonify({
+            'notifications': notification_data,
+            'unread_count': unread_count
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/available-slots')
+def api_available_slots():
+    """Get available time slots for a service and date"""
+    try:
+        service_id = request.args.get('service_id')
+        date = request.args.get('date')
+        
+        if not service_id or not date:
+            return jsonify({"success": False, "message": "Service ID and date are required"}), 400
+        
+        slots = find_available_slots(date, service_id)
+        
+        return jsonify({
+            "success": True,
+            "slots": slots
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@app.route('/api/services')
+def api_services():
+    """Get all available services"""
+    try:
+        services = Service.get_all()
+        
+        service_list = []
+        for service in services:
+            service_list.append({
+                'id': service[0],
+                'name': service[1],
+                'duration': service[2],
+                'price': service[3],
+                'shop_id': service[4],
+                'shop_name': service[7] if len(service) > 7 else 'Unknown Shop',
+                'description': service[6] if len(service) > 6 else ''
+            })
+        
+        return jsonify({
+            "success": True,
+            "services": service_list
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@app.route('/api/newsletter-subscribe', methods=['POST'])
+def api_newsletter_subscribe():
+    """Newsletter subscription API with CSV storage"""
+    try:
+        data = request.get_json()
+        email = data.get('email', '').strip()
+        name = data.get('name', 'Subscriber').strip()
+        
+        if not email:
+            return jsonify({"success": False, "message": "Email is required"}), 400
+        
+        # Validate email format
+        import re
+        email_pattern = r'^[^\s@]+@[^\s@]+\.[^\s@]+$'
+        if not re.match(email_pattern, email):
+            return jsonify({"success": False, "message": "Invalid email format"}), 400
+        
+        # Save to CSV file
+        import csv
+        import os
+        from datetime import datetime
+        
+        csv_file = 'newsletter_subscribers.csv'
+        
+        # Check if email already exists
+        existing_emails = set()
+        if os.path.exists(csv_file):
+            with open(csv_file, 'r', newline='', encoding='utf-8') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    existing_emails.add(row.get('email', '').lower())
+        
+        if email.lower() in existing_emails:
+            return jsonify({"success": False, "message": "Email already subscribed"}), 409
+        
+        # Append to CSV
+        file_exists = os.path.exists(csv_file)
+        with open(csv_file, 'a', newline='', encoding='utf-8') as file:
+            fieldnames = ['email', 'name', 'subscribed_at', 'ip_address', 'user_agent']
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
             
-            # Update user with shop_id
-            cursor.execute("UPDATE users SET shop_id = ? WHERE id = ?", (shop_id, user_id))
+            # Write header if file is new
+            if not file_exists:
+                writer.writeheader()
+            
+            # Write subscriber data
+            writer.writerow({
+                'email': email,
+                'name': name,
+                'subscribed_at': datetime.now().isoformat(),
+                'ip_address': request.remote_addr,
+                'user_agent': request.headers.get('User-Agent', '')
+            })
         
-        # Handle barber registration
-        elif user_type == 'barber':
-            cursor.execute("""
-                INSERT INTO barbers (name, shop_id, specialties, experience_years, working_days, start_time, end_time, user_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """, (f"{first_name} {last_name}", shop_id, specialties, experience_years, working_days, start_time, end_time, user_id))
+        # Log to database if needed
+        try:
+            conn = sqlite3.connect('barbershop.db')
+            cursor = conn.cursor()
+            
+            # Create newsletter table if not exists
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+                    id INTEGER PRIMARY KEY,
+                    email TEXT UNIQUE NOT NULL,
+                    name TEXT,
+                    subscribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    ip_address TEXT,
+                    status TEXT DEFAULT 'active'
+                )
+            ''')
+            
+            # Insert subscriber
+            cursor.execute('''
+                INSERT OR IGNORE INTO newsletter_subscribers (email, name, ip_address)
+                VALUES (?, ?, ?)
+            ''', (email, name, request.remote_addr))
+            
+            conn.commit()
+            conn.close()
+        except Exception as db_error:
+            print(f"Database error (newsletter): {db_error}")
+            # Continue even if database fails, CSV is primary storage
+        
+        return jsonify({
+            "success": True,
+            "message": "Successfully subscribed to newsletter"
+        })
+        
+    except Exception as e:
+        print(f"Newsletter subscription error: {e}")
+        return jsonify({
+            "success": False,
+            "message": "Subscription failed. Please try again."
+        }), 500
+
+# Super Admin route to view newsletter subscribers
+@app.route('/api/super-admin/newsletter-subscribers')
+def api_get_newsletter_subscribers():
+    """Get newsletter subscribers for super admin"""
+    if session.get('user_type') != 'super_admin':
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    try:
+        import csv
+        import os
+        
+        subscribers = []
+        csv_file = 'newsletter_subscribers.csv'
+        
+        if os.path.exists(csv_file):
+            with open(csv_file, 'r', newline='', encoding='utf-8') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    subscribers.append({
+                        'email': row.get('email', ''),
+                        'name': row.get('name', ''),
+                        'subscribed_at': row.get('subscribed_at', ''),
+                        'ip_address': row.get('ip_address', '')
+                    })
+        
+        return jsonify({
+            "success": True,
+            "subscribers": subscribers,
+            "total": len(subscribers)
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Add these routes to app.py
+
+@app.route('/api/super-admin/newsletter-export')
+def api_export_newsletter_subscribers():
+    """Export newsletter subscribers as CSV for super admin"""
+    if session.get('user_type') != 'super_admin':
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    try:
+        import io
+        import csv
+        from flask import make_response
+        
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        # Write header
+        writer.writerow(['Email', 'Name', 'Subscribed At', 'IP Address', 'User Agent'])
+        
+        # Read from CSV file
+        csv_file = 'newsletter_subscribers.csv'
+        if os.path.exists(csv_file):
+            with open(csv_file, 'r', newline='', encoding='utf-8') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    writer.writerow([
+                        row.get('email', ''),
+                        row.get('name', ''),
+                        row.get('subscribed_at', ''),
+                        row.get('ip_address', ''),
+                        row.get('user_agent', '')
+                    ])
+        
+        output.seek(0)
+        
+        # Create response
+        response = make_response(output.getvalue())
+        response.headers['Content-Type'] = 'text/csv'
+        response.headers['Content-Disposition'] = f'attachment; filename=newsletter_subscribers_{datetime.now().strftime("%Y%m%d")}.csv'
+        
+        # Log action
+        AdminAction.log(
+            admin_id=session.get('user_id'),
+            action_type='export',
+            target_type='newsletter',
+            target_id=0,
+            description="Exported newsletter subscribers",
+            ip_address=request.remote_addr
+        )
+        
+        return response
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/super-admin/newsletter-remove', methods=['POST'])
+def api_remove_newsletter_subscriber():
+    """Remove newsletter subscriber for super admin"""
+    if session.get('user_type') != 'super_admin':
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    try:
+        data = request.get_json()
+        email_to_remove = data.get('email', '').strip().lower()
+        
+        if not email_to_remove:
+            return jsonify({"success": False, "message": "Email is required"}), 400
+        
+        import csv
+        import tempfile
+        import shutil
+        
+        csv_file = 'newsletter_subscribers.csv'
+        
+        if not os.path.exists(csv_file):
+            return jsonify({"success": False, "message": "No subscribers found"}), 404
+        
+        # Create temporary file
+        temp_file = tempfile.NamedTemporaryFile(mode='w', delete=False, newline='', encoding='utf-8')
+        
+        removed = False
+        with open(csv_file, 'r', newline='', encoding='utf-8') as infile:
+            reader = csv.DictReader(infile)
+            fieldnames = reader.fieldnames
+            
+            writer = csv.DictWriter(temp_file, fieldnames=fieldnames)
+            writer.writeheader()
+            
+            for row in reader:
+                if row.get('email', '').lower() != email_to_remove:
+                    writer.writerow(row)
+                else:
+                    removed = True
+        
+        temp_file.close()
+        
+        if removed:
+            # Replace original file with temp file
+            shutil.move(temp_file.name, csv_file)
+            
+            # Also remove from database if exists
+            try:
+                conn = sqlite3.connect('barbershop.db')
+                cursor = conn.cursor()
+                cursor.execute('DELETE FROM newsletter_subscribers WHERE email = ?', (email_to_remove,))
+                conn.commit()
+                conn.close()
+            except Exception as db_error:
+                print(f"Database error (newsletter removal): {db_error}")
+            
+            # Log action
+            AdminAction.log(
+                admin_id=session.get('user_id'),
+                action_type='delete',
+                target_type='newsletter',
+                target_id=0,
+                description=f"Removed newsletter subscriber: {email_to_remove}",
+                ip_address=request.remote_addr
+            )
+            
+            return jsonify({"success": True, "message": "Subscriber removed successfully"})
+        else:
+            os.unlink(temp_file.name)  # Clean up temp file
+            return jsonify({"success": False, "message": "Subscriber not found"}), 404
+            
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+# Helper functions
+def get_dashboard_url(user_type):
+    """Get the appropriate dashboard URL for user type"""
+    dashboard_map = {
+        'customer': 'user_dashboard',
+        'barber': 'barber_admin',
+        'shop_owner': 'shop_owner_admin',
+        'super_admin': 'super_admin'
+    }
+    return url_for(dashboard_map.get(user_type, 'home'))
+
+def get_admin_stats():
+    """Get statistics for admin dashboard"""
+    conn = sqlite3.connect('barbershop.db')
+    cursor = conn.cursor()
+    
+    # Total shops
+    cursor.execute('SELECT COUNT(*) FROM shops')
+    total_shops = cursor.fetchone()[0]
+    
+    # Active shops
+    cursor.execute('SELECT COUNT(*) FROM shops WHERE status = "active"')
+    active_shops = cursor.fetchone()[0]
+    
+    # Total users
+    cursor.execute('SELECT COUNT(*) FROM users')
+    total_users = cursor.fetchone()[0]
+    
+    # Total customers
+    cursor.execute('SELECT COUNT(*) FROM users WHERE user_type = "customer"')
+    customers = cursor.fetchone()[0]
+    
+    # Total bookings
+    cursor.execute('SELECT COUNT(*) FROM bookings')
+    total_bookings = cursor.fetchone()[0]
+    
+    # Bookings today
+    today = datetime.now().strftime('%Y-%m-%d')
+    cursor.execute('SELECT COUNT(*) FROM bookings WHERE date = ?', (today,))
+    bookings_today = cursor.fetchone()[0]
+    
+    # Revenue (simulated)
+    cursor.execute('SELECT SUM(total_price) FROM bookings WHERE status = "completed"')
+    total_revenue = cursor.fetchone()[0] or 0
+    
+    # Revenue this month
+    this_month = datetime.now().strftime('%Y-%m')
+    cursor.execute('SELECT SUM(total_price) FROM bookings WHERE date LIKE ? AND status = "completed"', (f"{this_month}%",))
+    revenue_this_month = cursor.fetchone()[0] or 0
+    
+    conn.close()
+    
+    return {
+        'total_shops': total_shops,
+        'active_shops': active_shops,
+        'total_users': total_users,
+        'customers': customers,
+        'total_bookings': total_bookings,
+        'bookings_today': bookings_today,
+        'total_revenue': total_revenue,
+        'revenue_this_month': revenue_this_month
+    }
+
+def get_email_logs(limit=50):
+    """Get email logs"""
+    conn = sqlite3.connect('barbershop.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM email_logs ORDER BY created_at DESC LIMIT ?', (limit,))
+    logs = cursor.fetchall()
+    conn.close()
+    return logs
+
+def get_barber_stats(user_id):
+    """Get statistics for barber dashboard"""
+    conn = sqlite3.connect('barbershop.db')
+    cursor = conn.cursor()
+    
+    # Get barber ID from user ID
+    cursor.execute('SELECT id FROM barbers WHERE user_id = ?', (user_id,))
+    barber_result = cursor.fetchone()
+    
+    if not barber_result:
+        return {}
+    
+    barber_id = barber_result[0]
+    
+    # Get today's bookings
+    today = datetime.now().strftime('%Y-%m-%d')
+    cursor.execute('SELECT COUNT(*) FROM bookings WHERE barber_id = ? AND date = ?', (barber_id, today))
+    today_bookings = cursor.fetchone()[0]
+    
+    # Get this week's bookings
+    cursor.execute('''
+        SELECT COUNT(*) FROM bookings 
+        WHERE barber_id = ? AND date >= date('now', 'weekday 0', '-6 days')
+    ''', (barber_id,))
+    week_bookings = cursor.fetchone()[0]
+    
+    # Get total earnings this month
+    this_month = datetime.now().strftime('%Y-%m')
+    cursor.execute('''
+        SELECT SUM(total_price) FROM bookings 
+        WHERE barber_id = ? AND date LIKE ? AND status = 'completed'
+    ''', (barber_id, f"{this_month}%"))
+    month_earnings = cursor.fetchone()[0] or 0
+    
+    conn.close()
+    
+    return {
+        'today_bookings': today_bookings,
+        'week_bookings': week_bookings,
+        'month_earnings': month_earnings
+    }
+
+def get_shop_owner_stats(user_id):
+    """Get statistics for shop owner dashboard"""
+    conn = sqlite3.connect('barbershop.db')
+    cursor = conn.cursor()
+    
+    # Get shop ID from user ID
+    cursor.execute('SELECT shop_id FROM users WHERE id = ?', (user_id,))
+    shop_result = cursor.fetchone()
+    
+    if not shop_result or not shop_result[0]:
+        return {}
+    
+    shop_id = shop_result[0]
+    
+    # Get total barbers
+    cursor.execute('SELECT COUNT(*) FROM barbers WHERE shop_id = ?', (shop_id,))
+    total_barbers = cursor.fetchone()[0]
+    
+    # Get today's bookings
+    today = datetime.now().strftime('%Y-%m-%d')
+    cursor.execute('SELECT COUNT(*) FROM bookings WHERE shop_id = ? AND date = ?', (shop_id, today))
+    today_bookings = cursor.fetchone()[0]
+    
+    # Get this month's revenue
+    this_month = datetime.now().strftime('%Y-%m')
+    cursor.execute('''
+        SELECT SUM(total_price) FROM bookings 
+        WHERE shop_id = ? AND date LIKE ? AND status = 'completed'
+    ''', (shop_id, f"{this_month}%"))
+    month_revenue = cursor.fetchone()[0] or 0
+    
+    conn.close()
+    
+    return {
+        'total_barbers': total_barbers,
+        'today_bookings': today_bookings,
+        'month_revenue': month_revenue
+    }
+
+@app.route('/forgot-password')
+def forgot_password():
+    """Forgot password page"""
+    if session.get('user_id'):
+        return redirect(url_for('home'))
+    return render_template('forgot_password.html')
+
+@app.route('/api/forgot-password', methods=['POST'])
+def api_forgot_password():
+    """Send password reset email"""
+    try:
+        data = request.get_json()
+        email = data.get('email', '').strip().lower()
+        
+        if not email:
+            return jsonify({"success": False, "message": "Email is required"}), 400
+        
+        # Check if user exists
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT id, first_name, last_name FROM users WHERE email = ?', (email,))
+        user = cursor.fetchone()
+        conn.close()
+        
+        if not user:
+            # For security, don't reveal if email exists or not
+            return jsonify({
+                "success": True, 
+                "message": "If an account with this email exists, you will receive a reset link shortly."
+            })
+        
+        user_id, first_name, last_name = user
+        
+        # Generate reset token (in production, use proper token generation)
+        import secrets
+        import time
+        reset_token = secrets.token_urlsafe(32)
+        expires_at = int(time.time()) + 3600  # 1 hour from now
+        
+        # Store reset token in database
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        
+        # Create password_resets table if it doesn't exist
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS password_resets (
+                id INTEGER PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                token TEXT NOT NULL,
+                expires_at INTEGER NOT NULL,
+                used BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+        ''')
+        
+        # Insert reset token
+        cursor.execute('''
+            INSERT INTO password_resets (user_id, token, expires_at)
+            VALUES (?, ?, ?)
+        ''', (user_id, reset_token, expires_at))
         
         conn.commit()
         conn.close()
         
+        # Send reset email
+        try:
+            from email_service import email_service
+            reset_link = f"{request.host_url}reset-password?token={reset_token}"
+            
+            success = email_service.send_password_reset_email({
+                'email': email,
+                'first_name': first_name,
+                'last_name': last_name,
+                'reset_link': reset_link
+            })
+            
+            if success:
+                # Log admin action
+                AdminAction.log(
+                    admin_id=0,  # System action
+                    action_type='password_reset',
+                    target_type='user',
+                    target_id=user_id,
+                    description=f"Password reset requested for {email}",
+                    ip_address=request.remote_addr
+                )
+                
+                return jsonify({
+                    "success": True,
+                    "message": "Password reset email sent successfully!"
+                })
+            else:
+                return jsonify({
+                    "success": False,
+                    "message": "Failed to send email. Please try again later."
+                }), 500
+                
+        except Exception as email_error:
+            print(f"Email sending error: {email_error}")
+            return jsonify({
+                "success": False,
+                "message": "Failed to send email. Please try again later."
+            }), 500
+            
+    except Exception as e:
+        print(f"Forgot password error: {e}")
         return jsonify({
-            "success": True, 
-            "message": "Account created successfully",
-            "user_id": user_id,
-            "user_type": user_type
+            "success": False,
+            "message": "An error occurred. Please try again."
+        }), 500
+
+@app.route('/reset-password')
+def reset_password():
+    """Reset password page with token"""
+    token = request.args.get('token')
+    
+    if not token:
+        flash('Invalid reset link', 'error')
+        return redirect(url_for('forgot_password'))
+    
+    # Verify token
+    conn = sqlite3.connect('barbershop.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT pr.id, pr.user_id, pr.expires_at, pr.used, u.email, u.first_name
+        FROM password_resets pr
+        JOIN users u ON pr.user_id = u.id
+        WHERE pr.token = ?
+    ''', (token,))
+    
+    reset_data = cursor.fetchone()
+    conn.close()
+    
+    if not reset_data:
+        flash('Invalid reset link', 'error')
+        return redirect(url_for('forgot_password'))
+    
+    reset_id, user_id, expires_at, used, email, first_name = reset_data
+    
+    # Check if token is expired
+    import time
+    if int(time.time()) > expires_at:
+        flash('Reset link has expired. Please request a new one.', 'error')
+        return redirect(url_for('forgot_password'))
+    
+    # Check if token is already used
+    if used:
+        flash('Reset link has already been used. Please request a new one.', 'error')
+        return redirect(url_for('forgot_password'))
+    
+    return render_template('reset_password.html', 
+                         token=token, 
+                         email=email, 
+                         first_name=first_name)
+
+@app.route('/api/reset-password', methods=['POST'])
+def api_reset_password():
+    """Reset password with token"""
+    try:
+        data = request.get_json()
+        token = data.get('token')
+        new_password = data.get('password')
+        confirm_password = data.get('confirm_password')
+        
+        if not all([token, new_password, confirm_password]):
+            return jsonify({"success": False, "message": "All fields are required"}), 400
+        
+        if new_password != confirm_password:
+            return jsonify({"success": False, "message": "Passwords do not match"}), 400
+        
+        if len(new_password) < 6:
+            return jsonify({"success": False, "message": "Password must be at least 6 characters long"}), 400
+        
+        # Verify token
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT pr.id, pr.user_id, pr.expires_at, pr.used
+            FROM password_resets pr
+            WHERE pr.token = ?
+        ''', (token,))
+        
+        reset_data = cursor.fetchone()
+        
+        if not reset_data:
+            conn.close()
+            return jsonify({"success": False, "message": "Invalid reset token"}), 400
+        
+        reset_id, user_id, expires_at, used = reset_data
+        
+        # Check if token is expired
+        import time
+        if int(time.time()) > expires_at:
+            conn.close()
+            return jsonify({"success": False, "message": "Reset token has expired"}), 400
+        
+        # Check if token is already used
+        if used:
+            conn.close()
+            return jsonify({"success": False, "message": "Reset token has already been used"}), 400
+        
+        # Update password
+        password_hash = hash_password(new_password)
+        cursor.execute('UPDATE users SET password_hash = ? WHERE id = ?', (password_hash, user_id))
+        
+        # Mark token as used
+        cursor.execute('UPDATE password_resets SET used = TRUE WHERE id = ?', (reset_id,))
+        
+        conn.commit()
+        conn.close()
+        
+        # Log admin action
+        AdminAction.log(
+            admin_id=user_id,
+            action_type='password_change',
+            target_type='user',
+            target_id=user_id,
+            description="Password reset completed",
+            ip_address=request.remote_addr
+        )
+        
+        return jsonify({
+            "success": True,
+            "message": "Password reset successfully! You can now log in with your new password."
         })
         
     except Exception as e:
-        print(f"Signup error: {e}")
-        return jsonify({"success": False, "message": "An error occurred during signup"}), 500
+        print(f"Reset password error: {e}")
+        return jsonify({
+            "success": False,
+            "message": "An error occurred. Please try again."
+        }), 500
 
-# Add database migration for new fields
-def migrate_database():
-    """Add new columns to existing tables"""
+@app.before_request
+def check_session():
+    """Check session validity before each request"""
+    # Skip session check for static files and auth routes
+    if (request.endpoint and 
+        (request.endpoint.startswith('static') or 
+         request.endpoint in ['login', 'signup', 'home', 'api_login', 'api_signup', 'forgot_password', 'reset_password'])):
+        return
+    
+    # Check if user session is valid
+    if session.get('user_id'):
+        try:
+            conn = sqlite3.connect('barbershop.db')
+            cursor = conn.cursor()
+            cursor.execute('SELECT status FROM users WHERE id = ?', (session.get('user_id'),))
+            user = cursor.fetchone()
+            conn.close()
+            
+            if not user or user[0] != 'active':
+                session.clear()
+                flash('Your session has expired. Please log in again.', 'warning')
+                return redirect(url_for('login'))
+        except Exception as e:
+            print(f"Session check error: {e}")
+            session.clear()
+            return redirect(url_for('login'))
+
+@app.route('/api/location-services')
+def api_location_services():
+    """Get available location services and fallback options"""
+    try:
+        # You can add multiple geocoding services as fallback
+        services = [
+            {
+                'name': 'OpenStreetMap',
+                'status': 'active',
+                'url': 'https://nominatim.openstreetmap.org'
+            }
+        ]
+        
+        return jsonify({
+            "success": True,
+            "services": services,
+            "fallback_enabled": True
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/nearby-barbers')
+def api_nearby_barbers():
+    """Get nearby barbers based on location"""
+    try:
+        location = request.args.get('location', '')
+        radius = request.args.get('radius', '10')
+        
+        # For demo purposes, return sample data
+        # In a real app, you'd geocode the location and find actual nearby barbers
+        sample_barbers = [
+            {
+                'id': 1,
+                'name': 'John Smith',
+                'shop_name': 'Elite Cuts',
+                'rating': 4.8,
+                'distance': '0.5 km',
+                'specialization': 'Classic Cuts, Beard Styling',
+                'price_range': '$15-30',
+                'available_today': True,
+                'address': '123 Main St',
+                'phone': '+1-234-567-8900'
+            },
+            {
+                'id': 2,
+                'name': 'Mike Johnson',
+                'shop_name': 'The Barber Shop',
+                'rating': 4.6,
+                'distance': '1.2 km',
+                'specialization': 'Modern Styles, Fades',
+                'price_range': '$20-35',
+                'available_today': True,
+                'address': '456 Oak Ave',
+                'phone': '+1-234-567-8901'
+            },
+            {
+                'id': 3,
+                'name': 'David Wilson',
+                'shop_name': 'Gentleman\'s Choice',
+                'rating': 4.9,
+                'distance': '2.1 km',
+                'specialization': 'Traditional Shaves, Mustache',
+                'price_range': '$25-40',
+                'available_today': False,
+                'address': '789 Pine St',
+                'phone': '+1-234-567-8902'
+            }
+        ]
+        
+        return jsonify(sample_barbers)
+        
+    except Exception as e:
+        print(f"Error finding nearby barbers: {e}")
+        return jsonify([]), 500
+
+@app.route('/api/reverse-geocode')
+def api_reverse_geocode():
+    """Reverse geocoding proxy to avoid CORS issues"""
+    try:
+        lat = request.args.get('lat')
+        lon = request.args.get('lon')
+        
+        if not lat or not lon:
+            return jsonify({"error": "Latitude and longitude are required"}), 400
+        
+        # Use OpenStreetMap Nominatim API
+        url = f"https://nominatim.openstreetmap.org/reverse"
+        params = {
+            'format': 'json',
+            'lat': lat,
+            'lon': lon,
+            'zoom': 14,
+            'addressdetails': 1
+        }
+        
+        headers = {
+            'User-Agent': 'BookaBarber/1.0 (barbershop-booking-system)'
+        }
+        
+        response = requests.get(url, params=params, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            
+            # Format the address nicely
+            if 'display_name' in data:
+                address_parts = data['display_name'].split(',')
+                # Take first 3-4 meaningful parts
+                short_address = ', '.join(address_parts[:3]).strip()
+                
+                return jsonify({
+                    "success": True,
+                    "address": short_address,
+                    "full_address": data['display_name'],
+                    "city": data.get('address', {}).get('city', ''),
+                    "country": data.get('address', {}).get('country', '')
+                })
+            else:
+                return jsonify({
+                    "success": True,
+                    "address": f"{lat}, {lon}",
+                    "full_address": f"{lat}, {lon}",
+                    "city": "",
+                    "country": ""
+                })
+        else:
+            return jsonify({"error": "Geocoding service unavailable"}), 503
+            
+    except requests.exceptions.Timeout:
+        return jsonify({"error": "Geocoding request timed out"}), 504
+    except requests.exceptions.RequestException as e:
+        print(f"Geocoding error: {e}")
+        return jsonify({"error": "Geocoding service error"}), 503
+    except Exception as e:
+        print(f"Reverse geocoding error: {e}")
+        return jsonify({"error": "Internal server error"}), 500
+
+def update_users_table():
+    """Update users table to add missing columns"""
     conn = sqlite3.connect('barbershop.db')
     cursor = conn.cursor()
     
     try:
-        # Add location to users table
-        cursor.execute("ALTER TABLE users ADD COLUMN location TEXT")
-    except sqlite3.OperationalError:
-        pass  # Column already exists
-    
-    try:
-        # Add coordinates to shops table
-        cursor.execute("ALTER TABLE shops ADD COLUMN latitude REAL")
-        cursor.execute("ALTER TABLE shops ADD COLUMN longitude REAL")
-        cursor.execute("ALTER TABLE shops ADD COLUMN working_days TEXT")
-        cursor.execute("ALTER TABLE shops ADD COLUMN opening_time TEXT")
-        cursor.execute("ALTER TABLE shops ADD COLUMN closing_time TEXT")
-    except sqlite3.OperationalError:
-        pass  # Columns already exist
-    
-    try:
-        # Add more fields to barbers table
-        cursor.execute("ALTER TABLE barbers ADD COLUMN experience_years TEXT")
-        cursor.execute("ALTER TABLE barbers ADD COLUMN working_days TEXT")
-        cursor.execute("ALTER TABLE barbers ADD COLUMN start_time TEXT")
-        cursor.execute("ALTER TABLE barbers ADD COLUMN end_time TEXT")
-        cursor.execute("ALTER TABLE barbers ADD COLUMN user_id INTEGER")
-    except sqlite3.OperationalError:
-        pass  # Columns already exist
-    
-    conn.commit()
-    conn.close()
+        # Check if status column exists
+        cursor.execute("PRAGMA table_info(users)")
+        columns = [column[1] for column in cursor.fetchall()]
+        
+        if 'status' not in columns:
+            print("Adding status column to users table...")
+            cursor.execute('ALTER TABLE users ADD COLUMN status TEXT DEFAULT "active"')
+            print("Status column added successfully!")
+        
+        # Check if last_login column exists
+        if 'last_login' not in columns:
+            print("Adding last_login column to users table...")
+            cursor.execute('ALTER TABLE users ADD COLUMN last_login TIMESTAMP')
+            print("Last_login column added successfully!")
+        
+        # Update existing users to have active status
+        cursor.execute('UPDATE users SET status = "active" WHERE status IS NULL OR status = ""')
+        
+        conn.commit()
+        print("Users table updated successfully!")
+        
+    except Exception as e:
+        print(f"Error updating users table: {e}")
+        conn.rollback()
+    finally:
+        conn.close()
 
-# Run migration on app start
+def update_bookings_table():
+    """Update bookings table to add missing columns"""
+    conn = sqlite3.connect('barbershop.db')
+    cursor = conn.cursor()
+    
+    try:
+        # Check if status column exists in bookings table
+        cursor.execute("PRAGMA table_info(bookings)")
+        columns = [column[1] for column in cursor.fetchall()]
+        
+        if 'status' not in columns:
+            print("Adding status column to bookings table...")
+            cursor.execute('ALTER TABLE bookings ADD COLUMN status TEXT DEFAULT "pending"')
+            print("Status column added successfully!")
+        
+        # Update existing bookings to have pending status
+        cursor.execute('UPDATE bookings SET status = "pending" WHERE status IS NULL OR status = ""')
+        
+        conn.commit()
+        print("Bookings table updated successfully!")
+        
+    except Exception as e:
+        print(f"Error updating bookings table: {e}")
+        conn.rollback()
+    finally:
+        conn.close()
+
+def update_database_schema():
+    """Update database schema to add all missing columns"""
+    conn = sqlite3.connect('barbershop.db')
+    cursor = conn.cursor()
+    
+    try:
+        print("Updating database schema...")
+        
+        # Update users table
+        cursor.execute("PRAGMA table_info(users)")
+        user_columns = [column[1] for column in cursor.fetchall()]
+        
+        if 'status' not in user_columns:
+            print("Adding status column to users table...")
+            cursor.execute('ALTER TABLE users ADD COLUMN status TEXT DEFAULT "active"')
+        
+        if 'last_login' not in user_columns:
+            print("Adding last_login column to users table...")
+            cursor.execute('ALTER TABLE users ADD COLUMN last_login TIMESTAMP')
+        
+        # Update bookings table
+        cursor.execute("PRAGMA table_info(bookings)")
+        booking_columns = [column[1] for column in cursor.fetchall()]
+        
+        if 'status' not in booking_columns:
+            print("Adding status column to bookings table...")
+            cursor.execute('ALTER TABLE bookings ADD COLUMN status TEXT DEFAULT "confirmed"')
+        
+        # Update customers table
+        cursor.execute("PRAGMA table_info(customers)")
+        customer_columns = [column[1] for column in cursor.fetchall()]
+        
+        if 'user_id' not in customer_columns:
+            print("Adding user_id column to customers table...")
+            cursor.execute('ALTER TABLE customers ADD COLUMN user_id INTEGER')
+            # Note: SQLite doesn't support adding foreign key constraints to existing tables
+        
+        # Update admin_actions table
+        cursor.execute("PRAGMA table_info(admin_actions)")
+        admin_columns = [column[1] for column in cursor.fetchall()]
+        
+        if 'ip_address' not in admin_columns:
+            print("Adding ip_address column to admin_actions table...")
+            cursor.execute('ALTER TABLE admin_actions ADD COLUMN ip_address TEXT')
+        
+        # Update existing records with default values
+        cursor.execute('UPDATE users SET status = "active" WHERE status IS NULL OR status = ""')
+        cursor.execute('UPDATE bookings SET status = "confirmed" WHERE status IS NULL OR status = ""')
+        
+        conn.commit()
+        print("Database schema updated successfully!")
+        
+    except Exception as e:
+        print(f"Error updating database schema: {e}")
+        conn.rollback()
+        raise e
+    finally:
+        conn.close()
+
+# Call this function after init_auth_tables()
+update_database_schema()
+
+@app.route('/help-center')
+def help_center():
+    return render_template('helpcenter.html')
+
+@app.route('/contact-us')
+def contact_us():
+    return render_template('contactus.html')
+
+@app.route('/faq')
+def faq():
+    return render_template('faq.html')
+
+@app.route('/privacy-policy')
+def privacy_policy():
+    return render_template('privacy_policy.html')
+
+@app.route('/terms-of-service')
+def terms_of_service():
+    return render_template('terms_of_service.html')
+
 if __name__ == '__main__':
-    init_db()
-    migrate_database()
-    # seed_data()
     app.run(debug=True)

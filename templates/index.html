@@ -91,7 +91,7 @@
                 {% endif %}
             </div>
             <div class="col-lg-6 text-center">
-                <img src="{{ url_for('static', filename='image/logo/logo.svg') }}" alt="BookaBarber" class="img-fluid" style="max-height: 350px;">
+                <img src="{{ url_for('static', filename='image/logo/logo.png') }}" alt="BookaBarber" class="img-fluid" style="max-height: 350px;">
             </div>
         </div>
     </div>
@@ -453,18 +453,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle current location button
     if (currentLocationBtn) {
+        // Update the getCurrentLocation function in index.html
         currentLocationBtn.addEventListener('click', function() {
             if (navigator.geolocation) {
                 currentLocationBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Getting location...';
                 currentLocationBtn.disabled = true;
                 
                 navigator.geolocation.getCurrentPosition(
-                    function(position) {
+                    async function(position) {
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
                         
-                        // Reverse geocoding to get address (you'd use a real API here)
-                        locationSearch.value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                        try {
+                            // Use backend proxy for reverse geocoding
+                            const response = await fetch(`/api/reverse-geocode?lat=${lat}&lon=${lng}`);
+                            const data = await response.json();
+                            
+                            if (data.success && data.address) {
+                                locationSearch.value = data.address;
+                            } else {
+                                locationSearch.value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                            }
+                        } catch (error) {
+                            console.log('Geocoding failed, using coordinates:', error);
+                            locationSearch.value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                        }
                         
                         currentLocationBtn.innerHTML = '<i class="fas fa-check me-1"></i>Location found';
                         
@@ -474,9 +487,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         }, 2000);
                     },
                     function(error) {
+                        console.log('Geolocation error:', error);
                         alert('Unable to get your location. Please enter manually.');
                         currentLocationBtn.innerHTML = '<i class="fas fa-crosshairs me-1"></i>Use Current Location';
                         currentLocationBtn.disabled = false;
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 300000
                     }
                 );
             } else {

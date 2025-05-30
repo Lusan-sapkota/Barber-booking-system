@@ -2,112 +2,272 @@
 
 {% block title %}Create Account - BookaBarber{% endblock %}
 
+{% block extra_css %}
+<style>
+/* Signup Page Animations - Same as login page */
+.signup-page {
+    position: relative;
+    min-height: 100vh;
+    background: linear-gradient(135deg, 
+        var(--primary-color) 0%, 
+        var(--primary-hover) 50%, 
+        #1a365d 100%);
+    overflow: hidden;
+}
+
+/* Same floating animations as login */
+.auth-bg-animation,
+.floating-shapes,
+.shape,
+.shape-1, .shape-2, .shape-3, .shape-4, .shape-5,
+
+/* Signup specific animations */
+.signup-form-container {
+    animation: fadeInUp 1s ease-out 0.3s both;
+}
+
+.signup-right-panel {
+    animation: slideInRight 1.2s cubic-bezier(0.23, 1, 0.32, 1) 0.2s both;
+}
+
+/* Newsletter Subscription Styles */
+.newsletter-subscription {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: white;
+    animation: slideInForm 0.6s ease-out 1.8s both;
+    transition: all 0.3s ease;
+}
+
+.newsletter-subscription:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
+}
+
+.newsletter-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.newsletter-icon {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1.2rem;
+}
+
+.newsletter-content h5 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.newsletter-content p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+.newsletter-form {
+    display: flex;
+    gap: 0.75rem;
+    align-items: end;
+}
+
+.newsletter-input-group {
+    flex: 1;
+}
+
+.newsletter-input-group label {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+    opacity: 0.9;
+}
+
+.newsletter-input-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.newsletter-input-group input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.newsletter-input-group input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.newsletter-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    min-width: 120px;
+}
+
+.newsletter-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
+}
+
+.newsletter-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.newsletter-btn.loading {
+    background: rgba(255, 255, 255, 0.3);
+    animation: pulse 1.5s infinite;
+}
+
+.newsletter-btn.success {
+    background: rgba(255, 255, 255, 0.9);
+    color: #28a745;
+    animation: bounce 0.6s ease;
+}
+
+@keyframes bounce {
+    0%, 20%, 60%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    80% { transform: translateY(-5px); }
+}
+
+/* Enhanced Loading States */
+.signup-btn.loading {
+    background: linear-gradient(45deg, 
+        var(--primary-color), 
+        var(--primary-hover), 
+        var(--primary-color));
+    background-size: 300% 300%;
+    animation: gradientShift 2s ease infinite;
+    pointer-events: none;
+}
+
+.signup-btn.success {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    animation: successPulse 0.6s ease;
+}
+
+@keyframes successPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Form Section Animations */
+.form-section {
+    animation: slideInForm 0.6s ease-out both;
+}
+
+.form-section:nth-child(1) { animation-delay: 0.8s; }
+.form-section:nth-child(2) { animation-delay: 1.0s; }
+.form-section:nth-child(3) { animation-delay: 1.2s; }
+.form-section:nth-child(4) { animation-delay: 1.4s; }
+
+/* Newsletter Success Message */
+.newsletter-success {
+    background: rgba(255, 255, 255, 0.9);
+    color: #28a745;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+    display: none;
+    animation: slideInUp 0.5s ease;
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="signup-page">
-    <!-- Animated Background -->
-    <div class="signup-bg-animation">
+    <!-- Same animated background as login -->
+    <div class="auth-bg-animation">
         <div class="floating-shapes">
             <div class="shape shape-1"></div>
             <div class="shape shape-2"></div>
             <div class="shape shape-3"></div>
             <div class="shape shape-4"></div>
             <div class="shape shape-5"></div>
-            <div class="shape shape-6"></div>
         </div>
     </div>
 
     <div class="container-fluid h-100">
         <div class="row h-100 g-0">
-            <!-- Welcome Panel -->
-            <div class="col-lg-4 signup-left-panel">
-                <div class="signup-welcome-panel">
-                    <div class="signup-brand">
-                        <img src="{{ url_for('static', filename='image/logo/logo.svg') }}" alt="BookaBarber" class="signup-logo">
-                    </div>
-                    
-                    <div class="welcome-content">
-                        <h2 class="welcome-title">Join BookaBarber</h2>
-                        <p class="welcome-subtitle">Create your account and start your journey with premium barbershop services.</p>
-                        
-                        <div class="benefits-list">
-                            <div class="benefit-item">
-                                <div class="benefit-icon">
-                                    <i class="fas fa-rocket"></i>
-                                </div>
-                                <div class="benefit-text">
-                                    <h4>Quick Setup</h4>
-                                    <p>Get started in just a few simple steps</p>
-                                </div>
-                            </div>
-                            
-                            <div class="benefit-item">
-                                <div class="benefit-icon">
-                                    <i class="fas fa-shield-alt"></i>
-                                </div>
-                                <div class="benefit-text">
-                                    <h4>Secure & Private</h4>
-                                    <p>Your data is protected with industry-standard security</p>
-                                </div>
-                            </div>
-                            
-                            <div class="benefit-item">
-                                <div class="benefit-icon">
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <div class="benefit-text">
-                                    <h4>Premium Access</h4>
-                                    <p>Unlock exclusive features and priority booking</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Stats Counter -->
-                        <div class="signup-stats">
-                            <div class="stat-item">
-                                <div class="stat-number">15K+</div>
-                                <div class="stat-label">Happy Customers</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-number">500+</div>
-                                <div class="stat-label">Expert Barbers</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-number">50+</div>
-                                <div class="stat-label">Partner Shops</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Enhanced Location Display -->
-                    <div class="location-display">
-                        <div class="location-content">
-                            <div class="location-header">
-                                <i class="fas fa-map-marker-alt location-icon"></i>
-                                <span class="location-label">Your Location</span>
-                            </div>
-                            <div class="location-text">
-                                <span id="user-location">Detecting location...</span>
-                                <button id="change-location" class="location-edit-btn" aria-label="Change location">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
             <!-- Signup Form Panel -->
-            <div class="col-lg-8 signup-right-panel">
+            <div class="col-12 signup-right-panel">
                 <div class="signup-form-panel">
                     <div class="signup-form-container">
                         <div class="form-header">
                             <h3 class="form-title">Create Your Account</h3>
                             <p class="form-subtitle">Choose your account type and fill in your details</p>
                         </div>
+
+                        <!-- Newsletter Subscription Section -->
+                        <div class="newsletter-subscription">
+                            <div class="newsletter-header">
+                                <div class="newsletter-icon">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div class="newsletter-content">
+                                    <h5>Stay Updated!</h5>
+                                    <p>Get the latest barber tips, offers, and updates</p>
+                                </div>
+                            </div>
+                            <div class="newsletter-form">
+                                <div class="newsletter-input-group">
+                                    <label for="newsletter-email">Email Address</label>
+                                    <input type="email" id="newsletter-email" placeholder="Enter your email">
+                                </div>
+                                <div class="newsletter-input-group">
+                                    <label for="newsletter-name">Name (Optional)</label>
+                                    <input type="text" id="newsletter-name" placeholder="Your name">
+                                </div>
+                                <button type="button" id="newsletter-subscribe-btn" class="newsletter-btn">
+                                    <span class="btn-text">Subscribe</span>
+                                </button>
+                            </div>
+                            <div class="newsletter-success" id="newsletter-success">
+                                <i class="fas fa-check-circle me-2"></i>
+                                Thank you for subscribing! You'll receive our latest updates.
+                            </div>
+                        </div>
                         
                         <form id="signupForm" method="POST" class="signup-form">
                             <!-- User Type Selection -->
-                            <div class="user-type-selector">
+                            <div class="user-type-selector form-section">
                                 <div class="selector-label">I want to create a:</div>
                                 <div class="user-type-options">
                                     <input type="radio" name="user_type" id="customer_signup" value="customer" checked>
@@ -192,7 +352,7 @@
                                                 <i class="fas fa-lock input-icon"></i>
                                                 <input type="password" class="form-control" id="password" name="password" placeholder=" " required>
                                                 <label for="password" class="floating-label">Password</label>
-                                                <button type="button" id="togglePassword" class="password-toggle-btn" aria-label="Toggle password visibility">
+                                                <button type="button" id="togglePassword" class="password-toggle-btn">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                             </div>
@@ -204,7 +364,7 @@
                                                 <i class="fas fa-lock input-icon"></i>
                                                 <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder=" " required>
                                                 <label for="confirm_password" class="floating-label">Confirm Password</label>
-                                                <button type="button" id="toggleConfirmPassword" class="password-toggle-btn" aria-label="Toggle password visibility">
+                                                <button type="button" id="toggleConfirmPassword" class="password-toggle-btn">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                             </div>
@@ -213,7 +373,7 @@
                                 </div>
                             </div>
                             
-                            <!-- Business Information (for shop owners and barbers) -->
+                            <!-- Business Information -->
                             <div class="form-section business-info" style="display: none;">
                                 <h4 class="section-title">Business Information</h4>
                                 <div class="form-group">
@@ -242,18 +402,11 @@
                             </div>
                             
                             <!-- Terms and Conditions -->
-                            <div class="form-options">
+                            <div class="form-options form-section">
                                 <div class="terms-agreement">
                                     <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
                                     <label class="form-check-label" for="terms">
                                         I agree to the <a href="#" class="terms-link">Terms of Service</a> and <a href="#" class="terms-link">Privacy Policy</a>
-                                    </label>
-                                </div>
-                                
-                                <div class="newsletter-opt">
-                                    <input class="form-check-input" type="checkbox" id="newsletter" name="newsletter">
-                                    <label class="form-check-label" for="newsletter">
-                                        Subscribe to our newsletter for updates and offers
                                     </label>
                                 </div>
                             </div>
@@ -288,8 +441,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirm_password');
-    const locationSpan = document.getElementById('user-location');
-    const changeLocationBtn = document.getElementById('change-location');
+    
+    // Newsletter subscription elements
+    const newsletterBtn = document.getElementById('newsletter-subscribe-btn');
+    const newsletterEmail = document.getElementById('newsletter-email');
+    const newsletterName = document.getElementById('newsletter-name');
+    const newsletterSuccess = document.getElementById('newsletter-success');
     
     // Handle user type selection
     userTypeRadios.forEach(radio => {
@@ -307,14 +464,145 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Handle password visibility toggle
+    // Newsletter subscription handler
+    newsletterBtn.addEventListener('click', async function() {
+        const email = newsletterEmail.value.trim();
+        const name = newsletterName.value.trim();
+        
+        if (!email) {
+            showNotification('error', 'Please enter your email address');
+            newsletterEmail.focus();
+            // Add shake animation to email field
+            newsletterEmail.style.animation = 'shake 0.5s ease-in-out';
+            setTimeout(() => {
+                newsletterEmail.style.animation = '';
+            }, 500);
+            return;
+        }
+        
+        if (!isValidEmail(email)) {
+            showNotification('error', 'Please enter a valid email address');
+            newsletterEmail.focus();
+            // Add shake animation to email field
+            newsletterEmail.style.animation = 'shake 0.5s ease-in-out';
+            setTimeout(() => {
+                newsletterEmail.style.animation = '';
+            }, 500);
+            return;
+        }
+        
+        // Enhanced loading animation
+        newsletterBtn.disabled = true;
+        newsletterBtn.classList.add('loading');
+        
+        // Create loading dots animation
+        let dots = '';
+        const loadingInterval = setInterval(() => {
+            dots = dots.length >= 3 ? '' : dots + '.';
+            newsletterBtn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Subscribing${dots}`;
+        }, 300);
+        
+        try {
+            const response = await fetch('/api/newsletter-subscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    name: name || 'Subscriber'
+                })
+            });
+            
+            const result = await response.json();
+            
+            clearInterval(loadingInterval);
+            
+            if (result.success) {
+                // Enhanced success animation
+                newsletterBtn.classList.remove('loading');
+                newsletterBtn.classList.add('success');
+                newsletterBtn.innerHTML = '<i class="fas fa-check me-2"></i>Subscribed!';
+                
+                // Show enhanced success message with confetti effect
+                newsletterSuccess.style.display = 'block';
+                newsletterSuccess.style.animation = 'slideInDown 0.5s ease-out';
+                
+                // Add confetti effect (optional)
+                createConfetti();
+                
+                // Clear form with animation
+                newsletterEmail.style.transform = 'scale(0.95)';
+                newsletterName.style.transform = 'scale(0.95)';
+                
+                setTimeout(() => {
+                    newsletterEmail.value = '';
+                    newsletterName.value = '';
+                    newsletterEmail.style.transform = 'scale(1)';
+                    newsletterName.style.transform = 'scale(1)';
+                }, 200);
+                
+                // Enhanced notification
+                showNotification('success', `🎉 Welcome to our newsletter, ${name || 'Subscriber'}!`);
+                
+                // Permanently disable button with success state
+                setTimeout(() => {
+                    newsletterBtn.disabled = true;
+                    newsletterBtn.innerHTML = '<i class="fas fa-check me-2"></i>Already Subscribed';
+                    newsletterBtn.style.opacity = '0.7';
+                    newsletterBtn.classList.remove('success');
+                    newsletterBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                }, 3000);
+                
+            } else {
+                throw new Error(result.message || 'Subscription failed');
+            }
+        } catch (error) {
+            clearInterval(loadingInterval);
+            console.error('Newsletter subscription error:', error);
+            
+            // Enhanced error handling
+            showNotification('error', `❌ ${error.message || 'Failed to subscribe. Please try again.'}`);
+            
+            // Shake animation for the entire newsletter section
+            const newsletterSection = document.querySelector('.newsletter-subscription');
+            newsletterSection.style.animation = 'shake 0.5s ease-in-out';
+            setTimeout(() => {
+                newsletterSection.style.animation = '';
+            }, 500);
+            
+            // Reset button with error state
+            newsletterBtn.disabled = false;
+            newsletterBtn.classList.remove('loading');
+            newsletterBtn.innerHTML = '<span class="btn-text">Try Again</span>';
+            newsletterBtn.style.background = 'rgba(220, 53, 69, 0.3)';
+            
+            // Reset to normal state after 2 seconds
+            setTimeout(() => {
+                newsletterBtn.innerHTML = '<span class="btn-text">Subscribe</span>';
+                newsletterBtn.style.background = '';
+            }, 2000);
+        }
+    });
+    
+    // Enable newsletter button when email is entered
+    newsletterEmail.addEventListener('input', function() {
+        const email = this.value.trim();
+        newsletterBtn.disabled = !email || !isValidEmail(email);
+    });
+    
+    // Password toggle handlers
     togglePassword.addEventListener('click', function() {
         const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
         passwordInput.setAttribute('type', type);
         
         const icon = this.querySelector('i');
-        icon.classList.toggle('fa-eye');
-        icon.classList.toggle('fa-eye-slash');
+        icon.style.transform = 'scale(0.8)';
+        setTimeout(() => {
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+            icon.style.transform = 'scale(1)';
+        }, 150);
     });
     
     toggleConfirmPassword.addEventListener('click', function() {
@@ -322,23 +610,15 @@ document.addEventListener('DOMContentLoaded', function() {
         confirmPasswordInput.setAttribute('type', type);
         
         const icon = this.querySelector('i');
-        icon.classList.toggle('fa-eye');
-        icon.classList.toggle('fa-eye-slash');
+        icon.style.transform = 'scale(0.8)';
+        setTimeout(() => {
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+            icon.style.transform = 'scale(1)';
+        }, 150);
     });
     
-    // Detect user location
-    detectUserLocation();
-    
-    // Handle location change
-    changeLocationBtn.addEventListener('click', function() {
-        const newLocation = prompt('Enter your location:', locationSpan.textContent);
-        if (newLocation && newLocation.trim()) {
-            locationSpan.textContent = newLocation.trim();
-            localStorage.setItem('userLocation', newLocation.trim());
-        }
-    });
-    
-    // Handle form submission
+    // Handle form submission with enhanced loading
     signupForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
@@ -348,6 +628,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (password !== confirmPassword) {
             showNotification('error', 'Passwords do not match');
+            confirmPasswordInput.focus();
             return;
         }
         
@@ -355,10 +636,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
         
-        // Show loading state
+        // Enhanced loading state
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating Account...';
         submitBtn.disabled = true;
         submitBtn.classList.add('loading');
+        
+        // Add loading class to form
+        this.classList.add('form-loading');
         
         try {
             const response = await fetch('/api/signup', {
@@ -369,6 +653,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await response.json();
             
             if (result.success) {
+                // Success animation
+                submitBtn.classList.remove('loading');
+                submitBtn.classList.add('success');
+                submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Account Created!';
+                
                 showNotification('success', 'Account created successfully! Redirecting to login...');
                 
                 setTimeout(() => {
@@ -376,61 +665,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 2000);
             } else {
                 showNotification('error', result.message);
+                throw new Error(result.message);
             }
         } catch (error) {
             console.error('Signup error:', error);
             showNotification('error', 'An error occurred. Please try again.');
         } finally {
-            // Reset button
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-            submitBtn.classList.remove('loading');
+            // Reset button after delay if there was an error
+            setTimeout(() => {
+                if (!result || !result.success) {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('loading', 'success');
+                    this.classList.remove('form-loading');
+                }
+            }, result && result.success ? 0 : 1500);
         }
     });
     
-    function detectUserLocation() {
-        // Check if location is stored
-        const savedLocation = localStorage.getItem('userLocation');
-        if (savedLocation) {
-            locationSpan.textContent = savedLocation;
-            return;
-        }
-
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                async function(position) {
-                    try {
-                        const response = await fetch('/api/reverse-geocode', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                lat: position.coords.latitude,
-                                lng: position.coords.longitude
-                            })
-                        });
-                        
-                        const result = await response.json();
-                        if (result.success) {
-                            const displayLocation = result.city || result.formatted_address.split(',')[0];
-                            locationSpan.textContent = displayLocation;
-                            localStorage.setItem('userLocation', displayLocation);
-                        } else {
-                            locationSpan.textContent = 'Location not available';
-                        }
-                    } catch (error) {
-                        console.error('Reverse geocoding error:', error);
-                        locationSpan.textContent = 'Location not available';
-                    }
-                },
-                function(error) {
-                    locationSpan.textContent = 'Location access denied';
-                }
-            );
-        } else {
-            locationSpan.textContent = 'Location not supported';
-        }
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
     }
     
     function showNotification(type, message) {
@@ -455,7 +710,7 @@ document.addEventListener('DOMContentLoaded', function() {
             notification.classList.remove('show');
             setTimeout(() => {
                 notification.remove();
-            }, 300);
+            }, 400);
         }, 4000);
     }
 });
