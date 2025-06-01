@@ -5,49 +5,327 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
 <style>
+/* Dark/Light Mode Variables */
+:root {
+  /* Light Mode (Default) */
+  --bg-color: #f8f9fa;
+  --text-color: #212529;
+  --text-muted: #6c757d;
+  --card-bg: #ffffff;
+  --card-border: #dee2e6;
+  --card-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  --header-bg: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+  --header-text: #ffffff;
+  --primary-color: #0d6efd;
+  --primary-hover: #0b5ed7;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+  --secondary-color: #6c757d;
+  --stat-card-bg: #ffffff;
+  --stat-card-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  --stat-text: #212529;
+  --badge-bg: #0d6efd;
+  --badge-text: #ffffff;
+  --modal-bg: #ffffff;
+  --modal-header: #f8f9fa;
+  --modal-border: #dee2e6;
+  --btn-outline-border: #dee2e6;
+  --alert-success-bg: #d4edda;
+  --alert-success-text: #155724;
+  --alert-success-border: #c3e6cb;
+  --icon-bg: rgba(13, 110, 253, 0.1);
+}
+
+[data-theme="dark"] {
+  /* Dark Mode Variables */
+  --bg-color: #121212;
+  --text-color: #e0e0e0;
+  --text-muted: #a0a0a0;
+  --card-bg: #1e1e1e;
+  --card-border: #333333;
+  --card-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  --header-bg: linear-gradient(135deg, #0a3b79 0%, #092d5e 100%);
+  --header-text: #ffffff;
+  --primary-color: #63a9ff;
+  --primary-hover: #4d8fd6;
+  --success-color: #2ea04a;
+  --danger-color: #e74c3c;
+  --warning-color: #f39c12;
+  --info-color: #3abbd3;
+  --secondary-color: #a0a0a0;
+  --stat-card-bg: #1e1e1e;
+  --stat-card-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  --stat-text: #e0e0e0;
+  --badge-bg: #3d8bfd;
+  --badge-text: #ffffff;
+  --modal-bg: #1e1e1e;
+  --modal-header: #181818;
+  --modal-border: #333333;
+  --btn-outline-border: #444444;
+  --alert-success-bg: #1a3d29;
+  --alert-success-text: #5add82;
+  --alert-success-border: #2ea04a;
+  --icon-bg: rgba(99, 169, 255, 0.1);
+}
+
+/* Base Styles with Variables */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.customer-dashboard {
+  background-color: var(--bg-color);
+  transition: background-color 0.3s ease;
+  padding-bottom: 3rem;
+}
+
 .dashboard-header {
-    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
-    color: white;
-    padding: 2rem 0;
-    margin-bottom: 2rem;
+  background: var(--header-bg);
+  color: var(--header-text);
+  padding: 2rem 0;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.card {
+  background-color: var(--card-bg);
+  border-color: var(--card-border);
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .stat-card {
-    background: white;
-    border-radius: 10px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
+  background: var(--stat-card-bg);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--stat-card-shadow);
+  transition: all 0.3s ease;
+  border: 1px solid var(--card-border);
+  height: 100%;
 }
 
 .stat-card:hover {
-    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+    transform: none !important; /* Remove the transform */
+}
+
+[data-theme="dark"] .stat-card:hover {
+    box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+}
+
+.stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: var(--icon-bg);
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
 }
 
 .booking-card {
-    border-left: 4px solid #0d6efd;
+    border-left: 4px solid var(--primary-color);
     transition: all 0.3s ease;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
 }
 
-.booking-card:hover {
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+/* Only apply hover effect to booking history cards */
+.booking-history .booking-card:hover {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+    transform: translateY(-5px) !important;
+}
+
+[data-theme="dark"] .booking-history .booking-card:hover {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
 }
 
 .status-badge {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     padding: 0.3rem 0.8rem;
+    border-radius: 50px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .upcoming-booking {
-    border-left-color: #28a745;
+  border-left-color: var(--success-color);
 }
 
 .completed-booking {
-    border-left-color: #6c757d;
+  border-left-color: var(--secondary-color);
 }
 
 .cancelled-booking {
-    border-left-color: #dc3545;
+  border-left-color: var(--danger-color);
+}
+
+.card-header {
+  border-bottom: 1px solid var(--card-border);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Modal Styling */
+.modal-content {
+  background-color: var(--modal-bg);
+  color: var(--text-color);
+  border-radius: 12px;
+  border: none;
+  overflow: hidden;
+}
+
+.modal-header {
+  background-color: var(--modal-header);
+  border-bottom: 1px solid var(--modal-border);
+  padding: 1rem 1.5rem;
+}
+
+.modal-footer {
+  border-top: 1px solid var(--modal-border);
+}
+
+/* Alert Styles */
+.alert-success {
+  background-color: var(--alert-success-bg);
+  color: var(--alert-success-text);
+  border-color: var(--alert-success-border);
+  transition: all 0.3s ease;
+}
+
+/* Button hover effects */
+.btn {
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Form controls */
+.form-select {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border-color: var(--btn-outline-border);
+  transition: all 0.3s ease;
+}
+
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: 50px;
+  height: 50px;
+  background: var(--card-bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--text-color);
+  font-size: 1.2rem;
+}
+
+.dark-mode-toggle:hover {
+  transform: scale(1.1);
+}
+
+/* Update to prevent hover movement on stat cards and upcoming appointments */
+.stat-card:hover {
+    box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+    transform: none !important; /* Remove the transform */
+}
+
+[data-theme="dark"] .stat-card:hover {
+    box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+}
+
+/* Enhanced styles for booking cards */
+.booking-card {
+    border-left: 4px solid var(--primary-color);
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Only apply hover effect to booking history cards */
+.booking-history .booking-card:hover {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+    transform: translateY(-5px) !important;
+}
+
+[data-theme="dark"] .booking-history .booking-card:hover {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
+}
+
+/* Improved badge styling */
+.status-badge {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 50px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Enhanced booking details */
+.booking-details {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--card-border);
+    margin-bottom: 0.75rem;
+}
+
+.booking-details p {
+    display: flex;
+    align-items: center;
+}
+
+.booking-details i {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Improved action buttons */
+.booking-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.booking-actions button {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.25s ease;
+}
+
+.booking-actions button:hover {
+    transform: translateY(-2px);
+}
+
+.booking-actions button i {
+    transition: all 0.25s ease;
+}
+
+.booking-actions button:hover i {
+    transform: scale(1.1);
 }
 </style>
 {% endblock %}
@@ -125,7 +403,7 @@
         </div>
 
         <!-- Booking History -->
-        <div class="card">
+        <div class="card booking-history">
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">
                     <i class="fas fa-history me-2"></i>Booking History
@@ -227,19 +505,61 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const bookingsDataScript = document.getElementById('bookings-data');
-    let bookings = [];
+    // Create dark mode toggle button
+    const toggleButton = document.createElement('button');
+    toggleButton.classList.add('dark-mode-toggle');
+    toggleButton.setAttribute('aria-label', 'Toggle dark mode');
+    toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+    toggleButton.addEventListener('click', toggleDarkMode);
+    document.body.appendChild(toggleButton);
+    
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        toggleButton.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    }
+    
+    function toggleDarkMode() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+            toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            toggleButton.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+    }
 
-    try {
-        bookings = JSON.parse(bookingsDataScript.textContent);
-    } catch (e) {
-        console.error("Failed to parse bookings JSON:", e);
+    // Fix the bookings data loading error
+    let bookings = [];
+    const bookingsDataScript = document.getElementById('bookings-data');
+    
+    if (bookingsDataScript) {
+        try {
+            bookings = JSON.parse(bookingsDataScript.textContent);
+        } catch (e) {
+            console.error("Failed to parse bookings JSON:", e);
+        }
+    }
+    
+    // If no bookings data found, use fallback dummy data
+    if (!bookings || bookings.length === 0) {
+        bookings = [
+            ["B1001", "Classic Haircut", "2023-05-15", "10:00", "10:30", "John Smith", "completed"],
+            ["B1002", "Beard Trim", "2023-07-20", "14:00", "14:15", "Mike Johnson", "completed"],
+            ["B1003", "Premium Package", "2023-09-10", "11:00", "12:30", "Sarah Williams", "cancelled"],
+            ["B1004", "Haircut & Styling", "2023-12-25", "09:00", "09:45", "Alex Thompson", "confirmed"]
+        ];
     }
 
     const filterStatus = document.getElementById('filter-status');
     const filterPeriod = document.getElementById('filter-period');
     
     calculateStats();
+    updateBookingStatuses();
     filterStatus.addEventListener('change', filterBookings);
     filterPeriod.addEventListener('change', filterBookings);
 
@@ -262,10 +582,39 @@ document.addEventListener('DOMContentLoaded', function() {
         displayUpcomingBookings();
     }
 
+    // Update booking statuses based on date
+    function updateBookingStatuses() {
+        const today = new Date();
+        
+        bookings = bookings.map(booking => {
+            const bookingDate = new Date(booking[2]);
+            let status = booking[6] || 'confirmed';
+            
+            // If the booking date is in the past and not marked as cancelled, mark as completed
+            if (bookingDate < today && status !== 'cancelled') {
+                status = 'completed';
+            }
+            
+            // Update status in the booking data
+            if (booking.length > 6) {
+                booking[6] = status;
+            } else {
+                booking.push(status);
+            }
+            
+            return booking;
+        });
+        
+        filterBookings();
+    }
+
     function displayUpcomingBookings() {
         const upcomingContainer = document.getElementById('upcoming-bookings');
         const today = new Date();
-        const upcomingBookings = bookings.filter(booking => new Date(booking[2]) >= today);
+        const upcomingBookings = bookings.filter(booking => {
+            const bookingDate = new Date(booking[2]);
+            return bookingDate >= today && (booking[6] || 'confirmed') !== 'cancelled';
+        });
 
         if (upcomingBookings.length === 0) {
             upcomingContainer.innerHTML = `
@@ -312,15 +661,39 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        container.innerHTML = filtered.map(booking => `
+        container.innerHTML = filtered.length > 0 ? filtered.map(booking => {
+            const status = booking[6] || 'confirmed';
+            let badgeClass, badgeText;
+            
+            switch(status) {
+                case 'completed':
+                    badgeClass = 'bg-secondary';
+                    badgeText = 'Completed';
+                    break;
+                case 'cancelled':
+                    badgeClass = 'bg-danger';
+                    badgeText = 'Cancelled';
+                    break;
+                default:
+                    badgeClass = 'bg-success';
+                    badgeText = 'Confirmed';
+            }
+            
+            // Determine if the booking is in the past to disable cancel button
+            const bookingDate = new Date(booking[2]);
+            const isPast = bookingDate < today;
+            const cardClass = status === 'cancelled' ? 'cancelled-booking' : 
+                              status === 'completed' ? 'completed-booking' : 'upcoming-booking';
+            
+            return `
             <div class="col-lg-6 mb-3 booking-item"
-                 data-status="${booking[6] || 'confirmed'}"
+                 data-status="${status}"
                  data-date="${booking[2]}">
-                <div class="card booking-card">
+                <div class="card booking-card ${cardClass}">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h6 class="card-title mb-0">${booking[1]}</h6>
-                            <span class="badge status-badge bg-primary">Confirmed</span>
+                            <span class="badge status-badge ${badgeClass}">${badgeText}</span>
                         </div>
                         <div class="booking-details">
                             <p class="mb-1">
@@ -340,15 +713,234 @@ document.addEventListener('DOMContentLoaded', function() {
                             <button class="btn btn-sm btn-outline-primary me-2" onclick="viewBookingDetails('${booking[0]}')">
                                 <i class="fas fa-eye me-1"></i>Details
                             </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="cancelBooking('${booking[0]}')">
-                                <i class="fas fa-times me-1"></i>Cancel
-                            </button>
+                            ${status !== 'cancelled' && !isPast ? 
+                                `<button class="btn btn-sm btn-outline-danger" onclick="confirmCancel('${booking[0]}')">
+                                    <i class="fas fa-times me-1"></i>Cancel
+                                </button>` : 
+                                `<button class="btn btn-sm btn-outline-secondary" disabled>
+                                    <i class="fas fa-times me-1"></i>Cancel
+                                </button>`
+                            }
                         </div>
                     </div>
                 </div>
             </div>
-        `).join('');
+            `;
+        }).join('') : `
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-filter fa-3x text-muted mb-3"></i>
+                    <h5>No bookings match your filters</h5>
+                    <p class="text-muted mb-3">Try adjusting your filter criteria</p>
+                    <button class="btn btn-primary" onclick="resetFilters()">
+                        <i class="fas fa-sync me-2"></i>Reset Filters
+                    </button>
+                </div>
+            </div>
+        `;
     }
+
+    // Make these functions available globally
+    window.resetFilters = function() {
+        filterStatus.value = '';
+        filterPeriod.value = '';
+        filterBookings();
+    };
+    
+    window.viewBookingDetails = function(id) {
+        // Find booking by ID
+        const booking = bookings.find(b => b[0] === id);
+        if (!booking) {
+            console.error('Booking not found with ID:', id);
+            return;
+        }
+        
+        // Extract details from booking array
+        const service = booking[1];
+        const date = booking[2];
+        const startTime = booking[3];
+        const endTime = booking[4];
+        const barber = booking[5];
+        const status = booking[6] || 'confirmed';
+        
+        const modal = new bootstrap.Modal(document.getElementById('bookingDetailsModal'));
+        const detailsContent = document.getElementById('booking-details-content');
+        
+        // Rest of your viewBookingDetails code with the extracted parameters
+        let statusClass, statusText;
+        switch(status) {
+            case 'completed':
+                statusClass = 'bg-secondary';
+                statusText = 'Completed';
+                break;
+            case 'cancelled':
+                statusClass = 'bg-danger';
+                statusText = 'Cancelled';
+                break;
+            default:
+                statusClass = 'bg-success';
+                statusText = 'Confirmed';
+        }
+        
+        // Calculate booking duration
+        const startParts = startTime.split(':');
+        const endParts = endTime.split(':');
+        const startHour = parseInt(startParts[0]);
+        const startMin = parseInt(startParts[1]);
+        const endHour = parseInt(endParts[0]);
+        const endMin = parseInt(endParts[1]);
+        
+        let durationMins = (endHour * 60 + endMin) - (startHour * 60 + startMin);
+        if (durationMins < 0) durationMins += 24 * 60; // Handle overnight bookings
+        
+        const durationHours = Math.floor(durationMins / 60);
+        const durationMinutes = durationMins % 60;
+        const durationText = durationHours > 0 ? 
+            `${durationHours} hour${durationHours > 1 ? 's' : ''}${durationMinutes > 0 ? ` ${durationMinutes} min` : ''}` : 
+            `${durationMinutes} minutes`;
+        
+        detailsContent.innerHTML = `
+            <div class="booking-detail-header mb-4">
+                <div class="d-flex justify-content-between">
+                    <h4>${service}</h4>
+                    <span class="badge ${statusClass} fs-6">${statusText}</span>
+                </div>
+                <p class="text-muted">Booking ID: ${id}</p>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="detail-section mb-3">
+                        <h5>Date & Time</h5>
+                        <p><i class="fas fa-calendar me-2"></i> ${date}</p>
+                        <p><i class="fas fa-clock me-2"></i> ${startTime} - ${endTime} (${durationText})</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h5>Barber</h5>
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <img src="${barberImageUrl(barber)}" class="rounded-circle" width="50" height="50" alt="${barber}">
+                            </div>
+                            <div>
+                                <p class="mb-0 fw-bold">${barber}</p>
+                                <div class="text-warning">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                    <span class="text-muted ms-1">4.7</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="detail-section mb-3">
+                        <h5>Price</h5>
+                        <p class="fs-4 fw-bold">$${Math.floor(Math.random() * 40) + 20}</p>
+                        <p class="text-muted">Paid with Credit Card</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h5>Location</h5>
+                        <p><i class="fas fa-map-marker-alt me-2"></i> Downtown Barber Shop</p>
+                        <p><i class="fas fa-location-arrow me-2"></i> 123 Main St, Suite 456</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <h5>Additional Notes</h5>
+                <p class="mb-0">Preferences: Scissors cut, light trim on sides.</p>
+            </div>
+        `;
+        
+        // Update the reschedule button visibility
+        const rescheduleBtn = document.getElementById('reschedule-btn');
+        const bookingDate = new Date(date);
+        const today = new Date();
+        
+        if (status === 'cancelled' || status === 'completed' || bookingDate < today) {
+            rescheduleBtn.style.display = 'none';
+        } else {
+            rescheduleBtn.style.display = 'block';
+        }
+        
+        modal.show();
+    };
+    
+    window.confirmCancel = function(id) {
+        if (confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) {
+            cancelBooking(id);
+        }
+    };
+    
+    window.cancelBooking = function(id) {
+        // Find the booking and update its status
+        bookings = bookings.map(booking => {
+            if (booking[0] === id) {
+                booking[6] = 'cancelled';
+            }
+            return booking;
+        });
+        
+        // Update the UI
+        filterBookings();
+        displayUpcomingBookings();
+        
+        // Show success notification
+        showSystemNotification('success', 'Booking Cancelled', 'Your booking has been successfully cancelled.');
+        
+        // In a real app, you would also update the server
+        console.log(`Booking ${id} has been cancelled.`);
+    };
+    
+    function barberImageUrl(name) {
+        // Generate a placeholder image based on the barber's name
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`;
+    }
+    
+    // Add the system notification function
+    window.showSystemNotification = function(type, title, message) {
+        const notification = document.createElement('div');
+        notification.className = `system-notification ${type}`;
+        
+        // Choose appropriate icon based on notification type
+        let iconClass = 'fa-info-circle';
+        if (type === 'success') iconClass = 'fa-check-circle';
+        else if (type === 'error') iconClass = 'fa-exclamation-circle';
+        else if (type === 'warning') iconClass = 'fa-exclamation-triangle';
+        
+        notification.innerHTML = `
+            <div class="notification-content">
+                <div class="notification-icon">
+                    <i class="fas ${iconClass}"></i>
+                </div>
+                <div class="notification-text">
+                    <div class="notification-title">${title}</div>
+                    <div class="notification-message">${message}</div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+        
+        // Animate out and remove
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.remove();
+            }, 500);
+        }, 5000);
+    };
 });
 </script>
 {% endblock %}

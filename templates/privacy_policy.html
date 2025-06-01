@@ -4,25 +4,106 @@
 
 {% block extra_css %}
 <style>
-.privacy-hero {
-    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
-    color: white;
-    padding: 4rem 0;
+/* Dark/Light Mode Variables */
+:root {
+    /* Light Mode (Default) */
+    --bg-color: #f8f9fa;
+    --text-color: #212529;
+    --text-muted: #6c757d;
+    --link-color: #0d6efd;
+    --link-hover-color: #0a58ca;
+    --hero-gradient-start: #0d6efd;
+    --hero-gradient-end: #0b5ed7;
+    --hero-text: #ffffff;
+    --section-bg: #ffffff;
+    --toc-bg: #f8f9fa;
+    --section-title-color: #0d6efd;
+    --border-color: #e9ecef;
+    --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    --updated-bg: #e7f3ff;
+    --updated-border: #b3d9ff;
+    --alert-info-bg: #cff4fc;
+    --alert-info-text: #055160;
+    --alert-info-border: #b6effb;
 }
 
+[data-theme="dark"] {
+    /* Dark Mode Variables */
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --text-muted: #a0a0a0;
+    --link-color: #63a9ff;
+    --link-hover-color: #4d8fd6;
+    --hero-gradient-start: #0a3b79;
+    --hero-gradient-end: #092d5e;
+    --hero-text: #ffffff;
+    --section-bg: #1e1e1e;
+    --toc-bg: #252525;
+    --section-title-color: #63a9ff;
+    --border-color: #333333;
+    --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    --updated-bg: #1a3b5a;
+    --updated-border: #0a3b79;
+    --alert-info-bg: #0f3a4d;
+    --alert-info-text: #87d3e2;
+    --alert-info-border: #055160;
+}
+
+/* Base Page */
+.privacy-policy-page {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Hero Section */
+.privacy-hero {
+    background: linear-gradient(135deg, var(--hero-gradient-start) 0%, var(--hero-gradient-end) 100%);
+    color: var(--hero-text);
+    padding: 4rem 0;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s ease;
+}
+
+/* Add pattern overlay to hero */
+.privacy-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    z-index: 1;
+}
+
+.privacy-hero .container {
+    position: relative;
+    z-index: 2;
+}
+
+/* Policy Sections */
 .policy-section {
-    background: white;
+    background: var(--section-bg);
     border-radius: 15px;
     padding: 2rem;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    box-shadow: var(--card-shadow);
     margin-bottom: 2rem;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
 }
 
+/* Table of Contents */
 .policy-toc {
-    background: #f8f9fa;
+    background: var(--toc-bg);
     border-radius: 10px;
     padding: 1.5rem;
     margin-bottom: 2rem;
+    position: sticky;
+    top: 2rem;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
 }
 
 .policy-toc ul {
@@ -30,28 +111,109 @@
 }
 
 .policy-toc a {
-    color: #0d6efd;
+    color: var(--link-color);
     text-decoration: none;
+    transition: color 0.3s ease;
 }
 
 .policy-toc a:hover {
     text-decoration: underline;
+    color: var(--link-hover-color);
 }
 
+/* Section Titles */
 .section-title {
-    color: #0d6efd;
-    border-bottom: 2px solid #e9ecef;
+    color: var(--section-title-color);
+    border-bottom: 2px solid var(--border-color);
     padding-bottom: 0.5rem;
     margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
 }
 
+/* Last Updated Box */
 .last-updated {
-    background: #e7f3ff;
-    border: 1px solid #b3d9ff;
+    background: var(--updated-bg);
+    border: 1px solid var(--updated-border);
     border-radius: 8px;
     padding: 1rem;
     margin-bottom: 2rem;
+    transition: all 0.3s ease;
+    color: var(--text-color);
 }
+
+/* Alert Boxes */
+.alert-info {
+    background-color: var(--alert-info-bg);
+    color: var(--alert-info-text);
+    border-color: var(--alert-info-border);
+    transition: all 0.3s ease;
+}
+
+/* Links within the policy sections */
+.policy-section a {
+    color: var(--link-color);
+    transition: color 0.3s ease;
+}
+
+.policy-section a:hover {
+    color: var(--link-hover-color);
+}
+
+/* Contact section Icons */
+.policy-section .fas {
+    color: var(--section-title-color);
+    transition: color 0.3s ease;
+}
+
+/* Enhance h5 titles */
+.policy-section h5 {
+    color: var(--text-color);
+    margin-top: 1.5rem;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: 50px;
+    height: 50px;
+    background: var(--section-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-color);
+    font-size: 1.2rem;
+}
+
+.dark-mode-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* Animation for sections */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.6s ease forwards;
+}
+
+.fade-in:nth-child(1) { animation-delay: 0.1s; }
+.fade-in:nth-child(2) { animation-delay: 0.2s; }
+.fade-in:nth-child(3) { animation-delay: 0.3s; }
+.fade-in:nth-child(4) { animation-delay: 0.4s; }
+.fade-in:nth-child(5) { animation-delay: 0.5s; }
 </style>
 {% endblock %}
 
@@ -73,7 +235,7 @@
         <div class="row">
             <div class="col-lg-3">
                 <!-- Table of Contents -->
-                <div class="policy-toc sticky-top">
+                <div class="policy-toc">
                     <h6 class="fw-bold mb-3">Table of Contents</h6>
                     <ul class="list-unstyled">
                         <li><a href="#information-collection">1. Information We Collect</a></li>
@@ -96,7 +258,7 @@
                 </div>
 
                 <!-- Information Collection -->
-                <div class="policy-section" id="information-collection">
+                <div class="policy-section fade-in" id="information-collection">
                     <h3 class="section-title">1. Information We Collect</h3>
                     
                     <h5>Personal Information</h5>
@@ -120,7 +282,7 @@
                 </div>
 
                 <!-- Information Use -->
-                <div class="policy-section" id="information-use">
+                <div class="policy-section fade-in" id="information-use">
                     <h3 class="section-title">2. How We Use Your Information</h3>
                     
                     <p>We use your information to:</p>
@@ -135,7 +297,7 @@
                 </div>
 
                 <!-- Information Sharing -->
-                <div class="policy-section" id="information-sharing">
+                <div class="policy-section fade-in" id="information-sharing">
                     <h3 class="section-title">3. Information Sharing</h3>
                     
                     <p>We may share your information with:</p>
@@ -158,7 +320,7 @@
                 </div>
 
                 <!-- Data Security -->
-                <div class="policy-section" id="data-security">
+                <div class="policy-section fade-in" id="data-security">
                     <h3 class="section-title">4. Data Security</h3>
                     
                     <p>We implement appropriate security measures to protect your personal information:</p>
@@ -176,7 +338,7 @@
                 </div>
 
                 <!-- Cookies -->
-                <div class="policy-section" id="cookies">
+                <div class="policy-section fade-in" id="cookies">
                     <h3 class="section-title">5. Cookies and Tracking Technologies</h3>
                     
                     <p>We use cookies and similar technologies to:</p>
@@ -191,7 +353,7 @@
                 </div>
 
                 <!-- Your Rights -->
-                <div class="policy-section" id="your-rights">
+                <div class="policy-section fade-in" id="your-rights">
                     <h3 class="section-title">6. Your Rights</h3>
                     
                     <p>You have the right to:</p>
@@ -208,14 +370,14 @@
                 </div>
 
                 <!-- Children's Privacy -->
-                <div class="policy-section" id="children-privacy">
+                <div class="policy-section fade-in" id="children-privacy">
                     <h3 class="section-title">7. Children's Privacy</h3>
                     
                     <p>Our service is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If we become aware that we have collected such information, we will take steps to delete it promptly.</p>
                 </div>
 
                 <!-- Policy Changes -->
-                <div class="policy-section" id="policy-changes">
+                <div class="policy-section fade-in" id="policy-changes">
                     <h3 class="section-title">8. Changes to This Privacy Policy</h3>
                     
                     <p>We may update this privacy policy from time to time. We will notify you of any changes by:</p>
@@ -229,7 +391,7 @@
                 </div>
 
                 <!-- Contact -->
-                <div class="policy-section" id="contact-us">
+                <div class="policy-section fade-in" id="contact-us">
                     <h3 class="section-title">9. Contact Us</h3>
                     
                     <p>If you have questions about this privacy policy or our data practices, contact us:</p>
@@ -257,4 +419,54 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Create dark mode toggle button
+    const toggleButton = document.createElement('button');
+    toggleButton.classList.add('dark-mode-toggle');
+    toggleButton.setAttribute('aria-label', 'Toggle dark mode');
+    toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+    toggleButton.addEventListener('click', toggleDarkMode);
+    document.body.appendChild(toggleButton);
+    
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        toggleButton.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    }
+    
+    function toggleDarkMode() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+            toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            toggleButton.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+    }
+    
+    // Add smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - 20,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

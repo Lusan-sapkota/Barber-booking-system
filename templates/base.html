@@ -26,7 +26,6 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/signup.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/laterstyles.css') }}">
     
     {% block extra_css %}{% endblock %}
@@ -280,7 +279,7 @@
                                 <li><a href="{{ url_for('contactus') }}">Contact Us</a></li>
                                 <li><a href="{{ url_for('faq') }}">FAQ</a></li>
                                 <li><a href="{{ url_for('helpcenter') }}">Help Center</a></li>
-                                <li><a href="{{ url_for('forgot_password') }}">Reset Password</a></li>
+                                <li><a href="{{ url_for('reset_password') }}">Reset Password</a></li>
                             </ul>
                         </div>
                     </div>
@@ -419,7 +418,6 @@
     <style>
 
 .system-notification {
-    background: white;
     border-radius: 12px;
     padding: 1rem 1.5rem;
     margin-bottom: 0.5rem;

@@ -2,17 +2,354 @@
 
 {% block title %}Profile - BookaBarber{% endblock %}
 
+{% block extra_css %}
+<style>
+/* Dark/Light Mode Variables */
+:root {
+  /* Light Mode (Default) */
+  --bg-color: #f8f9fa;
+  --text-color: #212529;
+  --text-muted: #6c757d;
+  --card-bg: #ffffff;
+  --card-header-bg: #343a40;
+  --card-header-text: #ffffff;
+  --card-border: #dee2e6;
+  --input-bg: #ffffff;
+  --input-color: #212529;
+  --input-border: #ced4da;
+  --input-readonly-bg: #f8f9fa;
+  --input-readonly-color: #6c757d;
+  --btn-primary-bg: #0d6efd;
+  --btn-primary-color: #ffffff;
+  --btn-primary-hover: #0b5ed7;
+  --btn-secondary-bg: transparent;
+  --btn-secondary-color: #6c757d;
+  --btn-secondary-border: #6c757d;
+  --btn-secondary-hover-bg: #6c757d;
+  --btn-secondary-hover-color: #ffffff;
+  --btn-success-bg: #198754;
+  --btn-success-color: #ffffff;
+  --btn-success-hover: #157347;
+  --alert-success-bg: #d4edda;
+  --alert-success-text: #155724;
+  --alert-success-border: #c3e6cb;
+  --avatar-border: #dee2e6;
+  --card-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --input-focus-border: #86b7fe;
+  --input-focus-shadow: rgba(13, 110, 253, 0.25);
+}
+
+[data-theme="dark"] {
+  /* Dark Mode Variables */
+  --bg-color: #121212;
+  --text-color: #e0e0e0;
+  --text-muted: #a0a0a0;
+  --card-bg: #1e1e1e;
+  --card-header-bg: #0d0d0d;
+  --card-header-text: #e0e0e0;
+  --card-border: #333333;
+  --input-bg: #2d2d2d;
+  --input-color: #e0e0e0;
+  --input-border: #444444;
+  --input-readonly-bg: #252525;
+  --input-readonly-color: #a0a0a0;
+  --btn-primary-bg: #63a9ff;
+  --btn-primary-color: #0d0d0d;
+  --btn-primary-hover: #4d8fd6;
+  --btn-secondary-bg: transparent;
+  --btn-secondary-color: #b0b0b0;
+  --btn-secondary-border: #666666;
+  --btn-secondary-hover-bg: #444444;
+  --btn-secondary-hover-color: #e0e0e0;
+  --btn-success-bg: #2ea04a;
+  --btn-success-color: #0d0d0d;
+  --btn-success-hover: #25873d;
+  --alert-success-bg: #0a2e17;
+  --alert-success-text: #5add82;
+  --alert-success-border: #155724;
+  --avatar-border: #333333;
+  --card-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+  --input-focus-border: #63a9ff;
+  --input-focus-shadow: rgba(99, 169, 255, 0.25);
+}
+
+/* Base Styles */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Card Styling */
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+.card:hover {
+  box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .card:hover {
+  box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.6);
+}
+
+.card-header {
+  background-color: var(--card-header-bg);
+  color: var(--card-header-text);
+  border-bottom: 1px solid var(--card-border);
+  padding: 1rem 1.5rem;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.card-body {
+  padding: 1.5rem;
+  transition: background-color 0.3s ease;
+}
+
+/* Form Controls */
+.form-label {
+  color: var(--text-color);
+  transition: color 0.3s ease;
+}
+
+.form-control {
+  background-color: var(--input-bg);
+  color: var(--input-color);
+  border: 1px solid var(--input-border);
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  background-color: var(--input-bg);
+  color: var(--input-color);
+  border-color: var(--input-focus-border);
+  box-shadow: 0 0 0 0.25rem var(--input-focus-shadow);
+}
+
+.form-control[readonly] {
+  background-color: var(--input-readonly-bg);
+  color: var(--input-readonly-color);
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--btn-primary-bg);
+  border-color: var(--btn-primary-bg);
+  color: var(--btn-primary-color);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--btn-primary-hover);
+  border-color: var(--btn-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .btn-primary:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn-outline-secondary {
+  color: var(--btn-secondary-color);
+  border-color: var(--btn-secondary-border);
+  transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+  color: var(--btn-secondary-hover-color);
+  background-color: var(--btn-secondary-hover-bg);
+  transform: translateY(-2px);
+}
+
+.btn-success {
+  background-color: var(--btn-success-bg);
+  border-color: var(--btn-success-bg);
+  color: var(--btn-success-color);
+  transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+  background-color: var(--btn-success-hover);
+  border-color: var(--btn-success-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .btn-success:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Alerts */
+.alert-success {
+  background-color: var(--alert-success-bg);
+  border-color: var(--alert-success-border);
+  color: var(--alert-success-text);
+  transition: all 0.3s ease;
+}
+
+/* Enhanced Profile Styling */
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--avatar-border);
+  margin-bottom: 1rem;
+  transition: border-color 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .profile-avatar {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.border-primary {
+  border-color: var(--btn-primary-bg) !important;
+}
+
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: 50px;
+  height: 50px;
+  background: var(--card-bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--text-color);
+  font-size: 1.2rem;
+}
+
+.dark-mode-toggle:hover {
+  transform: scale(1.1);
+}
+
+/* Animation for profile card */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profile-card-animation {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* Profile Picture Upload */
+.avatar-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 1rem;
+}
+
+.avatar-upload {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: var(--btn-primary-bg);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.avatar-upload:hover {
+  transform: scale(1.1);
+  background: var(--btn-primary-hover);
+}
+
+#imageUpload {
+  display: none;
+}
+
+.avatar-preview-container {
+  display: none;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.avatar-preview {
+  max-width: 200px;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  border: 2px solid var(--primary-color);
+}
+
+.preview-actions {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container">
+<div class="container py-5">
     <div class="row">
         <div class="col-md-8 mx-auto">
-            <div class="card">
-                <div class="card-header bg-dark text-white">
+            <div class="card profile-card-animation">
+                <div class="card-header">
                     <h4 class="mb-0">
                         <i class="fas fa-user me-2"></i>My Profile
                     </h4>
                 </div>
                 <div class="card-body p-4">
+                    <!-- Add avatar for visual enhancement -->
+                    <div class="text-center mb-4">
+                        <div class="avatar-container">
+                            <img src="{{ user.avatar or (('/static/image/demo-avatars/' + user.user_type + '.jpg') if user.email.endswith('@demo.com') else ('https://via.placeholder.com/200x200?text=' + user.first_name[0] + user.last_name[0])) }}" 
+                                alt="Profile" class="profile-avatar" id="currentAvatar">
+                            <button type="button" class="avatar-upload" id="uploadTrigger" title="Change profile picture">
+                                <i class="fas fa-camera"></i>
+                            </button>
+                            <input type="file" id="imageUpload" accept="image/*">
+                        </div>
+                        <h5 class="mt-2">{{ user.first_name }} {{ user.last_name }}</h5>
+                        <span class="badge bg-primary">{{ user.user_type.title() }}</span>
+                        
+                        <!-- Image preview container -->
+                        <div class="avatar-preview-container" id="previewContainer">
+                            <h6>Preview:</h6>
+                            <img src="" class="avatar-preview" id="imagePreview">
+                            <div class="preview-actions">
+                                <button type="button" class="btn btn-sm btn-success" id="saveImageBtn">
+                                    <i class="fas fa-check me-1"></i>Save
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" id="cancelImageBtn">
+                                    <i class="fas fa-times me-1"></i>Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                
                     <form id="profileForm">
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -54,6 +391,7 @@
                             </button>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>
@@ -64,6 +402,35 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Create dark mode toggle button
+    const toggleButton = document.createElement('button');
+    toggleButton.classList.add('dark-mode-toggle');
+    toggleButton.setAttribute('aria-label', 'Toggle dark mode');
+    toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+    toggleButton.addEventListener('click', toggleDarkMode);
+    document.body.appendChild(toggleButton);
+    
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        toggleButton.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    }
+    
+    function toggleDarkMode() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+            toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            toggleButton.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+    }
+    
+    // Existing profile functionality
     const editBtn = document.getElementById('edit-btn');
     const formInputs = document.querySelectorAll('#profileForm input:not([type="hidden"])');
     
@@ -122,6 +489,80 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelector('.card-body').insertBefore(alertDiv, document.getElementById('profileForm'));
         }, 1500);
     }
+
+    // Image upload functionality
+    const uploadTrigger = document.getElementById('uploadTrigger');
+    const imageUpload = document.getElementById('imageUpload');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewContainer = document.getElementById('previewContainer');
+    const currentAvatar = document.getElementById('currentAvatar');
+    const saveImageBtn = document.getElementById('saveImageBtn');
+    const cancelImageBtn = document.getElementById('cancelImageBtn');
+
+    // Check if this is a demo account
+    const isDemoAccount = document.getElementById('email').value.endsWith('@demo.com');
+
+    // Only enable upload if not a demo account
+    if (isDemoAccount) {
+        uploadTrigger.setAttribute('title', 'Profile picture cannot be changed on demo accounts');
+        uploadTrigger.style.opacity = '0.5';
+        uploadTrigger.style.cursor = 'not-allowed';
+    } else {
+        uploadTrigger.addEventListener('click', function() {
+            imageUpload.click();
+        });
+    }
+
+    imageUpload.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                previewContainer.style.display = 'block';
+            }
+            
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    saveImageBtn.addEventListener('click', function() {
+        // Show loading state
+        this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving';
+        this.disabled = true;
+        
+        const formData = new FormData();
+        formData.append('avatar', imageUpload.files[0]);
+        
+        // For demo, we'll simulate the API call
+        setTimeout(() => {
+            // Update the current avatar with the new image
+            currentAvatar.src = imagePreview.src;
+            
+            // Hide preview
+            previewContainer.style.display = 'none';
+            
+            // Reset button
+            saveImageBtn.innerHTML = '<i class="fas fa-check me-1"></i>Save';
+            saveImageBtn.disabled = false;
+            
+            // Show success message
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success alert-dismissible fade show mt-3';
+            alertDiv.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i>
+                Profile picture updated successfully!
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.card-body').insertBefore(alertDiv, document.getElementById('profileForm'));
+        }, 1500);
+    });
+
+    cancelImageBtn.addEventListener('click', function() {
+        // Clear file input and hide preview
+        imageUpload.value = '';
+        previewContainer.style.display = 'none';
+    });
 });
 </script>
 {% endblock %}

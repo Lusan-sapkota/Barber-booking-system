@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const customerPhone = document.getElementById('customer-phone');
     const customerEmail = document.getElementById('customer-email');
     const customerNotes = document.getElementById('customer-notes');
+    const customerLocation = document.getElementById('customer-location');
     
     // Modal elements
     const bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'));
@@ -49,6 +50,60 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Initialize customer info validation
         setupFormValidation();
+        
+        // Handle current location button click
+        document.getElementById('use-current-location').addEventListener('click', function() {
+            if (!navigator.geolocation) {
+                showErrorMessage('Geolocation is not supported by your browser');
+                return;
+            }
+            
+            // Show loading state
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Getting location...';
+            this.disabled = true;
+            
+            navigator.geolocation.getCurrentPosition(
+                async function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    try {
+                        // Use backend proxy or a geocoding service
+                        const response = await fetch(`/api/reverse-geocode?lat=${lat}&lon=${lng}`);
+                        const data = await response.json();
+                        
+                        if (data.success && data.address) {
+                            customerLocation.value = data.address;
+                        } else {
+                            customerLocation.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                        }
+                    } catch (error) {
+                        console.log('Geocoding failed, using coordinates:', error);
+                        customerLocation.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                    }
+                    
+                    // Reset button
+                    this.innerHTML = '<i class="fas fa-crosshairs me-1"></i>Use My Current Location';
+                    this.disabled = false;
+                    
+                    // Validate form
+                    validateForm();
+                },
+                function(error) {
+                    console.error('Geolocation error:', error);
+                    showErrorMessage('Unable to get your location. Please enter it manually.');
+                    
+                    // Reset button
+                    this.innerHTML = '<i class="fas fa-crosshairs me-1"></i>Use My Current Location';
+                    this.disabled = false;
+                }.bind(this),
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 300000
+                }
+            );
+        });
     }
 
     function handleServiceSelection(event) {
@@ -289,8 +344,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const isNameValid = customerName.value.trim().length >= 2;
         const isPhoneValid = customerPhone.value.trim().length >= 10;
         const isEmailValid = customerEmail.value.includes('@') && customerEmail.value.includes('.');
+        const isLocationValid = customerLocation.value.trim().length >= 5;
         
-        const isFormValid = isNameValid && isPhoneValid && isEmailValid && 
+        const isFormValid = isNameValid && isPhoneValid && isEmailValid && isLocationValid && 
                            selectedService && selectedDate && selectedTime;
         
         bookBtn.disabled = !isFormValid;
@@ -304,6 +360,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         customerEmail.classList.toggle('is-valid', isEmailValid && customerEmail.value.trim().length > 0);
         customerEmail.classList.toggle('is-invalid', !isEmailValid && customerEmail.value.trim().length > 0);
+        
+        // Add location validation visual feedback
+        customerLocation.classList.toggle('is-valid', isLocationValid && customerLocation.value.trim().length > 0);
+        customerLocation.classList.toggle('is-invalid', !isLocationValid && customerLocation.value.trim().length > 0);
         
         if (isFormValid) {
             markStepCompleted(4);
@@ -341,7 +401,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function showBookingModal() {
         console.log('Showing booking modal');
         
-        // Populate modal with booking details
+        // Update to include location
         document.getElementById('modal-service').textContent = selectedService.name;
         document.getElementById('modal-date').textContent = summaryDate.textContent;
         document.getElementById('modal-time').textContent = selectedTime;
@@ -349,6 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('modal-customer-name').textContent = customerName.value;
         document.getElementById('modal-customer-phone').textContent = customerPhone.value;
         document.getElementById('modal-customer-email').textContent = customerEmail.value;
+        document.getElementById('modal-customer-location').textContent = customerLocation.value;
         document.getElementById('modal-total').textContent = `$${selectedService.price}`;
         
         // Show modal
@@ -366,6 +427,7 @@ document.addEventListener('DOMContentLoaded', function() {
             customer_name: customerName.value,
             customer_phone: customerPhone.value,
             customer_email: customerEmail.value,
+            customer_location: customerLocation.value,
             customer_notes: customerNotes.value,
             total_price: selectedService.price,
             duration: selectedService.duration
@@ -508,6 +570,7 @@ document.addEventListener('DOMContentLoaded', function() {
         customerPhone.value = '';
         customerEmail.value = '';
         customerNotes.value = '';
+        customerLocation.value = '';
         
         // Remove validation classes
         [customerName, customerPhone, customerEmail].forEach(input => {

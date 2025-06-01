@@ -4,15 +4,89 @@
 
 {% block extra_css %}
 <style>
+/* Dark/Light Mode Variables */
+:root {
+    /* Light Mode (Default) */
+    --bg-color: #f8f9fa;
+    --text-color: #212529;
+    --text-muted: #6c757d;
+    --card-bg: #ffffff;
+    --card-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --error-gradient-start: #667eea;
+    --error-gradient-end: #764ba2;
+    --error-text: #ffffff;
+    --btn-home-bg: rgba(255, 255, 255, 0.2);
+    --btn-home-border: rgba(255, 255, 255, 0.3);
+    --btn-home-color: #ffffff;
+    --btn-home-hover-bg: rgba(255, 255, 255, 0.3);
+    --btn-home-hover-border: rgba(255, 255, 255, 0.5);
+    --btn-back-bg: transparent;
+    --btn-back-border: rgba(255, 255, 255, 0.5);
+    --btn-back-color: #ffffff;
+    --btn-back-hover-bg: rgba(255, 255, 255, 0.1);
+    --btn-primary-bg: #0d6efd;
+    --btn-primary-color: #ffffff;
+    --btn-success-bg: #198754;
+    --btn-success-color: #ffffff;
+    --btn-info-bg: #0dcaf0;
+    --btn-info-color: #ffffff;
+    --btn-outline-light-bg: transparent;
+    --btn-outline-light-color: #ffffff;
+    --btn-outline-light-border: #ffffff;
+    --help-section-bg: #f8f9fa;
+    --help-section-title: #212529;
+    --btn-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+    /* Dark Mode Variables */
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --text-muted: #a0a0a0;
+    --card-bg: #1e1e1e;
+    --card-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+    --error-gradient-start: #3d4a98;
+    --error-gradient-end: #4d3172;
+    --error-text: #ffffff;
+    --btn-home-bg: rgba(255, 255, 255, 0.15);
+    --btn-home-border: rgba(255, 255, 255, 0.2);
+    --btn-home-color: #ffffff;
+    --btn-home-hover-bg: rgba(255, 255, 255, 0.25);
+    --btn-home-hover-border: rgba(255, 255, 255, 0.4);
+    --btn-back-bg: transparent;
+    --btn-back-border: rgba(255, 255, 255, 0.4);
+    --btn-back-color: #ffffff;
+    --btn-back-hover-bg: rgba(255, 255, 255, 0.08);
+    --btn-primary-bg: #63a9ff;
+    --btn-primary-color: #1e1e1e;
+    --btn-success-bg: #2ea04a;
+    --btn-success-color: #1e1e1e;
+    --btn-info-bg: #25c7e4;
+    --btn-info-color: #1e1e1e;
+    --btn-outline-light-bg: transparent;
+    --btn-outline-light-color: #ffffff;
+    --btn-outline-light-border: rgba(255, 255, 255, 0.7);
+    --help-section-bg: #1e1e1e;
+    --help-section-title: #e0e0e0;
+    --btn-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 .error-page {
     min-height: 70vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--error-gradient-start) 0%, var(--error-gradient-end) 100%);
+    color: var(--error-text);
     text-align: center;
     padding: 2rem 0;
+    transition: background 0.3s ease;
 }
 
 .error-content {
@@ -48,9 +122,9 @@
 }
 
 .btn-home {
-    background: rgba(255,255,255,0.2);
-    border: 2px solid rgba(255,255,255,0.3);
-    color: white;
+    background: var(--btn-home-bg);
+    border: 2px solid var(--btn-home-border);
+    color: var(--btn-home-color);
     padding: 12px 30px;
     border-radius: 50px;
     text-decoration: none;
@@ -60,16 +134,17 @@
 }
 
 .btn-home:hover {
-    background: rgba(255,255,255,0.3);
-    border-color: rgba(255,255,255,0.5);
-    color: white;
+    background: var(--btn-home-hover-bg);
+    border-color: var(--btn-home-hover-border);
+    color: var(--btn-home-color);
     transform: translateY(-2px);
+    box-shadow: var(--btn-shadow);
 }
 
 .btn-back {
-    background: transparent;
-    border: 2px solid rgba(255,255,255,0.5);
-    color: white;
+    background: var(--btn-back-bg);
+    border: 2px solid var(--btn-back-border);
+    color: var(--btn-back-color);
     padding: 12px 30px;
     border-radius: 50px;
     text-decoration: none;
@@ -78,8 +153,8 @@
 }
 
 .btn-back:hover {
-    background: rgba(255,255,255,0.1);
-    color: white;
+    background: var(--btn-back-hover-bg);
+    color: var(--btn-back-color);
     transform: translateY(-2px);
 }
 
@@ -87,6 +162,83 @@
     font-size: 4rem;
     margin-bottom: 1rem;
     opacity: 0.7;
+}
+
+/* Help section styling */
+.container {
+    background-color: var(--help-section-bg);
+    transition: background-color 0.3s ease;
+}
+
+.container h3 {
+    color: var(--help-section-title);
+    transition: color 0.3s ease;
+}
+
+.card {
+    background-color: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--btn-shadow);
+}
+
+/* Button overrides */
+.btn-primary {
+    background-color: var(--btn-primary-bg);
+    border-color: var(--btn-primary-bg);
+    color: var(--btn-primary-color);
+}
+
+.btn-success {
+    background-color: var(--btn-success-bg);
+    border-color: var(--btn-success-bg);
+    color: var(--btn-success-color);
+}
+
+.btn-info {
+    background-color: var(--btn-info-bg);
+    border-color: var(--btn-info-bg);
+    color: var(--btn-info-color);
+}
+
+.btn-outline-light {
+    background-color: var(--btn-outline-light-bg);
+    color: var(--btn-outline-light-color);
+    border-color: var(--btn-outline-light-border);
+}
+
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* Dark Mode Toggle */
+.dark-mode-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: 50px;
+    height: 50px;
+    background: var(--card-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-color);
+    font-size: 1.2rem;
+}
+
+.dark-mode-toggle:hover {
+    transform: scale(1.1);
 }
 
 @media (max-width: 768px) {
@@ -215,14 +367,37 @@
 {% endblock %}
 
 {% block scripts %}
-<body 
-  data-error-code="{{ error_code }}" 
-  data-error-message="{{ error_message }}"
-  data-home-url="{{ url_for('home') }}"
->
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    // Create dark mode toggle button
+    const toggleButton = document.createElement('button');
+    toggleButton.classList.add('dark-mode-toggle');
+    toggleButton.setAttribute('aria-label', 'Toggle dark mode');
+    toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+    toggleButton.addEventListener('click', toggleDarkMode);
+    document.body.appendChild(toggleButton);
+    
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        toggleButton.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    }
+    
+    function toggleDarkMode() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+            toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            toggleButton.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+    }
+
+    // Original error page functionality
     const code = document.body.dataset.errorCode;
     const message = document.body.dataset.errorMessage;
     const homeUrl = document.body.dataset.homeUrl;
@@ -243,5 +418,4 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 </script>
-
 {% endblock %}

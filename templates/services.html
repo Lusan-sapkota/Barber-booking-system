@@ -4,22 +4,202 @@
 
 {% block extra_css %}
 <style>
+/* Dark/Light Mode Variables */
+:root {
+  /* Light Mode (Default) */
+  --bg-color: #f8f9fa;
+  --container-bg: #ffffff;
+  --card-bg: #ffffff;
+  --text-color: #212529;
+  --text-muted: #6c757d;
+  --border-color: #dee2e6;
+  --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  --primary-color: #0d6efd;
+  --primary-hover: #0a58ca;
+  --service-icon-bg: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  --service-icon-color: #0d6efd;
+  --service-duration-bg: #f8f9fa;
+  --service-duration-color: #6c757d;
+  --info-section-bg: #f8f9fa;
+  --hero-gradient-start: #0d6efd;
+  --hero-gradient-end: #0b5ed7;
+  --hero-text: #ffffff;
+}
+
+[data-theme="dark"] {
+  --bg-color: #121212;
+  --container-bg: #1a1a1a;
+  --card-bg: #1e1e1e;
+  --text-color: #e0e0e0;
+  --text-muted: #a0a0a0;
+  --border-color: #333333;
+  --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  --primary-color: #63a9ff;
+  --primary-hover: #4d8fd6;
+  --service-icon-bg: linear-gradient(135deg, #133e67 0%, #1a5692 100%);
+  --service-icon-color: #63a9ff;
+  --service-duration-bg: #2d2d2d;
+  --service-duration-color: #b0b0b0;
+  --info-section-bg: #1a1a1a;
+  --hero-gradient-start: #0a3b79;
+  --hero-gradient-end: #092d5e;
+  --hero-text: #ffffff;
+}
+
+/* Update existing styles to use variables */
+.services-page {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: all 0.3s ease;
+  min-height: 100vh;
+}
+
+.services-page .container {
+  background-color: var(--container-bg);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: -2rem;
+  margin-bottom: 3rem;
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+}
+
+.category-title {
+  color: var(--primary-color);
+  transition: color 0.3s ease;
+}
+
+.category-title:after {
+  background: var(--primary-color);
+  transition: background 0.3s ease;
+}
+
+.service-card {
+  background-color: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.service-icon {
+  background: var(--service-icon-bg);
+  color: var(--service-icon-color);
+  transition: all 0.3s ease, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.service-price {
+  color: var(--primary-color);
+  transition: color 0.3s ease;
+}
+
+.service-duration {
+  background: var(--service-duration-bg);
+  color: var(--service-duration-color);
+  transition: all 0.3s ease;
+}
+
+.service-description {
+  color: var(--text-muted);
+  transition: color 0.3s ease;
+}
+
+.additional-info {
+  background: var(--info-section-bg);
+  transition: background-color 0.3s ease;
+  margin-top: 4rem;
+  padding: 4rem 0;
+  border-radius: 12px;
+}
+
+.info-card {
+  background-color: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  color: var(--text-color);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: 50px;
+  height: 50px;
+  background: var(--card-bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--text-color);
+  font-size: 1.2rem;
+}
+
+.dark-mode-toggle:hover {
+  transform: scale(1.1);
+}
+
 .services-hero {
-    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
-    color: white;
-    padding: 4rem 0;
-    margin-bottom: 3rem;
+    background: linear-gradient(135deg, var(--hero-gradient-start) 0%, var(--hero-gradient-end) 100%);
+    color: var(--hero-text);
+    padding: 5rem 0 7rem;
+    margin-bottom: 0;
+    transition: background 0.3s ease;
+    border-radius: 0 0 25% 25% / 5%;
+    position: relative;
+    overflow: hidden;
+}
+
+.services-hero::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+    animation: rotate 60s linear infinite;
+    z-index: 1;
+}
+
+.services-hero::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
+    z-index: 1;
+}
+
+.services-hero .container {
+    position: relative;
+    z-index: 2;
+    background: transparent;
+    box-shadow: none;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 .category-section {
     margin-bottom: 4rem;
+    position: relative;
 }
 
 .category-title {
     position: relative;
     padding-bottom: 1rem;
     margin-bottom: 2rem;
-    color: #0d6efd;
+    display: inline-block;
 }
 
 .category-title:after {
@@ -27,15 +207,20 @@
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 60px;
+    width: 100%;
     height: 3px;
-    background: #0d6efd;
+    background: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+.category-title:hover:after {
+    width: 100%;
 }
 
 .service-card {
     border-radius: 12px;
-    border: none;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--card-shadow);
     transition: all 0.3s ease;
     height: 100%;
     overflow: hidden;
@@ -43,49 +228,162 @@
 
 .service-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    border-color: var(--primary-color);
 }
 
 .service-icon {
-    width: 70px;
-    height: 70px;
+    width: 80px;
+    height: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-    color: #0d6efd;
+    background: var(--service-icon-bg);
+    color: var(--service-icon-color);
     border-radius: 50%;
-    font-size: 1.5rem;
+    font-size: 1.7rem;
     margin: 0 auto 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.service-card:hover .service-icon {
+    transform: scale(1.1) rotate(5deg);
 }
 
 .service-price {
-    font-size: 1.5rem;
+    font-size: 1.7rem;
     font-weight: 700;
-    color: #0d6efd;
     margin-top: 1rem;
+    transition: all 0.3s ease;
+}
+
+.service-card:hover .service-price {
+    transform: scale(1.05);
 }
 
 .service-duration {
     display: inline-block;
-    padding: 0.25rem 0.75rem;
-    background: #f8f9fa;
-    color: #6c757d;
+    padding: 0.35rem 1rem;
+    background: var(--service-duration-bg);
+    color: var(--service-duration-color);
     border-radius: 50px;
-    font-size: 0.8rem;
-    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    margin-top: 0.75rem;
+    font-weight: 500;
 }
 
 .service-description {
-    margin-top: 1rem;
+    margin-top: 1.25rem;
     margin-bottom: 1.5rem;
-    color: #6c757d;
+    line-height: 1.6;
 }
 
-.additional-info {
-    background: #f8f9fa;
-    padding: 3rem 0;
-    margin-top: 2rem;
+.btn-primary {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.info-card {
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+}
+
+.info-card h4 {
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.info-card h4 i {
+    color: var(--primary-color);
+    margin-right: 0.75rem;
+    font-size: 1.3rem;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.info-card:hover h4 i {
+    transform: scale(1.2);
+}
+
+.info-card p {
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    line-height: 1.7;
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary-color);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* Responsive improvements */
+@media (max-width: 991.98px) {
+    .services-page .container {
+        padding: 1.5rem;
+    }
+    
+    .services-hero {
+        padding: 4rem 0 6rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .services-page .container {
+        padding: 1rem;
+        margin-top: -1rem;
+    }
+    
+    .services-hero {
+        padding: 3rem 0 5rem;
+    }
+    
+    .info-card {
+        margin-bottom: 1rem;
+    }
+    
+    .service-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .services-hero {
+        padding: 2.5rem 0 4.5rem;
+    }
+    
+    .category-title {
+        font-size: 1.5rem;
+    }
+    
+    .service-price {
+        font-size: 1.5rem;
+    }
 }
 </style>
 {% endblock %}
@@ -148,30 +446,207 @@
             </div>
         </section>
         {% endfor %}
+
+        <!-- Service Categories with Comprehensive Explanations -->
+        <section class="category-section" id="haircut">
+            <h2 class="category-title">Haircut Services</h2>
+            
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="card service-card text-center">
+                        <div class="card-body p-4">
+                            <div class="service-icon">
+                                <i class="fas fa-cut"></i>
+                            </div>
+                            
+                            <h4>Classic Haircut</h4>
+                            
+                            <p class="service-description">
+                                Our signature haircut service includes a consultation, precision cut, styling, and finishing touches. Performed by our expert barbers for a clean, polished look.
+                            </p>
+                            
+                            <div class="service-price">$25</div>
+                            <div class="service-duration">
+                                <i class="far fa-clock me-1"></i>30 min
+                            </div>
+                            
+                            <a href="{{ url_for('booking_page') }}" class="btn btn-primary w-100 mt-4">
+                                <i class="fas fa-calendar-plus me-2"></i>Book This Service
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6">
+                    <div class="card service-card text-center">
+                        <div class="card-body p-4">
+                            <div class="service-icon">
+                                <i class="fas fa-cut"></i>
+                            </div>
+                            
+                            <h4>Haircut & Styling</h4>
+                            
+                            <p class="service-description">
+                                A comprehensive hair service that includes a precision cut tailored to your face shape, followed by professional styling with premium products for a complete transformation.
+                            </p>
+                            
+                            <div class="service-price">$35</div>
+                            <div class="service-duration">
+                                <i class="far fa-clock me-1"></i>45 min
+                            </div>
+                            
+                            <a href="{{ url_for('booking_page') }}" class="btn btn-primary w-100 mt-4">
+                                <i class="fas fa-calendar-plus me-2"></i>Book This Service
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="category-section" id="beard">
+            <h2 class="category-title">Beard Services</h2>
+            
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="card service-card text-center">
+                        <div class="card-body p-4">
+                            <div class="service-icon">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            
+                            <h4>Beard Trim & Style</h4>
+                            
+                            <p class="service-description">
+                                Precision beard trimming and shaping service to keep your facial hair looking sharp. Includes edge definition and styling with beard oil for healthy, well-groomed results.
+                            </p>
+                            
+                            <div class="service-price">$15</div>
+                            <div class="service-duration">
+                                <i class="far fa-clock me-1"></i>15 min
+                            </div>
+                            
+                            <a href="{{ url_for('booking_page') }}" class="btn btn-primary w-100 mt-4">
+                                <i class="fas fa-calendar-plus me-2"></i>Book This Service
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6">
+                    <div class="card service-card text-center">
+                        <div class="card-body p-4">
+                            <div class="service-icon">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            
+                            <h4>Hot Towel Shave</h4>
+                            
+                            <p class="service-description">
+                                Experience the traditional barber straight razor shave with hot towel preparation. This relaxing service includes pre-shave oil, hot towel treatment, precision straight razor shave, and aftershave care.
+                            </p>
+                            
+                            <div class="service-price">$30</div>
+                            <div class="service-duration">
+                                <i class="far fa-clock me-1"></i>30 min
+                            </div>
+                            
+                            <a href="{{ url_for('booking_page') }}" class="btn btn-primary w-100 mt-4">
+                                <i class="fas fa-calendar-plus me-2"></i>Book This Service
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="category-section" id="treatment">
+            <h2 class="category-title">Treatment Services</h2>
+            
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="card service-card text-center">
+                        <div class="card-body p-4">
+                            <div class="service-icon">
+                                <i class="fas fa-spa"></i>
+                            </div>
+                            
+                            <h4>Gentleman's Facial</h4>
+                            
+                            <p class="service-description">
+                                Revitalize your skin with our specialized facial treatment designed for men. Includes deep cleansing, exfoliation, steam treatment, facial massage, and hydrating mask for refreshed and rejuvenated skin.
+                            </p>
+                            
+                            <div class="service-price">$45</div>
+                            <div class="service-duration">
+                                <i class="far fa-clock me-1"></i>60 min
+                            </div>
+                            
+                            <a href="{{ url_for('booking_page') }}" class="btn btn-primary w-100 mt-4">
+                                <i class="fas fa-calendar-plus me-2"></i>Book This Service
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="category-section" id="package">
+            <h2 class="category-title">Premium Packages</h2>
+            
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="card service-card text-center">
+                        <div class="card-body p-4">
+                            <div class="service-icon">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            
+                            <h4>Premium Package</h4>
+                            
+                            <p class="service-description">
+                                Our signature all-inclusive grooming experience. This comprehensive package includes a precision haircut, beard trim and styling, gentleman's facial, and a relaxing scalp massage. The complete grooming experience for the modern gentleman.
+                            </p>
+                            
+                            <div class="service-price">$70</div>
+                            <div class="service-duration">
+                                <i class="far fa-clock me-1"></i>90 min
+                            </div>
+                            
+                            <a href="{{ url_for('booking_page') }}" class="btn btn-primary w-100 mt-4">
+                                <i class="fas fa-calendar-plus me-2"></i>Book This Service
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
         
-        <!-- Additional Info -->
+        <!-- Additional Info - MOVED TO THE END -->
         <section class="additional-info">
-            <div class="container">
-                <div class="row">
+            <div class="container p-0">
+                <h2 class="category-title mb-4">Additional Information</h2>
+                <div class="row g-4">
                     <div class="col-md-6">
-                        <div class="info-card p-4">
-                            <h4 class="mb-3">
-                                <i class="fas fa-info-circle me-2 text-primary"></i>
+                        <div class="info-card h-100">
+                            <h4>
+                                <i class="fas fa-info-circle"></i>
                                 Service Information
                             </h4>
                             <p>All services are performed by our experienced and professional barbers. We use premium products to ensure the highest quality results for every client.</p>
                             <p>Times listed are approximate and may vary slightly depending on your specific needs.</p>
+                            <p class="mb-0">Walk-ins are welcome, but appointments are recommended to ensure availability with your preferred barber.</p>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="info-card p-4">
-                            <h4 class="mb-3">
-                                <i class="fas fa-question-circle me-2 text-primary"></i>
+                        <div class="info-card h-100">
+                            <h4>
+                                <i class="fas fa-question-circle"></i>
                                 Custom Requests
                             </h4>
                             <p>Don't see what you're looking for? We can accommodate special requests and customize services to fit your needs.</p>
-                            <p>Contact us directly for any custom service inquiries or special accommodations.</p>
-                            <a href="{{ url_for('contactus') }}" class="btn btn-outline-primary mt-2">
+                            <p>Our barbers are skilled in a wide range of styles and techniques, from classic to contemporary. Feel free to bring reference photos or discuss your vision during your consultation.</p>
+                            <a href="{{ url_for('contactus') }}" class="btn btn-outline-primary mt-3">
                                 <i class="fas fa-envelope me-2"></i>Contact Us
                             </a>
                         </div>
@@ -181,4 +656,80 @@
         </section>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Create dark mode toggle
+    const toggleButton = document.createElement('button');
+    toggleButton.classList.add('dark-mode-toggle');
+    toggleButton.setAttribute('aria-label', 'Toggle dark mode');
+    toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+    toggleButton.addEventListener('click', toggleDarkMode);
+    document.body.appendChild(toggleButton);
+    
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        toggleButton.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    }
+    
+    function toggleDarkMode() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+            toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            toggleButton.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+    }
+    
+    // Add smooth scroll for category links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - 100,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+    
+    // Add animation on scroll for services
+    const serviceCards = document.querySelectorAll('.service-card');
+    
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    
+    serviceCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        card.style.transitionDelay = `${index * 0.1}s`;
+        observer.observe(card);
+    });
+});
+</script>
 {% endblock %}

@@ -2,6 +2,214 @@
 
 {% block title %}Cookie Policy - BookaBarber{% endblock %}
 
+{% block extra_css %}
+<style>
+/* Dark/Light Mode Variables */
+:root {
+    /* Light Mode (Default) */
+    --bg-color: #f8f9fa;
+    --text-color: #212529;
+    --text-muted: #6c757d;
+    --card-bg: #ffffff;
+    --card-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --card-header-bg: #0dcaf0;
+    --card-header-text: #ffffff;
+    --section-title-color: #0dcaf0;
+    --section-border-color: #0dcaf0;
+    --cookie-type-border: #dee2e6;
+    --alert-bg: #cff4fc;
+    --alert-text: #055160;
+    --contact-bg: #f8f9fa;
+    --contact-border: #0dcaf0;
+    --controls-bg: #f8f9fa;
+    --btn-info-bg: #0dcaf0;
+    --btn-info-color: #ffffff;
+    --btn-info-hover-bg: #0bb5d5;
+    --btn-outline-info-color: #0dcaf0;
+    --btn-outline-info-border: #0dcaf0;
+    --btn-outline-info-hover-bg: #0dcaf0;
+    --btn-outline-info-hover-color: #ffffff;
+}
+
+[data-theme="dark"] {
+    /* Dark Mode Variables */
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --text-muted: #a0a0a0;
+    --card-bg: #1e1e1e;
+    --card-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+    --card-header-bg: #0a6378;
+    --card-header-text: #ffffff;
+    --section-title-color: #25c7e4;
+    --section-border-color: #0a6378;
+    --cookie-type-border: #333333;
+    --alert-bg: #093a47;
+    --alert-text: #25c7e4;
+    --contact-bg: #252525;
+    --contact-border: #0a6378;
+    --controls-bg: #252525;
+    --btn-info-bg: #0a6378;
+    --btn-info-color: #ffffff;
+    --btn-info-hover-bg: #0c7d94;
+    --btn-outline-info-color: #25c7e4;
+    --btn-outline-info-border: #25c7e4;
+    --btn-outline-info-hover-bg: #0a6378;
+    --btn-outline-info-hover-color: #ffffff;
+}
+
+/* Base styles */
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Card styles */
+.card {
+    background-color: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+}
+
+.card-header.bg-info {
+    background-color: var(--card-header-bg) !important;
+    color: var(--card-header-text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Cookie content styles */
+.cookie-content {
+    color: var(--text-color);
+    transition: color 0.3s ease;
+}
+
+.cookie-content h3 {
+    border-left: 4px solid var(--section-border-color);
+    padding-left: 1rem;
+    color: var(--section-title-color);
+    transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+.cookie-type {
+    border-left: 3px solid var(--cookie-type-border);
+    padding-left: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.cookie-type h5 {
+    color: var(--text-color);
+    transition: color 0.3s ease;
+}
+
+/* Alert styles */
+.alert-info {
+    background-color: var(--alert-bg);
+    color: var(--alert-text);
+    border-color: transparent;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Other elements */
+.contact-info {
+    background: var(--contact-bg);
+    padding: 1rem;
+    border-radius: 0.375rem;
+    border-left: 4px solid var(--contact-border);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    color: var(--text-color);
+}
+
+.cookie-controls {
+    background: var(--controls-bg);
+    padding: 2rem;
+    border-radius: 0.375rem;
+    margin-top: 2rem;
+    transition: background-color 0.3s ease;
+    color: var(--text-color);
+}
+
+.text-info {
+    color: var(--section-title-color) !important;
+    transition: color 0.3s ease;
+}
+
+.border-info {
+    border-color: var(--section-border-color) !important;
+    transition: border-color 0.3s ease;
+}
+
+/* Button styles */
+.btn-info {
+    background-color: var(--btn-info-bg);
+    border-color: var(--btn-info-bg);
+    color: var(--btn-info-color);
+    transition: all 0.3s ease;
+}
+
+.btn-info:hover, .btn-info:focus {
+    background-color: var(--btn-info-hover-bg);
+    border-color: var(--btn-info-hover-bg);
+    transform: translateY(-2px);
+}
+
+.btn-outline-info {
+    color: var(--btn-outline-info-color);
+    border-color: var(--btn-outline-info-border);
+    transition: all 0.3s ease;
+}
+
+.btn-outline-info:hover, .btn-outline-info:focus {
+    background-color: var(--btn-outline-info-hover-bg);
+    color: var(--btn-outline-info-hover-color);
+    transform: translateY(-2px);
+}
+
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: 50px;
+    height: 50px;
+    background: var(--card-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-color);
+    font-size: 1.2rem;
+}
+
+.dark-mode-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* Animation for content */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.cookie-content section {
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+.cookie-content section:nth-child(1) { animation-delay: 0.1s; }
+.cookie-content section:nth-child(2) { animation-delay: 0.2s; }
+.cookie-content section:nth-child(3) { animation-delay: 0.3s; }
+.cookie-content section:nth-child(4) { animation-delay: 0.4s; }
+.cookie-content section:nth-child(5) { animation-delay: 0.5s; }
+.cookie-content section:nth-child(6) { animation-delay: 0.6s; }
+.cookie-content section:nth-child(7) { animation-delay: 0.7s; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
@@ -133,34 +341,6 @@
 </div>
 {% endblock %}
 
-{% block extra_css %}
-<style>
-.cookie-content h3 {
-    border-left: 4px solid #0dcaf0;
-    padding-left: 1rem;
-}
-
-.cookie-type {
-    border-left: 3px solid #dee2e6;
-    padding-left: 1rem;
-}
-
-.contact-info {
-    background: #f8f9fa;
-    padding: 1rem;
-    border-radius: 0.375rem;
-    border-left: 4px solid #0dcaf0;
-}
-
-.cookie-controls {
-    background: #f8f9fa;
-    padding: 2rem;
-    border-radius: 0.375rem;
-    margin-top: 2rem;
-}
-</style>
-{% endblock %}
-
 {% block scripts %}
 <script>
 function openCookieSettings() {
@@ -177,5 +357,35 @@ function clearAllCookies() {
         location.reload();
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Create dark mode toggle button
+    const toggleButton = document.createElement('button');
+    toggleButton.classList.add('dark-mode-toggle');
+    toggleButton.setAttribute('aria-label', 'Toggle dark mode');
+    toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+    toggleButton.addEventListener('click', toggleDarkMode);
+    document.body.appendChild(toggleButton);
+    
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        toggleButton.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    }
+    
+    function toggleDarkMode() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+            toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            toggleButton.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+    }
+});
 </script>
 {% endblock %}

@@ -4,53 +4,358 @@
 
 {% block extra_css %}
 <style>
-.contact-hero {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: white;
-    padding: 4rem 0;
+/* Dark/Light Mode Variables */
+:root {
+  /* Light Mode (Default) */
+  --bg-color: #f8f9fa;
+  --card-bg: #ffffff;
+  --form-bg: #ffffff;
+  --text-color: #212529;
+  --text-muted: #6c757d;
+  --border-color: #dee2e6;
+  --input-bg: #ffffff;
+  --input-color: #212529;
+  --input-border: #ced4da;
+  --input-focus-border: #86b7fe;
+  --input-focus-shadow: rgba(13, 110, 253, 0.25);
+  --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  --primary-color: #0d6efd;
+  --primary-hover: #0a58ca;
+  --success-color: #28a745; 
+  --success-hover: #218838;
+  --hero-gradient-start: #28a745;
+  --hero-gradient-end: #20c997;
+  --hero-text: #ffffff;
+  --info-bg: #f8f9fa;
+  --map-placeholder-bg: #f8f9fa;
+  --faq-bg: #f8f9fa;
 }
 
+[data-theme="dark"] {
+  --bg-color: #121212;
+  --card-bg: #1e1e1e;
+  --form-bg: #1e1e1e;
+  --text-color: #e0e0e0;
+  --text-muted: #a0a0a0;
+  --border-color: #333333;
+  --input-bg: #2d2d2d;
+  --input-color: #e0e0e0;
+  --input-border: #444444;
+  --input-focus-border: #63a9ff;
+  --input-focus-shadow: rgba(99, 169, 255, 0.25);
+  --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  --primary-color: #63a9ff;
+  --primary-hover: #4d8fd6;
+  --success-color: #2ea04a;
+  --success-hover: #25873d;
+  --hero-gradient-start: #1d7e33;
+  --hero-gradient-end: #199473;
+  --hero-text: #ffffff;
+  --info-bg: #1a1a1a;
+  --map-placeholder-bg: #2a2a2a;
+  --faq-bg: #1a1a1a;
+}
+
+/* Base Page Styling */
+.contact-page {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: all 0.3s ease;
+  min-height: 100vh;
+}
+
+/* Hero Section */
+.contact-hero {
+  background: linear-gradient(135deg, var(--hero-gradient-start) 0%, var(--hero-gradient-end) 100%);
+  color: var(--hero-text);
+  padding: 4rem 0;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s ease;
+}
+
+.contact-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  z-index: 1;
+}
+
+.contact-hero .container {
+  position: relative;
+  z-index: 2;
+}
+
+/* Contact Cards */
 .contact-card {
-    background: white;
-    border-radius: 15px;
-    padding: 2rem;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    height: 100%;
-    text-align: center;
+  background-color: var(--card-bg);
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: var(--card-shadow);
+  height: 100%;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+.contact-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="dark"] .contact-card:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
 .contact-icon {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #28a745, #20c997);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 2rem;
-    margin: 0 auto 1rem;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--success-color), var(--hero-gradient-end));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+  margin: 0 auto 1rem;
+  transition: all 0.3s ease, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+.contact-card:hover .contact-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+/* Contact Form */
 .contact-form {
-    background: white;
-    border-radius: 15px;
-    padding: 2rem;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  background-color: var(--form-bg);
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
 }
 
+/* Form Elements */
+.form-label {
+  color: var(--text-color);
+  transition: color 0.3s ease;
+}
+
+.form-control {
+  background-color: var(--input-bg);
+  color: var(--input-color);
+  border-color: var(--input-border);
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  background-color: var(--input-bg);
+  color: var(--input-color);
+  border-color: var(--input-focus-border);
+  box-shadow: 0 0 0 0.25rem var(--input-focus-shadow);
+}
+
+.form-select {
+  background-color: var(--input-bg);
+  color: var(--input-color);
+  border-color: var(--input-border);
+  transition: all 0.3s ease;
+}
+
+.form-select:focus {
+  background-color: var(--input-bg);
+  color: var(--input-color);
+  border-color: var(--input-focus-border);
+  box-shadow: 0 0 0 0.25rem var(--input-focus-shadow);
+}
+
+.form-check-input {
+  background-color: var(--input-bg);
+  border-color: var(--input-border);
+  transition: all 0.3s ease;
+}
+
+.form-check-label {
+  color: var(--text-color);
+  transition: color 0.3s ease;
+}
+
+/* Map Container */
 .map-container {
-    background: white;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    height: 400px;
+  background-color: var(--card-bg);
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  height: 400px;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
 }
 
+.map-container .bg-light {
+  background-color: var(--map-placeholder-bg) !important;
+  transition: background-color 0.3s ease;
+}
+
+/* Office Information */
 .office-info {
-    background: #f8f9fa;
-    border-radius: 15px;
-    padding: 2rem;
+  background-color: var(--info-bg);
+  border-radius: 15px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+.office-info .text-success {
+  color: var(--success-color) !important;
+  transition: color 0.3s ease;
+}
+
+/* FAQ Link Section */
+.bg-light {
+  background-color: var(--faq-bg) !important;
+  transition: background-color 0.3s ease;
+}
+
+/* Button Styling */
+.btn-success {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+  transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+  background-color: var(--success-hover);
+  border-color: var(--success-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .btn-success:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .btn-primary:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Text Colors */
+.text-muted {
+  color: var(--text-muted) !important;
+  transition: color 0.3s ease;
+}
+
+/* Animation for cards */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.contact-card {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.contact-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.contact-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.contact-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: 50px;
+  height: 50px;
+  background: var(--card-bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--text-color);
+  font-size: 1.2rem;
+}
+
+.dark-mode-toggle:hover {
+  transform: scale(1.1);
+}
+
+/* Notification styling for dark mode */
+[data-theme="dark"] .system-notification {
+  background: #212529;
+  color: #ffffff;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .system-notification.success {
+  background: linear-gradient(135deg, #1e7e34, #18a97b);
+  border-left: 4px solid rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .system-notification.error {
+  background: linear-gradient(135deg, #a71d2a, #881c25);
+  border-left: 4px solid rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .system-notification.info {
+  background: linear-gradient(135deg, #0a507a, #0f6991);
+  border-left: 4px solid rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .system-notification.warning {
+  background: linear-gradient(135deg, #9d5d00, #b86e00);
+  border-left: 4px solid rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .system-notification .notification-title {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .system-notification .notification-message {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+@media (max-width: 767.98px) {
+  .contact-card,
+  .contact-form,
+  .map-container,
+  .office-info {
+    margin-bottom: 1.5rem;
+  }
 }
 </style>
 {% endblock %}
@@ -231,33 +536,174 @@
 
 {% block scripts %}
 <script>
-document.getElementById('contactForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+document.addEventListener('DOMContentLoaded', function() {
+    // Create dark mode toggle
+    const toggleButton = document.createElement('button');
+    toggleButton.classList.add('dark-mode-toggle');
+    toggleButton.setAttribute('aria-label', 'Toggle dark mode');
+    toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+    toggleButton.addEventListener('click', toggleDarkMode);
+    document.body.appendChild(toggleButton);
     
-    // Get form data
-    const formData = {
-        firstName: document.getElementById('firstName').value,
-        lastName: document.getElementById('lastName').value,
-        email: document.getElementById('email').value,
-        phone: document.getElementById('phone').value,
-        subject: document.getElementById('subject').value,
-        message: document.getElementById('message').value,
-        newsletter: document.getElementById('newsletter').checked
-    };
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        toggleButton.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    }
     
-    // Show loading state
-    const submitBtn = this.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
-    submitBtn.disabled = true;
+    function toggleDarkMode() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+            toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            toggleButton.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+    }
     
-    // Simulate form submission
-    setTimeout(() => {
-        showSystemNotification('success', 'Message Sent!', 'Thank you for contacting us. We\'ll get back to you within 24 hours.');
-        this.reset();
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    }, 2000);
+    // Form submission handler
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get form data
+        const formData = {
+            firstName: document.getElementById('firstName').value,
+            lastName: document.getElementById('lastName').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            subject: document.getElementById('subject').value,
+            message: document.getElementById('message').value,
+            newsletter: document.getElementById('newsletter').checked
+        };
+        
+        // Show loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+        submitBtn.disabled = true;
+        
+        // Simulate form submission
+        setTimeout(() => {
+            showSystemNotification('success', 'Message Sent!', 'Thank you for contacting us. We\'ll get back to you within 24 hours.');
+            this.reset();
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }, 2000);
+    });
 });
+
+// System notification function with dark mode support
+function showSystemNotification(type, title, message) {
+    const notification = document.createElement('div');
+    notification.className = `system-notification ${type}`;
+    
+    // Choose appropriate icon based on notification type
+    let iconClass = 'fa-info-circle';
+    if (type === 'success') iconClass = 'fa-check-circle';
+    else if (type === 'error') iconClass = 'fa-exclamation-circle';
+    else if (type === 'warning') iconClass = 'fa-exclamation-triangle';
+    
+    notification.innerHTML = `
+        <div class="notification-content">
+            <div class="notification-icon">
+                <i class="fas ${iconClass}"></i>
+            </div>
+            <div class="notification-text">
+                <div class="notification-title">${title}</div>
+                <div class="notification-message">${message}</div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+    
+    // Animate out and remove
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            notification.remove();
+        }, 500);
+    }, 5000);
+}
+
+// Additional notification styling
+const notificationStyle = document.createElement('style');
+notificationStyle.textContent = `
+    .system-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        background: white;
+        border-radius: 12px;
+        width: 350px;
+        padding: 0;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        transform: translateX(400px);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        overflow: hidden;
+    }
+    
+    .system-notification.show {
+        transform: translateX(0);
+    }
+    
+    .system-notification .notification-content {
+        display: flex;
+        padding: 0;
+    }
+    
+    .system-notification .notification-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        padding: 1.5rem;
+        font-size: 1.5rem;
+        color: white;
+    }
+    
+    .system-notification .notification-text {
+        flex: 1;
+        padding: 1rem;
+    }
+    
+    .system-notification .notification-title {
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        font-size: 1.1rem;
+    }
+    
+    .system-notification .notification-message {
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+    
+    .system-notification.success .notification-icon {
+        background: linear-gradient(135deg, #28a745, #20c997);
+    }
+    
+    .system-notification.error .notification-icon {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+    }
+    
+    .system-notification.info .notification-icon {
+        background: linear-gradient(135deg, #17a2b8, #138496);
+    }
+    
+    .system-notification.warning .notification-icon {
+        background: linear-gradient(135deg, #ffc107, #e0a800);
+    }
+`;
+document.head.appendChild(notificationStyle);
 </script>
 {% endblock %}

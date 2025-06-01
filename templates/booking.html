@@ -868,6 +868,18 @@ body[data-theme="dark"] {
                         <label for="customer-notes" class="form-label">Special Requests (Optional)</label>
                         <textarea class="form-control" id="customer-notes" rows="3" placeholder="Any specific requirements or preferences..."></textarea>
                     </div>
+                    <div class="col-12">
+                        <label for="customer-location" class="form-label">
+                            <i class="fas fa-map-marker-alt me-2 text-primary"></i>Your Location
+                        </label>
+                        <input type="text" class="form-control" id="customer-location" 
+                               placeholder="Street address, city, postal code" required>
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="use-current-location">
+                                <i class="fas fa-crosshairs me-1"></i>Use My Current Location
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -987,6 +999,10 @@ body[data-theme="dark"] {
                                         <tr>
                                             <td><strong>Email:</strong></td>
                                             <td id="modal-customer-email">-</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Location:</strong></td>
+                                            <td id="modal-customer-location">-</td>
                                         </tr>
                                         <tr>
                                             <td><strong>Barber:</strong></td>

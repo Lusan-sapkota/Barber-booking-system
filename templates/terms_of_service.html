@@ -4,25 +4,106 @@
 
 {% block extra_css %}
 <style>
-.terms-hero {
-    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
-    color: white;
-    padding: 4rem 0;
+/* Dark/Light Mode Variables */
+:root {
+    /* Light Mode (Default) */
+    --bg-color: #f8f9fa;
+    --text-color: #212529;
+    --text-muted: #6c757d;
+    --link-color: #0d6efd;
+    --link-hover-color: #0a58ca;
+    --hero-gradient-start: #0d6efd;
+    --hero-gradient-end: #0b5ed7;
+    --hero-text: #ffffff;
+    --section-bg: #ffffff;
+    --toc-bg: #f8f9fa;
+    --section-title-color: #0d6efd;
+    --border-color: #e9ecef;
+    --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    --updated-bg: #e7f3ff;
+    --updated-border: #b3d9ff;
+    --important-bg: #fff3cd;
+    --important-border: #ffeaa7;
+    --important-text: #664d03;
 }
 
+[data-theme="dark"] {
+    /* Dark Mode Variables */
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --text-muted: #a0a0a0;
+    --link-color: #63a9ff;
+    --link-hover-color: #4d8fd6;
+    --hero-gradient-start: #0a3b79;
+    --hero-gradient-end: #092d5e;
+    --hero-text: #ffffff;
+    --section-bg: #1e1e1e;
+    --toc-bg: #252525;
+    --section-title-color: #63a9ff;
+    --border-color: #333333;
+    --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    --updated-bg: #1a3b5a;
+    --updated-border: #0a3b79;
+    --important-bg: #3d3013;
+    --important-border: #664d03;
+    --important-text: #ffde87;
+}
+
+/* Base Page */
+.terms-page {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Hero Section */
+.terms-hero {
+    background: linear-gradient(135deg, var(--hero-gradient-start) 0%, var(--hero-gradient-end) 100%);
+    color: var(--hero-text);
+    padding: 4rem 0;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s ease;
+}
+
+/* Add pattern overlay to hero */
+.terms-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    z-index: 1;
+}
+
+.terms-hero .container {
+    position: relative;
+    z-index: 2;
+}
+
+/* Terms Sections */
 .terms-section {
-    background: white;
+    background: var(--section-bg);
     border-radius: 15px;
     padding: 2rem;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    box-shadow: var(--card-shadow);
     margin-bottom: 2rem;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
 }
 
+/* Table of Contents */
 .terms-toc {
-    background: #f8f9fa;
+    background: var(--toc-bg);
     border-radius: 10px;
     padding: 1.5rem;
     margin-bottom: 2rem;
+    position: sticky;
+    top: 2rem;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
 }
 
 .terms-toc ul {
@@ -30,36 +111,112 @@
 }
 
 .terms-toc a {
-    color: #0d6efd;
+    color: var(--link-color);
     text-decoration: none;
+    transition: color 0.3s ease;
 }
 
 .terms-toc a:hover {
     text-decoration: underline;
+    color: var(--link-hover-color);
 }
 
+/* Section Titles */
 .section-title {
-    color: #0d6efd;
-    border-bottom: 2px solid #e9ecef;
+    color: var(--section-title-color);
+    border-bottom: 2px solid var(--border-color);
     padding-bottom: 0.5rem;
     margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
 }
 
+/* Last Updated Box */
 .last-updated {
-    background: #e7f3ff;
-    border: 1px solid #b3d9ff;
+    background: var(--updated-bg);
+    border: 1px solid var(--updated-border);
     border-radius: 8px;
     padding: 1rem;
     margin-bottom: 2rem;
+    transition: all 0.3s ease;
+    color: var(--text-color);
 }
 
+/* Important Notice */
 .important-notice {
-    background: #fff3cd;
-    border: 1px solid #ffeaa7;
+    background: var(--important-bg);
+    border: 1px solid var(--important-border);
     border-radius: 8px;
     padding: 1rem;
     margin: 1rem 0;
+    transition: all 0.3s ease;
+    color: var(--important-text);
 }
+
+/* Links within the terms sections */
+.terms-section a {
+    color: var(--link-color);
+    transition: color 0.3s ease;
+}
+
+.terms-section a:hover {
+    color: var(--link-hover-color);
+}
+
+/* Contact section Icons */
+.terms-section .fas {
+    color: var(--section-title-color);
+    transition: color 0.3s ease;
+}
+
+/* Enhance h5 titles */
+.terms-section h5 {
+    color: var(--text-color);
+    margin-top: 1.5rem;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: 50px;
+    height: 50px;
+    background: var(--section-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-color);
+    font-size: 1.2rem;
+}
+
+.dark-mode-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* Animation for sections */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.6s ease forwards;
+}
+
+.fade-in:nth-child(1) { animation-delay: 0.1s; }
+.fade-in:nth-child(2) { animation-delay: 0.2s; }
+.fade-in:nth-child(3) { animation-delay: 0.3s; }
+.fade-in:nth-child(4) { animation-delay: 0.4s; }
+.fade-in:nth-child(5) { animation-delay: 0.5s; }
 </style>
 {% endblock %}
 
@@ -111,7 +268,7 @@
                 </div>
 
                 <!-- Acceptance of Terms -->
-                <div class="terms-section" id="acceptance">
+                <div class="terms-section fade-in" id="acceptance">
                     <h3 class="section-title">1. Acceptance of Terms</h3>
                     
                     <p>Welcome to BookaBarber! These Terms of Service ("Terms") govern your use of our website, mobile application, and services (collectively, the "Service") operated by BookaBarber ("us", "we", or "our").</p>
@@ -120,7 +277,7 @@
                 </div>
 
                 <!-- Service Description -->
-                <div class="terms-section" id="description">
+                <div class="terms-section fade-in" id="description">
                     <h3 class="section-title">2. Service Description</h3>
                     
                     <p>BookaBarber is an online platform that connects customers with barbershops and individual barbers for appointment booking and scheduling. Our services include:</p>
@@ -135,7 +292,7 @@
                 </div>
 
                 <!-- User Accounts -->
-                <div class="terms-section" id="user-accounts">
+                <div class="terms-section fade-in" id="user-accounts">
                     <h3 class="section-title">3. User Accounts</h3>
                     
                     <h5>Account Creation</h5>
@@ -156,7 +313,7 @@
                 </div>
 
                 <!-- Booking Policy -->
-                <div class="terms-section" id="booking-policy">
+                <div class="terms-section fade-in" id="booking-policy">
                     <h3 class="section-title">4. Booking Policy</h3>
                     
                     <h5>Appointments</h5>
@@ -177,7 +334,7 @@
                 </div>
 
                 <!-- Payment Terms -->
-                <div class="terms-section" id="payment-terms">
+                <div class="terms-section fade-in" id="payment-terms">
                     <h3 class="section-title">5. Payment Terms</h3>
                     
                     <h5>Pricing</h5>
@@ -198,7 +355,7 @@
                 </div>
 
                 <!-- User Conduct -->
-                <div class="terms-section" id="user-conduct">
+                <div class="terms-section fade-in" id="user-conduct">
                     <h3 class="section-title">6. User Conduct</h3>
                     
                     <p>You agree not to:</p>
@@ -214,7 +371,7 @@
                 </div>
 
                 <!-- Intellectual Property -->
-                <div class="terms-section" id="intellectual-property">
+                <div class="terms-section fade-in" id="intellectual-property">
                     <h3 class="section-title">7. Intellectual Property</h3>
                     
                     <p>The Service and its original content, features, and functionality are owned by BookaBarber and protected by international copyright, trademark, patent, trade secret, and other intellectual property laws.</p>
@@ -224,7 +381,7 @@
                 </div>
 
                 <!-- Limitation of Liability -->
-                <div class="terms-section" id="limitation-liability">
+                <div class="terms-section fade-in" id="limitation-liability">
                     <h3 class="section-title">8. Limitation of Liability</h3>
                     
                     <div class="important-notice">
@@ -242,7 +399,7 @@
                 </div>
 
                 <!-- Termination -->
-                <div class="terms-section" id="termination">
+                <div class="terms-section fade-in" id="termination">
                     <h3 class="section-title">9. Termination</h3>
                     
                     <h5>By You</h5>
@@ -259,7 +416,7 @@
                 </div>
 
                 <!-- Governing Law -->
-                <div class="terms-section" id="governing-law">
+                <div class="terms-section fade-in" id="governing-law">
                     <h3 class="section-title">10. Governing Law</h3>
                     
                     <p>These Terms shall be governed by and construed in accordance with the laws of the State of New York, without regard to its conflict of law provisions.</p>
@@ -268,7 +425,7 @@
                 </div>
 
                 <!-- Contact Information -->
-                <div class="terms-section" id="contact-info">
+                <div class="terms-section fade-in" id="contact-info">
                     <h3 class="section-title">11. Contact Information</h3>
                     
                     <p>If you have any questions about these Terms of Service, please contact us:</p>
@@ -296,4 +453,54 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Create dark mode toggle button
+    const toggleButton = document.createElement('button');
+    toggleButton.classList.add('dark-mode-toggle');
+    toggleButton.setAttribute('aria-label', 'Toggle dark mode');
+    toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+    toggleButton.addEventListener('click', toggleDarkMode);
+    document.body.appendChild(toggleButton);
+    
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        toggleButton.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    }
+    
+    function toggleDarkMode() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+            toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            toggleButton.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+    }
+    
+    // Add smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - 20,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
