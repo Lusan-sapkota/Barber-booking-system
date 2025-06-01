@@ -1,5 +1,3 @@
-Collecting workspace information# BookaBarber - Barber Shop Booking System
-
 ![BookaBarber Logo](./static/image/logo/logo.png)
 
 A comprehensive web application for booking barber services, connecting customers with skilled barbers in their area. BookaBarber streamlines appointment scheduling while providing powerful management tools for barbers and shop owners.
