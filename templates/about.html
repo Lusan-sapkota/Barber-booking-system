@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}About Us - BookaBarber{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-3">About BookaBarber</h1>
+                <p class="lead mb-4">Revolutionizing the way you book grooming services. Connecting customers with skilled barbers for the perfect haircut experience.</p>
+            </div>
+            <div class="col-lg-6 text-center">
+                <img src="{{ url_for('static', filename='image/logo/logo.png') }}" alt="BookaBarber" class="img-fluid" style="max-height: 300px;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container py-5">
+    <!-- Our Story -->
+    <section class="mb-5">
+        <div class="row">
+            <div class="col-lg-6">
+                <h2 class="fw-bold mb-4">Our Story</h2>
+                <p class="lead">BookaBarber was born from a simple idea: make it easy for people to find and book quality grooming services in their area.</p>
+                <p>Founded in 2024, we recognized that both customers and barbers needed a better way to connect. Customers were struggling to find available appointments, while talented barbers had empty chairs during slow periods.</p>
+                <p>Our platform bridges this gap by providing a seamless booking experience that benefits everyone in the grooming industry.</p>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h4 class="text-primary mb-3">Our Mission</h4>
+                        <p class="mb-3">To democratize access to quality grooming services by connecting skilled professionals with customers who value excellence.</p>
+                        <h4 class="text-primary mb-3">Our Vision</h4>
+                        <p class="mb-0">To become the leading platform for grooming services worldwide, where every haircut is a great experience.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values -->
+    <section class="mb-5">
+        <h2 class="text-center fw-bold mb-5">Our Values</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="value-icon mb-3">
+                        <i class="fas fa-star fa-3x text-primary"></i>
+                    </div>
+                    <h4>Quality First</h4>
+                    <p>We partner only with verified, skilled professionals who maintain the highest standards of service.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="value-icon mb-3">
+                        <i class="fas fa-handshake fa-3x text-primary"></i>
+                    </div>
+                    <h4>Trust & Reliability</h4>
+                    <p>Every booking is backed by our commitment to reliability, transparency, and customer satisfaction.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="value-icon mb-3">
+                        <i class="fas fa-rocket fa-3x text-primary"></i>
+                    </div>
+                    <h4>Innovation</h4>
+                    <p>We continuously improve our platform with cutting-edge technology and user feedback.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics -->
+    <section class="mb-5">
+        <div class="card bg-light">
+            <div class="card-body p-5">
+                <h2 class="text-center fw-bold mb-5">BookaBarber by the Numbers</h2>
+                <div class="row text-center">
+                    <div class="col-md-3 mb-4">
+                        <div class="stat-item">
+                            <h3 class="text-primary fw-bold">15,000+</h3>
+                            <p class="mb-0">Happy Customers</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-4">
+                        <div class="stat-item">
+                            <h3 class="text-primary fw-bold">850+</h3>
+                            <p class="mb-0">Professional Barbers</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-4">
+                        <div class="stat-item">
+                            <h3 class="text-primary fw-bold">75+</h3>
+                            <p class="mb-0">Cities Covered</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-4">
+                        <div class="stat-item">
+                            <h3 class="text-primary fw-bold">4.9★</h3>
+                            <p class="mb-0">Average Rating</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="mb-5">
+        <h2 class="text-center fw-bold mb-5">Meet Our Team</h2>
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm text-center">
+                    <div class="card-body p-4">
+                        <div class="team-avatar mb-3">
+                            <i class="fas fa-user-circle fa-5x text-primary"></i>
+                        </div>
+                        <h5>Sarah Johnson</h5>
+                        <p class="text-muted">CEO & Founder</p>
+                        <p class="small">Former tech executive with a passion for connecting people with quality services.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm text-center">
+                    <div class="card-body p-4">
+                        <div class="team-avatar mb-3">
+                            <i class="fas fa-user-circle fa-5x text-primary"></i>
+                        </div>
+                        <h5>Mike Rodriguez</h5>
+                        <p class="text-muted">CTO</p>
+                        <p class="small">Technology leader focused on building scalable, user-friendly platforms.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm text-center">
+                    <div class="card-body p-4">
+                        <div class="team-avatar mb-3">
+                            <i class="fas fa-user-circle fa-5x text-primary"></i>
+                        </div>
+                        <h5>Emma Chen</h5>
+                        <p class="text-muted">Head of Operations</p>
+                        <p class="small">Operations expert ensuring smooth experiences for all users on our platform.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact CTA -->
+    <section class="text-center">
+        <div class="card bg-primary text-white">
+            <div class="card-body p-5">
+                <h3 class="mb-3">Ready to Transform Your Grooming Experience?</h3>
+                <p class="lead mb-4">Join thousands of satisfied customers who trust BookaBarber for their grooming needs.</p>
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="{{ url_for('booking_page') }}" class="btn btn-light btn-lg">
+                        <i class="fas fa-calendar-plus me-2"></i>Book Now
+                    </a>
+                    <a href="{{ url_for('contactus') }}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-envelope me-2"></i>Contact Us
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.hero-section {
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+}
+
+.value-icon {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-item h3 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.team-avatar {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+</style>
+{% endblock %}

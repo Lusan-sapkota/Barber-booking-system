@@ -19,6 +19,7 @@
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     transition: transform 0.3s ease;
     border-left: 4px solid;
+    height: 120px;
 }
 
 .metric-card:hover {
@@ -32,19 +33,36 @@
 
 .barber-card {
     transition: all 0.3s ease;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 .barber-card:hover {
     box-shadow: 0 8px 25px rgba(0,0,0,0.1);
 }
 
-.status-online { color: #28a745; }
-.status-offline { color: #6c757d; }
+.status-active { color: #28a745; }
+.status-inactive { color: #6c757d; }
 .status-busy { color: #ffc107; }
 
 .chart-container {
     position: relative;
     height: 300px;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 </style>
 {% endblock %}
@@ -86,65 +104,45 @@
         <div class="row mb-4">
             <div class="col-lg-3 col-md-6 mb-3">
                 <div class="metric-card revenue-card">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center h-100">
                         <div>
-                            <h3 class="mb-1">$5,240</h3>
+                            <h3 class="mb-1">${{ stats.month_revenue }}</h3>
                             <small class="text-muted">Monthly Revenue</small>
                         </div>
                         <i class="fas fa-dollar-sign fa-2x text-success"></i>
-                    </div>
-                    <div class="mt-2">
-                        <small class="text-success">
-                            <i class="fas fa-arrow-up me-1"></i>12.5% from last month
-                        </small>
                     </div>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 mb-3">
                 <div class="metric-card bookings-card">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center h-100">
                         <div>
-                            <h3 class="mb-1">234</h3>
-                            <small class="text-muted">Total Bookings</small>
+                            <h3 class="mb-1">{{ stats.today_bookings }}</h3>
+                            <small class="text-muted">Today's Bookings</small>
                         </div>
                         <i class="fas fa-calendar-check fa-2x text-primary"></i>
-                    </div>
-                    <div class="mt-2">
-                        <small class="text-success">
-                            <i class="fas fa-arrow-up me-1"></i>8.3% from last month
-                        </small>
                     </div>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 mb-3">
                 <div class="metric-card barbers-card">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center h-100">
                         <div>
-                            <h3 class="mb-1">8</h3>
+                            <h3 class="mb-1">{{ stats.total_barbers }}</h3>
                             <small class="text-muted">Active Barbers</small>
                         </div>
                         <i class="fas fa-users fa-2x text-warning"></i>
-                    </div>
-                    <div class="mt-2">
-                        <small class="text-info">
-                            <i class="fas fa-user-plus me-1"></i>2 new this month
-                        </small>
                     </div>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 mb-3">
                 <div class="metric-card rating-card">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center h-100">
                         <div>
-                            <h3 class="mb-1">4.8</h3>
+                            <h3 class="mb-1">{{ stats.avg_rating }}</h3>
                             <small class="text-muted">Average Rating</small>
                         </div>
                         <i class="fas fa-star fa-2x text-warning"></i>
-                    </div>
-                    <div class="mt-2">
-                        <small class="text-success">
-                            <i class="fas fa-arrow-up me-1"></i>0.2 from last month
-                        </small>
                     </div>
                 </div>
             </div>
@@ -165,7 +163,42 @@
                     </div>
                     <div class="card-body">
                         <div class="row" id="barbers-grid">
-                            <!-- Barbers will be populated by JavaScript -->
+                            {% for barber in stats.barber_performance %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card barber-card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="card-title mb-0">{{ barber[1] }}</h6>
+                                            <div class="position-relative">
+                                                <span class="status-active">
+                                                    <i class="fas fa-circle fa-xs"></i>
+                                                    Active
+                                                </span>
+                                                {% if barber[5] > 0 %}
+                                                <span class="notification-badge">{{ barber[5] }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <p class="text-muted small mb-2">{{ barber[4] or 'General Services' }}</p>
+                                        <div class="row text-center">
+                                            <div class="col-4">
+                                                <strong>{{ barber[5] }}</strong>
+                                                <small class="d-block text-muted">Today</small>
+                                            </div>
+                                            <div class="col-4">
+                                                <strong>{{ barber[2] or 4.5 }}</strong>
+                                                <small class="d-block text-muted">Rating</small>
+                                            </div>
+                                            <div class="col-4">
+                                                <button class="btn btn-sm btn-outline-primary" onclick="viewBarberDetails('{{ barber[0] }}')">
+                                                    View
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -199,40 +232,36 @@
                 <!-- Recent Activity -->
                 <div class="card">
                     <div class="card-header">
-                        <h6 class="mb-0">Recent Activity</h6>
+                        <h6 class="mb-0">Recent Bookings</h6>
                     </div>
-                    <div class="card-body" id="recent-activity">
-                        <!-- Activity will be populated by JavaScript -->
+                    <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                        <div id="recent-bookings">
+                            {% for booking in stats.recent_bookings %}
+                            <div class="d-flex align-items-center mb-3 p-2 border rounded">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ booking[-1] }}</h6>
+                                    <small class="text-muted">{{ booking[-3] }} with {{ booking[-2] }}</small>
+                                    <br>
+                                    <small class="text-primary">{{ booking[4] }} at {{ booking[5] }}</small>
+                                </div>
+                                <span class="badge bg-success">{{ booking[7] or 'confirmed' }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Revenue Chart -->
+        <!-- Today's Bookings Overview -->
         <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-chart-line me-2"></i>Revenue Analytics
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="revenueChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bookings Overview -->
-        <div class="card">
             <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">
-                    <i class="fas fa-calendar-alt me-2"></i>Today's Bookings Overview
+                    <i class="fas fa-calendar-alt me-2"></i>Today's Schedule
                 </h5>
-                <select class="form-select form-select-sm w-auto">
-                    <option value="today">Today</option>
-                    <option value="tomorrow">Tomorrow</option>
-                    <option value="week">This Week</option>
-                </select>
+                <button class="btn btn-light btn-sm" onclick="refreshBookings()">
+                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                </button>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -248,7 +277,24 @@
                             </tr>
                         </thead>
                         <tbody id="bookings-table">
-                            <!-- Bookings will be populated by JavaScript -->
+                            {% for booking in stats.recent_bookings %}
+                            {% if booking[4] == today %}
+                            <tr>
+                                <td><strong>{{ booking[5] }}</strong></td>
+                                <td>{{ booking[-1] }}</td>
+                                <td>{{ booking[-3] }}</td>
+                                <td>{{ booking[-2] }}</td>
+                                <td>
+                                    <span class="badge bg-success">{{ booking[7] or 'confirmed' }}</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editBooking('{{ booking[0] }}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -256,6 +302,125 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadRealtimeData();
+    
+    // Refresh data every 30 seconds
+    setInterval(loadRealtimeData, 30000);
+});
+
+function loadRealtimeData() {
+    // Load recent bookings
+    fetch('/api/shop-owner/recent-bookings')
+        .then(response => response.json())
+        .then(data => {
+            updateRecentBookings(data.bookings);
+        })
+        .catch(error => console.error('Error loading bookings:', error));
+    
+    // Load barber performance
+    fetch('/api/shop-owner/barber-performance')
+        .then(response => response.json())
+        .then(data => {
+            updateBarberPerformance(data.barbers);
+        })
+        .catch(error => console.error('Error loading barber data:', error));
+}
+
+function updateRecentBookings(bookings) {
+    const container = document.getElementById('recent-bookings');
+    container.innerHTML = '';
+    
+    bookings.forEach(booking => {
+        const bookingElement = document.createElement('div');
+        bookingElement.className = 'd-flex align-items-center mb-3 p-2 border rounded';
+        bookingElement.innerHTML = `
+            <div class="flex-grow-1">
+                <h6 class="mb-1">${booking[booking.length - 1]}</h6>
+                <small class="text-muted">${booking[booking.length - 3]} with ${booking[booking.length - 2]}</small>
+                <br>
+                <small class="text-primary">${booking[4]} at ${booking[5]}</small>
+            </div>
+            <span class="badge bg-success">${booking[7] || 'confirmed'}</span>
+        `;
+        container.appendChild(bookingElement);
+    });
+}
+
+function updateBarberPerformance(barbers) {
+    // Update notification badges for barbers with today's appointments
+    barbers.forEach(barber => {
+        const badges = document.querySelectorAll('.notification-badge');
+        badges.forEach(badge => {
+            if (badge.textContent == barber[5] && barber[5] > 0) {
+                badge.style.display = 'flex';
+            }
+        });
+    });
+}
+
+function refreshBookings() {
+    loadRealtimeData();
+    
+    // Show refresh feedback
+    const refreshBtn = event.target.closest('button');
+    const originalContent = refreshBtn.innerHTML;
+    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
+    refreshBtn.disabled = true;
+    
+    setTimeout(() => {
+        refreshBtn.innerHTML = originalContent;
+        refreshBtn.disabled = false;
+    }, 1500);
+}
+
+// Action functions
+function viewBarberDetails(barberId) {
+    const modal = new bootstrap.Modal(document.getElementById('barberModal'));
+    modal.show();
+}
+
+function editBooking(bookingId) {
+    alert(`Edit booking ${bookingId} functionality - to be implemented`);
+}
+
+function addNewBarber() { 
+    alert('Add new barber functionality - to be implemented'); 
+}
+
+function editShopInfo() { 
+    alert('Edit shop info functionality - to be implemented'); 
+}
+
+function manageServices() { 
+    alert('Manage services functionality - to be implemented'); 
+}
+
+function setWorkingHours() { 
+    alert('Set working hours functionality - to be implemented'); 
+}
+
+function viewTodaysBookings() { 
+    window.location.hash = '#bookings-table';
+    document.getElementById('bookings-table').scrollIntoView({ behavior: 'smooth' });
+}
+
+function generateReports() { 
+    alert('Generate reports functionality - to be implemented'); 
+}
+
+function manageInventory() { 
+    alert('Manage inventory functionality - to be implemented'); 
+}
+
+function viewReviews() { 
+    alert('View reviews functionality - to be implemented'); 
+}
+</script>
 
 <!-- Barber Details Modal -->
 <div class="modal fade" id="barberModal" tabindex="-1">
@@ -266,216 +431,18 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="barber-details">
-                <!-- Content loaded via JavaScript -->
+                <div class="text-center py-4">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                    <p class="mt-2">Loading barber details...</p>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="edit-barber-btn">
+                <button type="button" class="btn btn-primary">
                     <i class="fas fa-edit me-2"></i>Edit Details
                 </button>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    loadBarbers();
-    loadRecentActivity();
-    loadTodaysBookings();
-    initializeRevenueChart();
-});
-
-function loadBarbers() {
-    const barbersGrid = document.getElementById('barbers-grid');
-    const barbers = [
-        { id: 1, name: 'Mike Johnson', status: 'online', appointments: 8, rating: 4.9, specialties: 'Haircuts, Beard styling' },
-        { id: 2, name: 'Sarah Wilson', status: 'busy', appointments: 6, rating: 4.8, specialties: 'Modern cuts, Color' },
-        { id: 3, name: 'David Brown', status: 'online', appointments: 5, rating: 4.7, specialties: 'Classic cuts, Straight razor' },
-        { id: 4, name: 'Lisa Garcia', status: 'offline', appointments: 3, rating: 4.9, specialties: 'Trendy styles, Beard art' }
-    ];
-    
-    barbersGrid.innerHTML = barbers.map(barber => `
-        <div class="col-md-6 mb-3">
-            <div class="card barber-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h6 class="card-title mb-0">${barber.name}</h6>
-                        <span class="status-${barber.status}">
-                            <i class="fas fa-circle fa-xs"></i>
-                            ${barber.status.charAt(0).toUpperCase() + barber.status.slice(1)}
-                        </span>
-                    </div>
-                    <p class="text-muted small mb-2">${barber.specialties}</p>
-                    <div class="row text-center">
-                        <div class="col-4">
-                            <strong>${barber.appointments}</strong>
-                            <small class="d-block text-muted">Today</small>
-                        </div>
-                        <div class="col-4">
-                            <strong>${barber.rating}</strong>
-                            <small class="d-block text-muted">Rating</small>
-                        </div>
-                        <div class="col-4">
-                            <button class="btn btn-sm btn-outline-primary" onclick="viewBarberDetails(${barber.id})">
-                                View
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `).join('');
-}
-
-function loadRecentActivity() {
-    const activityContainer = document.getElementById('recent-activity');
-    const activities = [
-        { time: '2 min ago', text: 'New booking by John Doe', icon: 'calendar-plus', color: 'success' },
-        { time: '15 min ago', text: 'Mike Johnson completed appointment', icon: 'check-circle', color: 'info' },
-        { time: '1 hour ago', text: 'Sarah Wilson updated availability', icon: 'clock', color: 'warning' },
-        { time: '2 hours ago', text: 'New review received (5 stars)', icon: 'star', color: 'primary' }
-    ];
-    
-    activityContainer.innerHTML = activities.map(activity => `
-        <div class="d-flex align-items-center mb-3">
-            <div class="activity-icon me-3">
-                <i class="fas fa-${activity.icon} text-${activity.color}"></i>
-            </div>
-            <div class="flex-grow-1">
-                <p class="mb-0 small">${activity.text}</p>
-                <small class="text-muted">${activity.time}</small>
-            </div>
-        </div>
-    `).join('');
-}
-
-function loadTodaysBookings() {
-    const bookingsTable = document.getElementById('bookings-table');
-    const bookings = [
-        { time: '10:00 AM', customer: 'John Doe', service: 'Haircut', barber: 'Mike Johnson', status: 'confirmed' },
-        { time: '10:30 AM', customer: 'Jane Smith', service: 'Styling', barber: 'Sarah Wilson', status: 'in-progress' },
-        { time: '11:00 AM', customer: 'Bob Wilson', service: 'Beard Trim', barber: 'David Brown', status: 'confirmed' },
-        { time: '2:00 PM', customer: 'Alice Brown', service: 'Premium Package', barber: 'Lisa Garcia', status: 'confirmed' }
-    ];
-    
-    bookingsTable.innerHTML = bookings.map(booking => `
-        <tr>
-            <td><strong>${booking.time}</strong></td>
-            <td>${booking.customer}</td>
-            <td>${booking.service}</td>
-            <td>${booking.barber}</td>
-            <td>
-                <span class="badge bg-${booking.status === 'confirmed' ? 'success' : 'info'}">
-                    ${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                </span>
-            </td>
-            <td>
-                <button class="btn btn-sm btn-outline-primary" onclick="viewBookingDetails('${booking.time}')">
-                    <i class="fas fa-eye"></i>
-                </button>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function initializeRevenueChart() {
-    const ctx = document.getElementById('revenueChart').getContext('2d');
-    
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            datasets: [{
-                label: 'Revenue ($)',
-                data: [3200, 3800, 4200, 3900, 4500, 4800, 5100, 4900, 5200, 5500, 5800, 5240],
-                borderColor: '#007bff',
-                backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return '$' + value.toLocaleString();
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
-
-function viewBarberDetails(barberId) {
-    const modal = new bootstrap.Modal(document.getElementById('barberModal'));
-    const details = document.getElementById('barber-details');
-    
-    details.innerHTML = `
-        <div class="text-center py-4">
-            <i class="fas fa-spinner fa-spin fa-2x"></i>
-            <p class="mt-2">Loading barber details...</p>
-        </div>
-    `;
-    
-    modal.show();
-    
-    // Simulate API call
-    setTimeout(() => {
-        details.innerHTML = `
-            <div class="row">
-                <div class="col-md-4 text-center">
-                    <img src="https://via.placeholder.com/150" class="rounded-circle mb-3" alt="Barber Photo">
-                    <h5>Mike Johnson</h5>
-                    <p class="text-muted">Professional Barber</p>
-                </div>
-                <div class="col-md-8">
-                    <h6>Personal Information</h6>
-                    <ul class="list-unstyled">
-                        <li><strong>Email:</strong> mike@example.com</li>
-                        <li><strong>Phone:</strong> +1-555-0123</li>
-                        <li><strong>Experience:</strong> 5 years</li>
-                        <li><strong>Specialties:</strong> Haircuts, Beard styling</li>
-                    </ul>
-                    
-                    <h6 class="mt-4">Performance Metrics</h6>
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="text-center p-2 border rounded">
-                                <h4>4.9</h4>
-                                <small>Rating</small>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="text-center p-2 border rounded">
-                                <h4>234</h4>
-                                <small>Clients</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }, 1000);
-}
-
-// Action functions
-function addNewBarber() { alert('Add new barber functionality'); }
-function editShopInfo() { alert('Edit shop info functionality'); }
-function manageServices() { alert('Manage services functionality'); }
-function setWorkingHours() { alert('Set working hours functionality'); }
-function viewTodaysBookings() { alert('View today\'s bookings functionality'); }
-function generateReports() { alert('Generate reports functionality'); }
-function manageInventory() { alert('Manage inventory functionality'); }
-function viewReviews() { alert('View reviews functionality'); }
-function viewBookingDetails(time) { alert(`View booking details for ${time}`); }
-</script>
 {% endblock %}

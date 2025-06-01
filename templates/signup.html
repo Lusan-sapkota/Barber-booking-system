@@ -4,46 +4,221 @@
 
 {% block extra_css %}
 <style>
-/* Signup Page Animations - Same as login page */
+/* Dark/Light Mode Variables */
+:root {
+  /* Light Mode (Default) */
+  --bg-color: #f8f9fa;
+  --card-bg: #ffffff;
+  --text-color: #212529;
+  --border-color: #dee2e6;
+  --step-number-bg: #0d6efd;
+  --step-number-color: #ffffff;
+  --card-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --input-bg: #ffffff;
+  --input-border: #ced4da;
+  --input-text: #212529;
+  --primary-color: #0d6efd;
+  --primary-hover: #0a58ca;
+  --secondary-color: #6c757d;
+  --form-bg: #ffffff;
+  --form-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --user-type-bg: #f8f9fa;
+  --user-type-border: #dee2e6;
+  --user-type-active-bg: #e9ecef;
+  --user-type-checked-text: #ffffff;
+  --section-title-color: #212529;
+  --section-border: #dee2e6;
+  --newsletter-card-bg: linear-gradient(135deg, #28a745, #20c997);
+  --newsletter-card-text: #ffffff;
+  --newsletter-input-bg: rgba(255, 255, 255, 0.1);
+  --newsletter-input-border: rgba(255, 255, 255, 0.3);
+  --newsletter-btn-bg: rgba(255, 255, 255, 0.2);
+  --newsletter-btn-border: rgba(255, 255, 255, 0.3);
+  --newsletter-btn-hover: rgba(255, 255, 255, 0.3);
+  --newsletter-success-bg: rgba(255, 255, 255, 0.9);
+  --newsletter-success-text: #28a745;
+  --terms-link-color: #0d6efd;
+}
+
+[data-theme="dark"] {
+  --bg-color: #121212;
+  --card-bg: #1e1e1e;
+  --text-color: #e0e0e0;
+  --border-color: #333333;
+  --card-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+  --input-bg: #2d2d2d;
+  --input-border: #444444;
+  --input-text: #e0e0e0;
+  --form-bg: #1e1e1e;
+  --form-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  --user-type-bg: #2d2d2d;
+  --user-type-border: #444444;
+  --user-type-active-bg: #3d3d3d;
+  --section-title-color: #e0e0e0;
+  --section-border: #333333;
+  --newsletter-card-bg: linear-gradient(135deg, #1e7e34, #18a97b);
+  --newsletter-card-text: #ffffff;
+  --newsletter-input-bg: rgba(0, 0, 0, 0.2);
+  --newsletter-input-border: rgba(255, 255, 255, 0.2);
+  --newsletter-btn-bg: rgba(0, 0, 0, 0.3);
+  --newsletter-btn-border: rgba(255, 255, 255, 0.2);
+  --newsletter-btn-hover: rgba(255, 255, 255, 0.2);
+  --newsletter-success-bg: rgba(30, 30, 30, 0.9);
+  --newsletter-success-text: #28a745;
+  --terms-link-color: #63a9ff;
+}
+
+/* Signup Page Animations */
 .signup-page {
     position: relative;
     min-height: 100vh;
-    background: linear-gradient(135deg, 
-        var(--primary-color) 0%, 
-        var(--primary-hover) 50%, 
-        #1a365d 100%);
+    background-color: var(--bg-color);
+    color: var(--text-color);
     overflow: hidden;
+    transition: all 0.3s ease;
 }
 
-/* Same floating animations as login */
-.auth-bg-animation,
-.floating-shapes,
-.shape,
-.shape-1, .shape-2, .shape-3, .shape-4, .shape-5,
+/* Animated Background Particles */
+.auth-bg-animation {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.floating-shapes {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.shape {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(13, 110, 253, 0.15);
+    animation: floatShape 20s infinite linear;
+    z-index: 0;
+}
+
+.shape-1 {
+    width: 80px;
+    height: 80px;
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.shape-2 {
+    width: 120px;
+    height: 120px;
+    top: 60%;
+    left: 20%;
+    animation-delay: 3s;
+    animation-duration: 22s;
+}
+
+.shape-3 {
+    width: 60px;
+    height: 60px;
+    top: 30%;
+    left: 80%;
+    animation-delay: 7s;
+}
+
+.shape-4 {
+    width: 100px;
+    height: 100px;
+    top: 70%;
+    left: 70%;
+    animation-delay: 12s;
+    animation-duration: 18s;
+}
+
+.shape-5 {
+    width: 40px;
+    height: 40px;
+    top: 20%;
+    left: 50%;
+    animation-delay: 15s;
+    animation-duration: 25s;
+}
+
+@keyframes floatShape {
+    0% {
+        transform: scale(0.8) rotate(0deg) translate(0, 0);
+    }
+    25% {
+        transform: scale(1) rotate(90deg) translate(30px, 40px);
+    }
+    50% {
+        transform: scale(1.2) rotate(180deg) translate(50px, -30px);
+    }
+    75% {
+        transform: scale(1) rotate(270deg) translate(-30px, -50px);
+    }
+    100% {
+        transform: scale(0.8) rotate(360deg) translate(0, 0);
+    }
+}
 
 /* Signup specific animations */
 .signup-form-container {
     animation: fadeInUp 1s ease-out 0.3s both;
+    width: 100%;
+    max-width: 800px;
+    background-color: var(--form-bg);
+    border-radius: 16px;
+    padding: 3rem;
+    box-shadow: var(--form-shadow);
+    margin: 2rem auto;
+    transition: all 0.3s ease;
 }
 
 .signup-right-panel {
     animation: slideInRight 1.2s cubic-bezier(0.23, 1, 0.32, 1) 0.2s both;
+    position: relative;
+    z-index: 2;
+    padding: 2rem 0;
+    background-color: var(--bg-color); /* Add this line */
+    transition: all 0.3s ease; /* Add this line */
+}
+
+.form-header {
+    margin-bottom: 2rem;
+}
+
+.form-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.form-subtitle {
+    color: var(--secondary-color);
 }
 
 /* Newsletter Subscription Styles */
 .newsletter-subscription {
-    background: linear-gradient(135deg, #28a745, #20c997);
+    background: var(--newsletter-card-bg);
     border-radius: 15px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    color: white;
+    color: var(--newsletter-card-text);
     animation: slideInForm 0.6s ease-out 1.8s both;
     transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 .newsletter-subscription:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
 }
 
 .newsletter-header {
@@ -62,11 +237,13 @@
     justify-content: center;
     margin-right: 1rem;
     font-size: 1.2rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .newsletter-content h5 {
     margin: 0;
     font-weight: 600;
+    font-size: 1.1rem;
 }
 
 .newsletter-content p {
@@ -90,15 +267,16 @@
     font-size: 0.85rem;
     margin-bottom: 0.25rem;
     opacity: 0.9;
+    font-weight: 500;
 }
 
 .newsletter-input-group input {
     width: 100%;
-    padding: 0.75rem;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--newsletter-input-border);
+    border-radius: 12px;
+    background: var(--newsletter-input-bg);
+    color: var(--newsletter-card-text);
     font-size: 0.9rem;
     transition: all 0.3s ease;
 }
@@ -112,14 +290,15 @@
     border-color: rgba(255, 255, 255, 0.8);
     background: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .newsletter-btn {
-    background: rgba(255, 255, 255, 0.2);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    color: white;
+    background: var(--newsletter-btn-bg);
+    border: 2px solid var(--newsletter-btn-border);
+    color: var(--newsletter-card-text);
     padding: 0.75rem 1.5rem;
-    border-radius: 8px;
+    border-radius: 12px;
     font-weight: 600;
     transition: all 0.3s ease;
     cursor: pointer;
@@ -127,9 +306,10 @@
 }
 
 .newsletter-btn:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.3);
+    background: var(--newsletter-btn-hover);
     border-color: rgba(255, 255, 255, 0.8);
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
 }
 
 .newsletter-btn:disabled {
@@ -144,8 +324,8 @@
 }
 
 .newsletter-btn.success {
-    background: rgba(255, 255, 255, 0.9);
-    color: #28a745;
+    background: var(--newsletter-success-bg);
+    color: var(--newsletter-success-text);
     animation: bounce 0.6s ease;
 }
 
@@ -153,6 +333,30 @@
     0%, 20%, 60%, 100% { transform: translateY(0); }
     40% { transform: translateY(-10px); }
     80% { transform: translateY(-5px); }
+}
+
+/* Newsletter Success Message */
+.newsletter-success {
+    background: var(--newsletter-success-bg);
+    color: var(--newsletter-success-text);
+    padding: 1rem;
+    border-radius: 12px;
+    margin-top: 1rem;
+    display: none;
+    animation: slideInUp 0.5s ease;
+    font-weight: 500;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 /* Enhanced Loading States */
@@ -177,9 +381,66 @@
     100% { transform: scale(1); }
 }
 
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
 /* Form Section Animations */
 .form-section {
     animation: slideInForm 0.6s ease-out both;
+    background-color: var(--form-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.form-section:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    transform: translateY(-3px);
 }
 
 .form-section:nth-child(1) { animation-delay: 0.8s; }
@@ -187,26 +448,416 @@
 .form-section:nth-child(3) { animation-delay: 1.2s; }
 .form-section:nth-child(4) { animation-delay: 1.4s; }
 
-/* Newsletter Success Message */
-.newsletter-success {
-    background: rgba(255, 255, 255, 0.9);
-    color: #28a745;
-    padding: 1rem;
-    border-radius: 8px;
-    margin-top: 1rem;
-    display: none;
-    animation: slideInUp 0.5s ease;
-}
-
-@keyframes slideInUp {
+@keyframes slideInForm {
     from {
-        transform: translateY(20px);
+        transform: translateY(30px);
         opacity: 0;
     }
     to {
         transform: translateY(0);
         opacity: 1;
     }
+}
+
+/* User Type Selector */
+.user-type-selector {
+    margin-bottom: 2rem;
+}
+
+.selector-label {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+.user-type-options {
+    display: flex;
+    gap: 1rem;
+}
+
+.user-type-options input[type="radio"] {
+    display: none;
+}
+
+.user-type-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background-color: var(--user-type-bg);
+    border: 2px solid var(--user-type-border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+    text-align: center;
+}
+
+.user-type-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    background-color: var(--user-type-active-bg);
+}
+
+.user-type-options input[type="radio"]:checked + .user-type-card {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    color: var(--user-type-checked-text);
+}
+
+.type-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: rgba(13, 110, 253, 0.1);
+    transition: all 0.3s ease;
+    color: var(--primary-color);
+}
+
+.user-type-options input[type="radio"]:checked + .user-type-card .type-icon {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Section Title */
+.section-title {
+    color: var(--section-title-color);
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--section-border);
+}
+
+/* Input Field Enhancements */
+.input-wrapper {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.input-wrapper .form-control {
+    padding: 1rem 1rem 1rem 3rem;
+    border: 2px solid var(--input-border);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    width: 100%;
+}
+
+.input-wrapper .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    transform: translateY(-2px);
+}
+
+.input-wrapper .input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--secondary-color);
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.input-wrapper .form-control:focus + .input-icon {
+    color: var(--primary-color);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.floating-label {
+    position: absolute;
+    left: 3rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--input-bg);
+    padding: 0 0.5rem;
+    color: var(--secondary-color);
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.input-wrapper .form-control:focus ~ .floating-label,
+.input-wrapper .form-control:not(:placeholder-shown) ~ .floating-label {
+    top: 0;
+    left: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    transform: translateY(-50%);
+}
+
+textarea.form-control {
+    height: auto;
+    resize: vertical;
+}
+
+.input-wrapper textarea.form-control ~ .floating-label {
+    top: 1.1rem;
+}
+
+.input-wrapper textarea.form-control:focus ~ .floating-label,
+.input-wrapper textarea.form-control:not(:placeholder-shown) ~ .floating-label {
+    top: 0;
+}
+
+/* Password Toggle Button */
+.password-toggle-btn {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--secondary-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 2;
+    padding: 0.25rem;
+}
+
+.password-toggle-btn:hover {
+    color: var(--primary-color);
+}
+
+/* Terms and Conditions */
+.terms-agreement {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.form-check-input {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.1rem;
+    cursor: pointer;
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
+}
+
+.form-check-label {
+    color: var(--text-color);
+    font-size: 0.95rem;
+}
+
+.terms-link {
+    color: var(--terms-link-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.terms-link:hover {
+    text-decoration: underline;
+}
+
+/* Submit Button */
+.signup-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    border: none;
+    color: white;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+
+.signup-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s ease;
+}
+
+.signup-btn:hover::before {
+    left: 100%;
+}
+
+.signup-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(13, 110, 253, 0.4);
+}
+
+.btn-icon {
+    transition: all 0.3s ease;
+}
+
+.signup-btn:hover .btn-icon {
+    transform: translateX(3px);
+}
+
+/* Login Link */
+.login-prompt {
+    text-align: center;
+    margin-top: 2rem;
+    color: var(--text-color);
+}
+
+.login-link {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.login-link:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+/* Enhanced Notification System */
+.signup-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    min-width: 300px;
+    transform: translateX(400px);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(20px);
+}
+
+.signup-notification.show {
+    transform: translateX(0);
+}
+
+.signup-notification.success {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border-left: 4px solid #fff;
+}
+
+.signup-notification.error {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    border-left: 4px solid #fff;
+}
+
+.signup-notification.info {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    border-left: 4px solid #fff;
+}
+
+.signup-notification.alert {
+    background: linear-gradient(135deg, #ffc107, #e0a800);
+    border-left: 4px solid #fff;
+}
+
+[data-theme="dark"] .signup-notification {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .signup-notification.success {
+    background: linear-gradient(135deg, #1e7e34, #18a97b);
+    border-left: 4px solid rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .signup-notification.error {
+    background: linear-gradient(135deg, #a71d2a, #881c25);
+    border-left: 4px solid rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .signup-notification.info {
+    background: linear-gradient(135deg, #0a507a, #0f6991);
+    border-left: 4px solid rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .signup-notification.alert {
+    background: linear-gradient(135deg, #9d5d00, #b86e00);
+    border-left: 4px solid rgba(255, 255, 255, 0.8);
+}
+
+/* Mobile Responsive Enhancements */
+@media (max-width: 991px) {
+    .signup-form-container {
+        padding: 2rem;
+        max-width: 100%;
+        margin: 1rem;
+    }
+    
+    .user-type-options {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 768px) {
+    .newsletter-form {
+        flex-direction: column;
+    }
+    
+    .newsletter-btn {
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+    
+    .form-title {
+        font-size: 1.75rem;
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+    }
+    
+    .signup-notification {
+        left: 20px;
+        right: 20px;
+        min-width: auto;
+    }
+}
+
+@media (max-width: 576px) {
+    .signup-form-container {
+        padding: 1.5rem;
+    }
+    
+    .newsletter-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .newsletter-icon {
+        margin: 0 auto 1rem;
+    }
+    
+    .newsletter-content {
+        text-align: center;
+    }
+    
+    .form-section {
+        padding: 1.25rem;
+    }
+}
+
+body[data-theme="dark"] {
+  background-color: var(--bg-color);
 }
 </style>
 {% endblock %}
@@ -691,9 +1342,16 @@ document.addEventListener('DOMContentLoaded', function() {
     function showNotification(type, message) {
         const notification = document.createElement('div');
         notification.className = `signup-notification ${type}`;
+        
+        // Choose appropriate icon based on notification type
+        let iconClass = 'fa-info-circle';
+        if (type === 'success') iconClass = 'fa-check-circle';
+        else if (type === 'error') iconClass = 'fa-exclamation-circle';
+        else if (type === 'alert') iconClass = 'fa-exclamation-triangle';
+        
         notification.innerHTML = `
             <div class="notification-content">
-                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                <i class="fas ${iconClass}"></i>
                 <span>${message}</span>
             </div>
         `;

@@ -1,12 +1,12 @@
 import sqlite3
 from datetime import datetime, timedelta
 
-def find_available_slots(date, service_id, shop_hours={"start": "10:00", "end": "16:00"}):
+def find_available_slots(date, service_id, shop_hours={"start": "09:00", "end": "18:00"}):
     """
     Algorithm 1: Find available time slots for a given date and service
     - Takes into account service duration
     - Checks barbers' schedules
-    - Ensures slots are within shop hours (10 AM - 4 PM)
+    - Ensures slots are within shop hours
     """
     conn = sqlite3.connect('barbershop.db')
     cursor = conn.cursor()
@@ -19,8 +19,8 @@ def find_available_slots(date, service_id, shop_hours={"start": "10:00", "end": 
     
     service_duration = service[0]  # Duration in minutes
     
-    # Get all barbers
-    cursor.execute("SELECT id FROM barbers")
+    # Get all active barbers
+    cursor.execute("SELECT id FROM barbers WHERE status = 'active'")
     barbers = cursor.fetchall()
     
     available_slots = []
@@ -31,7 +31,7 @@ def find_available_slots(date, service_id, shop_hours={"start": "10:00", "end": 
         
         # Get barber's bookings for the day
         cursor.execute(
-            "SELECT start_time, end_time FROM bookings WHERE barber_id = ? AND date = ?", 
+            "SELECT start_time, end_time FROM bookings WHERE barber_id = ? AND date = ? AND status != 'cancelled'", 
             (barber_id, date)
         )
         bookings = cursor.fetchall()
@@ -51,7 +51,7 @@ def find_available_slots(date, service_id, shop_hours={"start": "10:00", "end": 
 def calculate_available_slots(bookings, service_duration, shop_hours):
     """
     Algorithm 2: Calculate available time slots given existing bookings
-    - Uses a time slot approach rather than relying on library functions
+    - Uses a time slot approach without external libraries
     - Ensures no overlapping appointments
     """
     # Convert shop hours to minutes since midnight for easier calculation
@@ -96,8 +96,11 @@ def calculate_available_slots(bookings, service_duration, shop_hours):
 
 def time_to_minutes(time_str):
     """Convert a time string (HH:MM) to minutes since midnight"""
-    hours, minutes = map(int, time_str.split(':'))
-    return hours * 60 + minutes
+    try:
+        hours, minutes = map(int, time_str.split(':'))
+        return hours * 60 + minutes
+    except:
+        return 0
 
 def minutes_to_time(minutes):
     """Convert minutes since midnight to time string (HH:MM)"""
@@ -108,13 +111,12 @@ def minutes_to_time(minutes):
 def optimize_barber_schedule(date):
     """
     Algorithm 3: Optimize barber schedules to minimize idle time
-    - Can be used by admin to optimize barber assignments
     """
     conn = sqlite3.connect('barbershop.db')
     cursor = conn.cursor()
     
     # Get all barbers
-    cursor.execute("SELECT id FROM barbers")
+    cursor.execute("SELECT id FROM barbers WHERE status = 'active'")
     barbers = cursor.fetchall()
     
     # Get all bookings for the date
@@ -122,18 +124,15 @@ def optimize_barber_schedule(date):
         SELECT b.id, b.customer_id, b.service_id, b.start_time, b.end_time, s.duration 
         FROM bookings b
         JOIN services s ON b.service_id = s.id
-        WHERE b.date = ?
+        WHERE b.date = ? AND b.status != 'cancelled'
         ORDER BY b.start_time
     """, (date,))
     bookings = cursor.fetchall()
     
-    # Simple greedy algorithm: assign each booking to the barber with 
-    # the earliest availability
-    
     # Track each barber's last assigned time
-    barber_availability = {barber[0]: time_to_minutes("10:00") for barber in barbers}
+    barber_availability = {barber[0]: time_to_minutes("09:00") for barber in barbers}
     
-    # For each booking
+    # For each booking, assign to barber with earliest availability
     for booking in bookings:
         booking_id, _, _, start_time, _, duration = booking
         
@@ -151,3 +150,150 @@ def optimize_barber_schedule(date):
     
     conn.commit()
     conn.close()
+
+def smart_barber_assignment(service_id, date, time):
+    """
+    Algorithm 4: Smart barber assignment based on multiple factors
+    - Barber rating and experience
+    - Service specialization match
+    - Workload distribution
+    """
+    conn = sqlite3.connect('barbershop.db')
+    cursor = conn.cursor()
+    
+    # Get available barbers for the time slot
+    available_slots = find_available_slots(date, service_id)
+    suitable_barbers = [slot for slot in available_slots if slot['time'] == time]
+    
+    if not suitable_barbers:
+        conn.close()
+        return None
+    
+    # Get service details
+    cursor.execute("SELECT name FROM services WHERE id = ?", (service_id,))
+    service = cursor.fetchone()
+    service_name = service[0] if service else ""
+    
+    best_barber = None
+    best_score = -1
+    
+    for barber_slot in suitable_barbers:
+        barber_id = barber_slot['barber_id']
+        
+        # Get barber details
+        cursor.execute("""
+            SELECT rating, total_bookings, specialties, experience_years 
+            FROM barbers WHERE id = ?
+        """, (barber_id,))
+        barber_data = cursor.fetchone()
+        
+        if barber_data:
+            rating, total_bookings, specialties, experience = barber_data
+            
+            # Calculate specialty match score
+            specialty_score = 0
+            if specialties and service_name:
+                specialty_words = service_name.lower().split()
+                for word in specialty_words:
+                    if word in specialties.lower():
+                        specialty_score += 1
+            
+            # Calculate workload score (prefer less busy barbers)
+            today_bookings = get_barber_daily_bookings(barber_id, date)
+            workload_score = max(0, 10 - today_bookings)  # Inverse relationship
+            
+            # Calculate final score
+            score = (rating or 4.0) * 2 + specialty_score * 1.5 + workload_score * 0.5 + (experience or 1) * 0.1
+            
+            if score > best_score:
+                best_score = score
+                best_barber = barber_slot
+    
+    conn.close()
+    return best_barber
+
+def get_barber_daily_bookings(barber_id, date):
+    """Get number of bookings for a barber on a specific date"""
+    conn = sqlite3.connect('barbershop.db')
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT COUNT(*) FROM bookings 
+        WHERE barber_id = ? AND date = ? AND status != 'cancelled'
+    """, (barber_id, date))
+    
+    count = cursor.fetchone()[0]
+    conn.close()
+    return count
+
+def predict_busy_hours(shop_id, date):
+    """
+    Algorithm 5: Predict busy hours based on historical data
+    """
+    conn = sqlite3.connect('barbershop.db')
+    cursor = conn.cursor()
+    
+    # Get day of week
+    date_obj = datetime.strptime(date, '%Y-%m-%d')
+    day_of_week = date_obj.strftime('%A')
+    
+    # Get historical bookings for the same day of week
+    cursor.execute("""
+        SELECT start_time, COUNT(*) as booking_count
+        FROM bookings b
+        JOIN barbers br ON b.barber_id = br.id
+        WHERE br.shop_id = ? AND strftime('%w', b.date) = strftime('%w', ?)
+        AND b.status != 'cancelled'
+        GROUP BY start_time
+        ORDER BY booking_count DESC
+    """, (shop_id, date))
+    
+    busy_hours = cursor.fetchall()
+    conn.close()
+    
+    return busy_hours[:5]  # Return top 5 busy hours
+
+def optimize_daily_schedule(shop_id, date):
+    """
+    Algorithm 6: Optimize daily schedule for maximum efficiency
+    """
+    conn = sqlite3.connect('barbershop.db')
+    cursor = conn.cursor()
+    
+    # Get all bookings for the day
+    cursor.execute("""
+        SELECT b.*, s.duration, br.id as barber_id
+        FROM bookings b
+        JOIN services s ON b.service_id = s.id
+        JOIN barbers br ON b.barber_id = br.id
+        WHERE br.shop_id = ? AND b.date = ? AND b.status != 'cancelled'
+        ORDER BY b.start_time
+    """, (shop_id, date))
+    
+    bookings = cursor.fetchall()
+    
+    # Implement a simple greedy algorithm to minimize gaps
+    optimized_schedule = []
+    current_time = time_to_minutes("09:00")
+    
+    for booking in bookings:
+        booking_start = time_to_minutes(booking[5])  # start_time
+        duration = booking[-2]  # service duration
+        
+        # If there's a gap, try to fill it
+        if booking_start > current_time:
+            gap_duration = booking_start - current_time
+            # Check if we can move this booking earlier
+            if gap_duration >= 15:  # 15-minute minimum gap
+                new_start = max(current_time, booking_start - gap_duration)
+                optimized_schedule.append({
+                    'booking_id': booking[0],
+                    'original_start': minutes_to_time(booking_start),
+                    'optimized_start': minutes_to_time(new_start),
+                    'duration': duration
+                })
+        
+        current_time = booking_start + duration
+    
+    conn.close()
+    return optimized_schedule

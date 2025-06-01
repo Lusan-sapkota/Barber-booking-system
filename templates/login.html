@@ -4,17 +4,70 @@
 
 {% block extra_css %}
 <style>
+/* Dark/Light Mode Variables */
+:root {
+  /* Light Mode (Default) */
+  --bg-color: #f8f9fa;
+  --card-bg: #ffffff;
+  --text-color: #212529;
+  --border-color: #dee2e6;
+  --step-number-bg: #0d6efd;
+  --step-number-color: #ffffff;
+  --card-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --input-bg: #ffffff;
+  --input-border: #ced4da;
+  --input-text: #212529;
+  --primary-color: #0d6efd;
+  --primary-hover: #0a58ca;
+  --secondary-color: #6c757d;
+  --auth-left-bg: linear-gradient(135deg, #0d6efd 0%, #0a58ca 50%, #084298 100%);
+  --auth-left-text: #ffffff;
+  --demo-account-bg: rgba(255, 255, 255, 0.1);
+  --demo-account-border: rgba(255, 255, 255, 0.2);
+  --demo-account-text: #ffffff;
+  --demo-account-hover: rgba(255, 255, 255, 0.2);
+  --demo-icon-bg: rgba(255, 255, 255, 0.15);
+  --login-form-bg: #ffffff;
+  --user-type-border: #dee2e6;
+  --user-type-bg: #f8f9fa;
+  --user-type-active-bg: #e9ecef;
+  --user-type-checked-bg: #0d6efd;
+  --user-type-checked-text: #ffffff;
+  --form-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] {
+  --bg-color: #121212;
+  --card-bg: #1e1e1e;
+  --text-color: #e0e0e0;
+  --border-color: #333333;
+  --card-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+  --input-bg: #2d2d2d;
+  --input-border: #444444;
+  --input-text: #e0e0e0;
+  --auth-left-bg: linear-gradient(135deg, #084298 0%, #0a58ca 50%, #0d6efd 100%);
+  --auth-left-text: #ffffff;
+  --demo-account-bg: rgba(0, 0, 0, 0.2);
+  --demo-account-border: rgba(255, 255, 255, 0.1);
+  --demo-account-hover: rgba(255, 255, 255, 0.1);
+  --demo-icon-bg: rgba(255, 255, 255, 0.1);
+  --login-form-bg: #1e1e1e;
+  --user-type-border: #333333;
+  --user-type-bg: #2d2d2d;
+  --user-type-active-bg: #3d3d3d;
+  --form-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
 /* Enhanced Login Page Animations */
 .login-page {
     position: relative;
     min-height: 100vh;
-    background: linear-gradient(135deg, 
-        var(--primary-color) 0%, 
-        var(--primary-hover) 50%, 
-        #1a365d 100%);
+    background-color: var(--bg-color);
+    color: var(--text-color);
     overflow: hidden;
     padding: 0;
     margin: 0;
+    transition: all 0.3s ease;
 }
 
 /* Animated Background Particles */
@@ -37,7 +90,7 @@
 .particle {
     position: absolute;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(13, 110, 253, 0.15);
     animation: floatParticle 15s infinite linear;
     backdrop-filter: blur(2px);
 }
@@ -118,12 +171,47 @@
     animation: slideInLeft 1.2s cubic-bezier(0.23, 1, 0.32, 1);
     position: relative;
     z-index: 2;
+    background: var(--auth-left-bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3rem;
+    color: var(--auth-left-text);
+}
+
+.auth-welcome-panel {
+
 }
 
 .login-right-panel {
     animation: slideInRight 1.2s cubic-bezier(0.23, 1, 0.32, 1) 0.3s both;
     position: relative;
     z-index: 2;
+    background-color: var(--bg-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-form-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    padding: 2rem;
+}
+
+.login-form-container {
+    width: 100%;
+    max-width: 500px;
+    background-color: var(--login-form-bg);
+    border-radius: 16px;
+    padding: 3rem;
+    box-shadow: var(--form-shadow);
+    animation: fadeInUp 1s ease-out 0.5s both;
+    transition: all 0.3s ease;
 }
 
 @keyframes slideInLeft {
@@ -148,11 +236,6 @@
     }
 }
 
-/* Form Animation */
-.login-form-container {
-    animation: fadeInUp 1s ease-out 0.5s both;
-}
-
 @keyframes fadeInUp {
     from {
         transform: translateY(50px);
@@ -168,6 +251,7 @@
 .form-group {
     animation: slideInForm 0.6s ease-out both;
     position: relative;
+    margin-bottom: 1.5rem;
 }
 
 .form-group:nth-child(1) { animation-delay: 0.1s; }
@@ -194,19 +278,19 @@
 
 .input-wrapper .form-control {
     padding: 1rem 1rem 1rem 3rem;
-    border: 2px solid #e9ecef;
+    border: 2px solid var(--input-border);
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    width: 100%;
 }
 
 .input-wrapper .form-control:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
     transform: translateY(-2px);
-    background: white;
 }
 
 .input-wrapper .input-icon {
@@ -214,7 +298,7 @@
     left: 1rem;
     top: 50%;
     transform: translateY(-50%);
-    color: #6c757d;
+    color: var(--secondary-color);
     font-size: 1.1rem;
     transition: all 0.3s ease;
     z-index: 2;
@@ -230,9 +314,9 @@
     left: 3rem;
     top: 50%;
     transform: translateY(-50%);
-    background: white;
+    background: var(--input-bg);
     padding: 0 0.5rem;
-    color: #6c757d;
+    color: var(--secondary-color);
     font-size: 1rem;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     pointer-events: none;
@@ -249,57 +333,122 @@
     transform: translateY(-50%);
 }
 
-/* Demo Account Cards Enhanced Animation */
-.left-demo-account {
-    animation: popIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    position: relative;
-    overflow: hidden;
+/* Form Header */
+.form-header {
+    margin-bottom: 2rem;
+    text-align: center;
 }
 
-.left-demo-account:nth-child(1) { animation-delay: 1.2s; }
-.left-demo-account:nth-child(2) { animation-delay: 1.4s; }
-.left-demo-account:nth-child(3) { animation-delay: 1.6s; }
-
-@keyframes popIn {
-    0% {
-        transform: scale(0.5) translateY(30px) rotate(-10deg);
-        opacity: 0;
-    }
-    50% {
-        transform: scale(1.1) translateY(-10px) rotate(2deg);
-    }
-    100% {
-        transform: scale(1) translateY(0) rotate(0deg);
-        opacity: 1;
-    }
+.form-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--text-color);
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-.left-demo-account:hover {
-    transform: translateX(10px) scale(1.02);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+.form-subtitle {
+    color: var(--secondary-color);
+    font-size: 1rem;
 }
 
-/* Ripple Effect on Demo Accounts */
-.left-demo-account::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
+/* User Type Selector */
+.user-type-selector {
+    margin-bottom: 2rem;
+}
+
+.selector-label {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+.user-type-options {
+    display: flex;
+    gap: 1rem;
+}
+
+.user-type-options input[type="radio"] {
+    display: none;
+}
+
+.user-type-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background-color: var(--user-type-bg);
+    border: 2px solid var(--user-type-border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+}
+
+.user-type-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    background-color: var(--user-type-active-bg);
+}
+
+.user-type-options input[type="radio"]:checked + .user-type-card {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    color: var(--user-type-checked-text);
+}
+
+.type-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
+    background-color: rgba(13, 110, 253, 0.1);
+    transition: all 0.3s ease;
+    color: var(--primary-color);
 }
 
-.left-demo-account:active::after {
-    width: 300px;
-    height: 300px;
+.user-type-options input[type="radio"]:checked + .user-type-card .type-icon {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    transform: scale(1.1);
 }
 
-/* Enhanced Loading Button Animation */
+/* Form Options */
+.form-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-color);
+}
+
+.forgot-password {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.forgot-password:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+/* Enhanced Login Button */
 .login-btn {
     background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
     border: none;
@@ -322,10 +471,7 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.3), 
-        transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
     transition: left 0.6s ease;
 }
 
@@ -338,31 +484,210 @@
     box-shadow: 0 15px 35px rgba(13, 110, 253, 0.4);
 }
 
-.login-btn.loading {
-    background: linear-gradient(45deg, 
-        var(--primary-color), 
-        var(--primary-hover), 
-        var(--primary-color));
-    background-size: 300% 300%;
-    animation: gradientShift 2s ease infinite;
-    pointer-events: none;
+/* Enhanced Demo Section */
+
+.left-demo-section {
+    margin-bottom: 3rem;
+    padding: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
 }
 
-.login-btn.success {
-    background: linear-gradient(135deg, #28a745, #20c997);
-    animation: successPulse 0.6s ease;
+.left-demo-header {
+    margin-bottom: 1.5rem;
 }
 
-@keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+.left-demo-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
 }
 
-@keyframes successPulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+.left-demo-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.demo-lightning {
+    color: #ffc107;
+    font-size: 1.25rem;
+}
+
+.left-demo-subtitle {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.left-demo-accounts {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.left-demo-account {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background-color: var(--demo-account-bg);
+    border: 1px solid var(--demo-account-border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--demo-account-text);
+    width: 100%;
+    text-align: left;
+}
+
+.left-demo-account:hover {
+    background-color: var(--demo-account-hover);
+    transform: translateX(5px);
+}
+
+.left-demo-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--demo-icon-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    transition: all 0.3s ease;
+}
+
+.customer-demo {
+    background: linear-gradient(135deg, #0d6efd, #0a58ca);
+}
+
+.barber-demo {
+    background: linear-gradient(135deg, #fd7e14, #e76107);
+}
+
+.owner-demo {
+    background: linear-gradient(135deg, #20c997, #189d7a);
+}
+
+.left-demo-info {
+    flex: 1;
+}
+
+.left-demo-role {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.left-demo-email {
+    font-size: 0.85rem;
+    opacity: 0.7;
+}
+
+.left-demo-arrow {
+    color: rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+}
+
+.left-demo-account:hover .left-demo-arrow {
+    transform: translateX(5px);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.left-demo-note {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    opacity: 0.7;
+    padding-left: 0.5rem;
+}
+
+/* Location Display */
+.location-display {
+    padding: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+}
+
+.location-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.location-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.location-icon {
+    color: #ffc107;
+}
+
+.location-label {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.location-text {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.location-edit-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0.25rem;
+}
+
+.location-edit-btn:hover {
+    color: white;
+    transform: rotate(90deg);
+}
+
+/* Signup Prompt */
+.signup-prompt {
+    text-align: center;
+    margin-top: 2rem;
+    color: var(--text-color);
+}
+
+.signup-link {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.signup-link:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+/* Password Toggle Button */
+.password-toggle-btn {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--secondary-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.password-toggle-btn:hover {
+    color: var(--primary-color);
 }
 
 /* Enhanced Notification System */
@@ -401,154 +726,129 @@
     border-left: 4px solid #fff;
 }
 
-/* User Type Selection Enhancement */
-.user-type-card {
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    position: relative;
-    overflow: hidden;
+/* Additional notification types */
+.login-notification.warning,
+.login-notification.alert {
+    background: linear-gradient(135deg, #ffc107, #e0a800);
+    border-left: 4px solid #fff;
 }
 
-.user-type-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, 
-        transparent, 
-        rgba(13, 110, 253, 0.1), 
-        transparent);
-    transition: left 0.5s ease;
+/* Dark mode notification styling */
+[data-theme="dark"] .login-notification {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-.user-type-card:hover::before {
-    left: 100%;
+[data-theme="dark"] .login-notification.success {
+    background: linear-gradient(135deg, #1e7e34, #18a97b);
+    border-left: 4px solid rgba(255, 255, 255, 0.8);
 }
 
-.user-type-card:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 15px 35px rgba(13, 110, 253, 0.2);
+[data-theme="dark"] .login-notification.error {
+    background: linear-gradient(135deg, #a71d2a, #881c25);
+    border-left: 4px solid rgba(255, 255, 255, 0.8);
 }
 
-/* Password Toggle Enhancement */
-.password-toggle-btn {
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+[data-theme="dark"] .login-notification.info {
+    background: linear-gradient(135deg, #0a507a, #0f6991);
+    border-left: 4px solid rgba(255, 255, 255, 0.8);
 }
 
-.password-toggle-btn:hover {
-    color: var(--primary-color);
-    transform: translateY(-50%) scale(1.2) rotate(10deg);
+[data-theme="dark"] .login-notification.warning,
+[data-theme="dark"] .login-notification.alert {
+    background: linear-gradient(135deg, #9d5d00, #b86e00);
+    border-left: 4px solid rgba(255, 255, 255, 0.8);
 }
 
-/* Remember Me Checkbox Enhancement */
-.form-check-input {
-    transition: all 0.3s ease;
+/* Fix for system notifications in dark mode */
+[data-theme="dark"] .system-notification {
+    background: #212529;  /* Dark background */
+    color: #ffffff;       /* Light text */
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
 }
 
-.form-check-input:checked {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    transform: scale(1.1);
+/* Ensure proper styling for notification types */
+[data-theme="dark"] .system-notification.success {
+    background: linear-gradient(135deg, #1e7e34, #18a97b);
+    border-left: 4px solid rgba(255, 255, 255, 0.8);
 }
 
-/* Form Options Animation */
-.form-options {
-    animation: slideInForm 0.6s ease-out 0.5s both;
+[data-theme="dark"] .system-notification.error {
+    background: linear-gradient(135deg, #a71d2a, #881c25);
+    border-left: 4px solid rgba(255, 255, 255, 0.8);
 }
 
-/* Signup Prompt Animation */
-.signup-prompt {
-    animation: slideInForm 0.6s ease-out 0.6s both;
+[data-theme="dark"] .system-notification.info {
+    background: linear-gradient(135deg, #0a507a, #0f6991);
+    border-left: 4px solid rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .system-notification.warning,
+[data-theme="dark"] .system-notification.alert {
+    background: linear-gradient(135deg, #9d5d00, #b86e00);
+    border-left: 4px solid rgba(255, 255, 255, 0.8);
+}
+
+/* Ensure text is visible */
+[data-theme="dark"] .system-notification .notification-title {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+[data-theme="dark"] .system-notification .notification-message {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Fix icon styling */
+[data-theme="dark"] .system-notification .notification-icon {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
 }
 
 /* Mobile Responsive Enhancements */
-@media (max-width: 768px) {
-    .login-page {
-        padding: 1rem 0;
+@media (max-width: 991px) {
+    .auth-left-panel {
+        padding: 2rem;
+        min-height: auto;
     }
     
-    .auth-left-panel,
     .login-right-panel {
         min-height: auto;
     }
     
     .login-form-container {
-        padding: 2rem 1rem;
+        padding: 2rem;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .auth-left-panel {
+        padding: 1.5rem;
+    }
+    
+    .login-form-container {
+        padding: 1.5rem;
     }
     
     .form-title {
         font-size: 1.8rem;
     }
     
-    .left-demo-accounts {
-        gap: 0.75rem;
+    .user-type-options {
+        flex-direction: column;
     }
     
-    .left-demo-account {
-        padding: 1rem;
+    .form-options {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
     }
     
     .login-notification {
-        min-width: 280px;
-        margin: 0 1rem;
+        left: 20px;
+        right: 20px;
+        min-width: auto;
     }
-    
-    .particle {
-        display: none; /* Hide particles on mobile for performance */
-    }
-}
-
-/* Location Display Enhancements */
-.location-display {
-    animation: slideInLeft 1s ease-out 1.8s both;
-}
-
-.location-display:hover .location-edit-btn {
-    transform: scale(1.2) rotate(15deg);
-}
-
-/* Focus Management */
-.input-wrapper .form-control:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
-
-/* Accessibility Enhancements */
-.left-demo-account:focus {
-    outline: 2px solid rgba(255, 255, 255, 0.8);
-    outline-offset: 2px;
-}
-
-.login-btn:focus {
-    outline: none;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.5);
-}
-
-/* Advanced Hover Effects */
-.left-demo-icon {
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.left-demo-account:hover .left-demo-icon {
-    transform: scale(1.2) rotate(15deg);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
-
-/* Loading State for Demo Accounts */
-.left-demo-account.loading {
-    opacity: 0.7;
-    pointer-events: none;
-}
-
-.left-demo-account.loading .left-demo-icon {
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
 }
 </style>
 {% endblock %}
@@ -572,10 +872,6 @@
             <!-- Enhanced Left Panel -->
             <div class="col-lg-6 auth-left-panel">
                 <div class="auth-welcome-panel">
-                    <!-- Brand Section -->
-                    <div class="auth-brand">
-                        <img src="{{ url_for('static', filename='image/logo.png') }}" alt="BookaBarber" class="auth-logo">
-                    </div>
 
                     <!-- Enhanced Demo Section -->
                     <div class="left-demo-section">
@@ -968,9 +1264,16 @@ document.addEventListener('DOMContentLoaded', function() {
 function showNotification(type, message) {
     const notification = document.createElement('div');
     notification.className = `login-notification ${type}`;
+    
+    // Choose appropriate icon based on notification type
+    let iconClass = 'fa-info-circle';
+    if (type === 'success') iconClass = 'fa-check-circle';
+    else if (type === 'error') iconClass = 'fa-exclamation-circle';
+    else if (type === 'warning' || type === 'alert') iconClass = 'fa-exclamation-triangle';
+    
     notification.innerHTML = `
         <div class="notification-content">
-            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'} me-2"></i>
+            <i class="fas ${iconClass} me-2"></i>
             <span>${message}</span>
         </div>
     `;
@@ -989,6 +1292,45 @@ function showNotification(type, message) {
             notification.remove();
         }, 400);
     }, 4000);
+}
+
+// System Notification Function
+function showSystemNotification(type, title, message) {
+    const notification = document.createElement('div');
+    notification.className = `system-notification ${type}`;
+    
+    // Choose appropriate icon based on notification type
+    let iconClass = 'fa-info-circle';
+    if (type === 'success') iconClass = 'fa-check-circle';
+    else if (type === 'error') iconClass = 'fa-exclamation-circle';
+    else if (type === 'warning' || type === 'alert') iconClass = 'fa-exclamation-triangle';
+    
+    notification.innerHTML = `
+        <div class="notification-content">
+            <div class="notification-icon">
+                <i class="fas ${iconClass}"></i>
+            </div>
+            <div class="notification-text">
+                <div class="notification-title">${title}</div>
+                <div class="notification-message">${message}</div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+    
+    // Animate out and remove
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            notification.remove();
+        }, 500);
+    }, 5000);
 }
 
 // Enhanced Location Detection

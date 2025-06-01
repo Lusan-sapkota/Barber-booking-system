@@ -4,6 +4,588 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
+<style>
+/* Dark/Light Mode Variables */
+:root {
+  /* Light Mode (Default) */
+  --bg-color: #f8f9fa;
+  --card-bg: #ffffff;
+  --text-color: #212529;
+  --border-color: #dee2e6;
+  --step-number-bg: #0d6efd;
+  --step-number-color: #ffffff;
+  --card-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --input-bg: #ffffff;
+  --input-border: #ced4da;
+  --input-text: #212529;
+  --time-slot-bg: #e9ecef;
+  --time-slot-hover: #dee2e6;
+  --time-slot-active: #0d6efd;
+  --time-slot-active-text: #ffffff;
+  --summary-bg: #f1f8ff;
+  --summary-border: #b8daff;
+  --total-amount-bg: #e9f5ff;
+  --alert-info-bg: #cff4fc;
+  --alert-info-text: #055160;
+  --header-bg: #343a40;
+  --header-text: #ffffff;
+}
+
+[data-theme="dark"] {
+  --bg-color: #121212;
+  --card-bg: #1e1e1e;
+  --text-color: #e0e0e0;
+  --border-color: #333333;
+  --card-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+  --input-bg: #2d2d2d;
+  --input-border: #444444;
+  --input-text: #e0e0e0;
+  --time-slot-bg: #2d2d2d;
+  --time-slot-hover: #3d3d3d;
+  --summary-bg: #2a3344;
+  --summary-border: #364760;
+  --total-amount-bg: #1a2233;
+  --alert-info-bg: #1a3446;
+  --alert-info-text: #8cdae5;
+  --header-bg: #1a1a1a;
+}
+
+/* Card Styling */
+.booking-page .card {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.card-header {
+  background: linear-gradient(45deg, var(--header-bg) 0%, rgba(52, 58, 64, 0.9) 100%) !important;
+  color: var(--header-text) !important;
+  font-weight: 600;
+  border: none;
+  padding: 1.25rem 1.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-header:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at top right, rgba(255,255,255,0.1) 0%, transparent 70%);
+}
+
+.card-body {
+  padding: 2rem;
+}
+
+/* Step Number Styling */
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  color: var(--step-number-color);
+  border-radius: 50%;
+  margin-right: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+  transform: translateZ(0);
+}
+
+/* Date Selection Styling */
+#appointment-date {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border: 2px solid var(--input-border);
+  padding: 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+#appointment-date:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+  transform: translateY(-2px);
+}
+
+.date-selection-wrapper {
+  position: relative;
+}
+
+.date-selection-wrapper::after {
+  content: '\f073';
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-color);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.alert-info {
+  background-color: var(--alert-info-bg);
+  color: var(--alert-info-text);
+  border: none;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.alert-info i {
+  font-size: 1.5rem;
+  margin-right: 15px;
+}
+
+/* Time Slots Styling */
+.time-slots-container {
+  gap: 15px;
+  padding: 1.25rem;
+}
+
+.form-check .form-check-input {
+    float: right;
+}
+
+.time-slot {
+  background-color: var(--time-slot-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--text-color);
+  font-weight: 600;
+  flex-basis: calc(20% - 15px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.time-slot:hover {
+  background-color: var(--time-slot-hover);
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  border-color: rgba(13, 110, 253, 0.5);
+}
+
+.time-slot.active {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  color: var(--time-slot-active-text);
+  border-color: var(--time-slot-active);
+  box-shadow: 0 8px 20px rgba(13, 110, 253, 0.4);
+}
+
+.time-slot::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(90deg, #0d6efd 0%, #53b7ed 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.time-slot:hover::before,
+.time-slot.active::before {
+  opacity: 1;
+}
+
+/* Empty state for time slots */
+.time-slots-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  width: 100%;
+}
+
+.time-slots-empty-state i {
+  font-size: 3.5rem;
+  color: #6c757d;
+  margin-bottom: 1.5rem;
+  opacity: 0.7;
+}
+
+.time-slots-empty-state h5 {
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-color);
+}
+
+/* Customer Information Form */
+.form-control {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border: 2px solid var(--input-border);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+  transform: translateY(-2px);
+}
+
+.form-label {
+  color: var(--text-color);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.form-label i {
+  margin-right: 8px;
+  color: #0d6efd;
+}
+
+textarea.form-control {
+  min-height: 120px;
+  resize: none;
+}
+
+/* Booking Summary Styling */
+#booking-summary-card {
+  border: none;
+  background-color: var(--card-bg);
+  position: relative;
+  overflow: hidden;
+}
+
+#booking-summary-card .card-header {
+  background: linear-gradient(135deg, #198754 0%, #157347 100%);
+}
+
+.summary-details {
+  background-color: var(--summary-bg);
+  border-radius: 14px;
+  padding: 2rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.summary-details::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background: linear-gradient(to bottom, #0d6efd, #53b7ed);
+}
+
+.summary-row {
+  display: flex;
+  margin-bottom: 1.25rem;
+  align-items: center;
+}
+
+.summary-row:last-child {
+  margin-bottom: 0;
+}
+
+.summary-label {
+  font-weight: 600;
+  color: var(--text-color);
+  width: 40%;
+  display: flex;
+  align-items: center;
+}
+
+.summary-label i {
+  margin-right: 10px;
+  color: #0d6efd;
+  font-size: 1.1rem;
+}
+
+.summary-value {
+  color: var(--text-color);
+  width: 60%;
+}
+
+.total-section {
+  background: linear-gradient(135deg, var(--total-amount-bg) 0%, rgba(26, 34, 51, 0.8) 100%);
+  border-radius: 14px;
+  padding: 2rem;
+  text-align: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.total-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at top right, rgba(255,255,255,0.1) 0%, transparent 70%);
+}
+
+.total-label {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 0.75rem;
+  color: var(--text-color);
+  font-weight: 600;
+  opacity: 0.8;
+  position: relative;
+}
+
+.total-amount {
+  font-size: 3rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #0d6efd 0%, #53b7ed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+#book-btn {
+  padding: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  border: none;
+  box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+#book-btn:hover:not([disabled]) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(13, 110, 253, 0.4);
+}
+
+#book-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .time-slot {
+    flex-basis: calc(33.333% - 15px);
+  }
+}
+
+@media (max-width: 576px) {
+  .time-slot {
+    flex-basis: calc(50% - 15px);
+  }
+  
+  .summary-label, .summary-value {
+    width: 100%;
+  }
+  
+  .summary-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .summary-label {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Modal styling */
+.modal-content {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border-color: var(--border-color);
+  border-radius: 12px;
+}
+
+.modal-header {
+  border-bottom-color: var(--border-color);
+}
+
+.modal-footer {
+  border-top-color: var(--border-color);
+}
+
+
+body[data-theme="dark"] {
+  background-color: var(--bg-color);
+}
+
+/* Page Header */
+.page-header {
+  background: linear-gradient(90deg, rgba(11, 94, 215, 1) 0%, rgba(13, 110, 253, 1) 50%, rgba(83, 183, 237, 1) 100%);
+  padding: 10px;
+  text-align: center;
+}
+
+.page-header-content {
+  padding: 20px;
+}
+
+.page-title, .page-subtitle {
+  color: white !important;
+}
+
+.page-header-actions {
+  margin-top: 20px;
+}
+
+.header-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  gap: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  text-decoration: none;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.header-btn:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.header-btn-outline {
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  color: white;
+  padding: 0.6rem 1.2rem;
+  background-color: transparent;
+  font-weight: 600;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
+  gap: 1rem;
+  margin-left: 10px;
+}
+
+.header-btn-outline:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.3);
+}
+
+.booking-page {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  padding: 0;
+}
+
+/* Notifications */
+.auto-assignment-notification,
+.login-required-notification {
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.notification-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.notification-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.notification-message {
+  margin-bottom: 0.5rem;
+}
+
+.notification-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.notification-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.notification-btn-primary {
+  color: #ffffff;
+  background-color: #0d6efd;
+}
+
+.notification-btn-secondary {
+  color: #ffffff;
+  background-color: #6c757d;
+}
+
+.notification-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.notification-btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.notification-btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+</style>
 {% endblock %}
 
 {% block content %}
@@ -18,11 +600,11 @@
                 </p>
                 
                 <div class="page-header-actions">
-                    <a href="{{ url_for('find_nearby') }}" class="header-btn header-btn-outline">
+                    <a href="{{ url_for('find_nearby') }}" class="header-btn">
                         <i class="fas fa-map-marker-alt"></i>
                         Find Specific Barber
                     </a>
-                    <a href="{{ url_for('home') }}#services" class="header-btn header-btn-outline">
+                    <a href="{{ url_for('home') }}#services" class="header-btn-outline">
                         <i class="fas fa-info-circle"></i>
                         View All Services
                     </a>
@@ -223,12 +805,17 @@
             <div class="card-body p-4">
                 <div class="row align-items-center">
                     <div class="col-md-6">
-                        <input type="date" id="appointment-date" class="form-control form-control-lg" min="{{ today_date }}" required>
+                        <div class="date-selection-wrapper">
+                            <input type="date" id="appointment-date" class="form-control form-control-lg" min="{{ today_date }}" required>
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <div class="alert alert-info mb-0">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <strong>Business Hours:</strong> Monday to Friday, 10:00 AM - 4:00 PM
+                            <i class="fas fa-business-time"></i>
+                            <div>
+                                <strong>Business Hours:</strong><br>
+                                Monday to Friday, 10:00 AM - 4:00 PM
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -244,9 +831,10 @@
                 </h5>
             </div>
             <div class="card-body">
+                <!-- Update the time slots container with this improved version -->
                 <div id="time-slots" class="time-slots-container">
-                    <div class="text-center py-5 text-muted">
-                        <i class="fas fa-calendar-day fa-3x mb-3"></i>
+                    <div class="time-slots-empty-state">
+                        <i class="fas fa-calendar-day"></i>
                         <h5>Select a Service and Date</h5>
                         <p class="mb-0">Please choose your preferred service and date to view available time slots</p>
                     </div>
@@ -291,57 +879,58 @@
                     <i class="fas fa-clipboard-check me-2"></i>Booking Summary
                 </h5>
             </div>
+            <!-- Update Booking Summary section -->
             <div class="card-body p-4">
                 <div class="row">
                     <div class="col-md-8">
                         <div class="summary-details">
-                            <div class="row mb-3">
-                                <div class="col-sm-4">
-                                    <strong>Service:</strong>
+                            <div class="summary-row">
+                                <div class="summary-label">
+                                    <i class="fas fa-cut"></i>Service:
                                 </div>
-                                <div class="col-sm-8">
+                                <div class="summary-value">
                                     <span id="summary-service-name">-</span>
                                 </div>
                             </div>
-                            <div class="row mb-3">
-                                <div class="col-sm-4">
-                                    <strong>Date:</strong>
+                            <div class="summary-row">
+                                <div class="summary-label">
+                                    <i class="fas fa-calendar-alt"></i>Date:
                                 </div>
-                                <div class="col-sm-8">
+                                <div class="summary-value">
                                     <span id="summary-date">-</span>
                                 </div>
                             </div>
-                            <div class="row mb-3">
-                                <div class="col-sm-4">
-                                    <strong>Time:</strong>
+                            <div class="summary-row">
+                                <div class="summary-label">
+                                    <i class="fas fa-clock"></i>Time:
                                 </div>
-                                <div class="col-sm-8">
+                                <div class="summary-value">
                                     <span id="summary-time">-</span>
                                 </div>
                             </div>
-                            <div class="row mb-3">
-                                <div class="col-sm-4">
-                                    <strong>Duration:</strong>
+                            <div class="summary-row">
+                                <div class="summary-label">
+                                    <i class="fas fa-hourglass-half"></i>Duration:
                                 </div>
-                                <div class="col-sm-8">
+                                <div class="summary-value">
                                     <span id="summary-duration">-</span>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-sm-4">
-                                    <strong>Barber:</strong>
+                            <div class="summary-row">
+                                <div class="summary-label">
+                                    <i class="fas fa-user-tie"></i>Barber:
                                 </div>
-                                <div class="col-sm-8">
+                                <div class="summary-value">
                                     <span class="badge bg-info">Auto-assigned</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 text-center">
+                    <div class="col-md-4">
                         <div class="total-section">
                             <div class="total-label">Total Amount</div>
                             <div class="total-amount" id="summary-total">$0</div>
-                            <button id="book-btn" class="btn btn-primary btn-lg w-100 mt-3" disabled>
+                            <button id="book-btn" class="btn btn-primary btn-lg w-100" disabled>
                                 <i class="fas fa-calendar-check me-2"></i>Book Appointment
                             </button>
                         </div>

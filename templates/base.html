@@ -27,6 +27,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/signup.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/laterstyles.css') }}">
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -258,15 +259,15 @@
                         </div>
                     </div>
 
-                    <!-- Services -->
+                    <!-- Resources - New Section to Replace Services -->
                     <div class="col-lg-2 col-md-6">
                         <div class="footer-section">
-                            <h6 class="footer-title">Services</h6>
+                            <h6 class="footer-title">Resources</h6>
                             <ul class="footer-links">
-                                <li><a href="#">Haircuts</a></li>
-                                <li><a href="#">Beard Styling</a></li>
-                                <li><a href="#">Hair Coloring</a></li>
-                                <li><a href="#">Premium Packages</a></li>
+                                <li><a href="{{ url_for('about') }}">About Us</a></li>
+                                <li><a href="{{ url_for('services') }}">Our Services</a></li>
+                                <li><a href="{{ url_for('find_nearby') }}">Barber Directory</a></li>
+                                <li><a href="{{ url_for('contactus') }}">Get in Touch</a></li>
                             </ul>
                         </div>
                     </div>
@@ -276,10 +277,10 @@
                         <div class="footer-section">
                             <h6 class="footer-title">Support</h6>
                             <ul class="footer-links">
-                                <li><a href="{{ url_for('help_center') }}">Help Center</a></li>
-                                <li><a href="{{ url_for('contact_us') }}">Contact Us</a></li>
-                                <li><a href="{{ url_for('faq') }}">FAQs</a></li>
-                                <li><a href="{{ url_for('terms_of_service') }}">Terms of Service</a></li>
+                                <li><a href="{{ url_for('contactus') }}">Contact Us</a></li>
+                                <li><a href="{{ url_for('faq') }}">FAQ</a></li>
+                                <li><a href="{{ url_for('helpcenter') }}">Help Center</a></li>
+                                <li><a href="{{ url_for('forgot_password') }}">Reset Password</a></li>
                             </ul>
                         </div>
                     </div>
@@ -291,7 +292,7 @@
                             <ul class="footer-links">
                                 <li><a href="{{ url_for('privacy_policy') }}">Privacy Policy</a></li>
                                 <li><a href="{{ url_for('terms_of_service') }}">Terms of Service</a></li>
-                                <li><a href="{{ url_for('faq') }}">FAQ</a></li>
+                                <li><a href="{{ url_for('cookie_policy') }}">Cookie Policy</a></li>
                                 <li><a href="mailto:legal@bookabarber.com">Legal Inquiries</a></li>
                             </ul>
                         </div>
@@ -329,9 +330,9 @@
                     </div>
                     <div class="col-md-6">
                         <div class="footer-bottom-links">
-                            <a href="#">Privacy Policy</a>
-                            <a href="#">Terms of Service</a>
-                            <a href="#">Cookie Policy</a>
+                            <a href="{{ url_for('privacy_policy') }}">Privacy Policy</a>
+                            <a href="{{ url_for('terms_of_service') }}">Terms of Service</a>
+                            <a href="{{ url_for('cookie_policy') }}">Cookie Policy</a>
                         </div>
                     </div>
                 </div>
@@ -416,15 +417,6 @@
     {% endblock %}
 
     <style>
-/* Enhanced Notification System */
-.notification-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 9999;
-    max-width: 400px;
-    pointer-events: none;
-}
 
 .system-notification {
     background: white;
@@ -581,10 +573,7 @@
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .notification-container {
-        top: 10px;
-        right: 10px;
-        left: 10px;
-        max-width: none;
+        max-width: auto;
     }
     
     .system-notification {

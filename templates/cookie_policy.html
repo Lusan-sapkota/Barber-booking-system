@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Cookie Policy - BookaBarber{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h1 class="h3 mb-0">Cookie Policy</h1>
+                    <p class="mb-0 opacity-75">Last updated: {{ current_year }}</p>
+                </div>
+                <div class="card-body p-4">
+                    <div class="cookie-content">
+                        <section class="mb-5">
+                            <h3 class="text-info mb-3">What Are Cookies?</h3>
+                            <p>Cookies are small text files that are placed on your computer or mobile device when you visit our website. They help us provide you with a better experience by:</p>
+                            <ul>
+                                <li>Remembering your preferences and settings</li>
+                                <li>Enabling functionality like staying logged in</li>
+                                <li>Analyzing how our website is used</li>
+                                <li>Providing relevant content and advertisements</li>
+                            </ul>
+                        </section>
+
+                        <section class="mb-5">
+                            <h3 class="text-info mb-3">Types of Cookies We Use</h3>
+                            
+                            <div class="cookie-type mb-4">
+                                <h5>Essential Cookies</h5>
+                                <p>These cookies are necessary for the website to function properly. They enable basic functions like page navigation, secure login, and form submissions.</p>
+                                <div class="alert alert-info">
+                                    <strong>Purpose:</strong> Website functionality, security, user authentication
+                                </div>
+                            </div>
+
+                            <div class="cookie-type mb-4">
+                                <h5>Performance Cookies</h5>
+                                <p>These cookies collect information about how visitors use our website, helping us improve performance and user experience.</p>
+                                <div class="alert alert-info">
+                                    <strong>Purpose:</strong> Analytics, performance monitoring, error tracking
+                                </div>
+                            </div>
+
+                            <div class="cookie-type mb-4">
+                                <h5>Functionality Cookies</h5>
+                                <p>These cookies remember your preferences and provide enhanced, personalized features.</p>
+                                <div class="alert alert-info">
+                                    <strong>Purpose:</strong> User preferences, language settings, location data
+                                </div>
+                            </div>
+
+                            <div class="cookie-type mb-4">
+                                <h5>Marketing Cookies</h5>
+                                <p>These cookies track your online activity to help advertisers deliver more relevant advertisements.</p>
+                                <div class="alert alert-info">
+                                    <strong>Purpose:</strong> Targeted advertising, campaign effectiveness, user profiling
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="mb-5">
+                            <h3 class="text-info mb-3">Managing Your Cookie Preferences</h3>
+                            <p>You have several options for managing cookies:</p>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="card border-info">
+                                        <div class="card-body">
+                                            <h6 class="card-title">Browser Settings</h6>
+                                            <p class="card-text small">Most browsers allow you to control cookies through their settings. You can usually find these options in the "Security" or "Privacy" section.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="card border-info">
+                                        <div class="card-body">
+                                            <h6 class="card-title">Cookie Banner</h6>
+                                            <p class="card-text small">When you first visit our site, you can choose which types of cookies to accept through our cookie consent banner.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="mb-5">
+                            <h3 class="text-info mb-3">Third-Party Cookies</h3>
+                            <p>We may use third-party services that place their own cookies on your device:</p>
+                            <ul>
+                                <li><strong>Google Analytics:</strong> For website analytics and performance monitoring</li>
+                                <li><strong>Payment Processors:</strong> For secure payment processing</li>
+                                <li><strong>Social Media:</strong> For social sharing and authentication</li>
+                                <li><strong>Customer Support:</strong> For chat and help functionality</li>
+                            </ul>
+                        </section>
+
+                        <section class="mb-5">
+                            <h3 class="text-info mb-3">Your Rights</h3>
+                            <p>Under data protection laws, you have the right to:</p>
+                            <ul>
+                                <li>Know what cookies are being used</li>
+                                <li>Refuse or withdraw consent for non-essential cookies</li>
+                                <li>Access and delete personal data collected through cookies</li>
+                                <li>Receive information about how your data is processed</li>
+                            </ul>
+                        </section>
+
+                        <section class="mb-5">
+                            <h3 class="text-info mb-3">Contact Us About Cookies</h3>
+                            <p>If you have questions about our use of cookies, please contact us:</p>
+                            <div class="contact-info mt-3">
+                                <p><strong>Email:</strong> privacy@bookabarber.com</p>
+                                <p><strong>Subject:</strong> Cookie Policy Inquiry</p>
+                            </div>
+                        </section>
+
+                        <div class="cookie-controls text-center">
+                            <h4 class="mb-3">Cookie Preferences</h4>
+                            <p class="text-muted mb-3">You can manage your cookie preferences here:</p>
+                            <button class="btn btn-info me-2" onclick="openCookieSettings()">
+                                <i class="fas fa-cog me-2"></i>Manage Cookies
+                            </button>
+                            <button class="btn btn-outline-info" onclick="clearAllCookies()">
+                                <i class="fas fa-trash me-2"></i>Clear All Cookies
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.cookie-content h3 {
+    border-left: 4px solid #0dcaf0;
+    padding-left: 1rem;
+}
+
+.cookie-type {
+    border-left: 3px solid #dee2e6;
+    padding-left: 1rem;
+}
+
+.contact-info {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    border-left: 4px solid #0dcaf0;
+}
+
+.cookie-controls {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 0.375rem;
+    margin-top: 2rem;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openCookieSettings() {
+    alert('Cookie settings panel would open here (to be implemented)');
+}
+
+function clearAllCookies() {
+    if (confirm('Are you sure you want to clear all cookies? This will log you out and reset your preferences.')) {
+        // Clear all cookies
+        document.cookie.split(";").forEach(function(c) { 
+            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+        });
+        alert('All cookies have been cleared. The page will now reload.');
+        location.reload();
+    }
+}
+</script>
+{% endblock %}

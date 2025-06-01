@@ -1,7 +1,7 @@
 import smtplib
 import sqlite3
-from email.mime.text import MimeText
-from email.mime.multipart import MimeMultipart
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import os
 from jinja2 import Environment, FileSystemLoader
@@ -9,10 +9,10 @@ from jinja2 import Environment, FileSystemLoader
 class EmailService:
     def __init__(self):
         # Email configuration - Update these with your SMTP settings
-        self.smtp_server = "smtp.gmail.com"  # or your SMTP server
+        self.smtp_server = "sandbox.smtp.mailtrap.io"  # or your SMTP server
         self.smtp_port = 587
-        self.email_address = "your-email@gmail.com"  # Update this
-        self.email_password = "your-app-password"    # Update this (use app password for Gmail)
+        self.email_address = "353600283d1aff"  # Update this
+        self.email_password = "e098d48490e01a"    # Update this (use app password for Gmail)
         
         # Template environment
         self.template_env = Environment(
@@ -24,17 +24,17 @@ class EmailService:
         """Send email and log the attempt"""
         try:
             # Create message
-            msg = MimeMultipart('alternative')
+            msg = MIMEMultipart('alternative')
             msg['Subject'] = subject
             msg['From'] = self.email_address
             msg['To'] = to_email
             
             # Add text and HTML parts
             if text_content:
-                text_part = MimeText(text_content, 'plain')
+                text_part = MIMEText(text_content, 'plain')
                 msg.attach(text_part)
             
-            html_part = MimeText(html_content, 'html')
+            html_part = MIMEText(html_content, 'html')
             msg.attach(html_part)
             
             # Send email
@@ -55,18 +55,34 @@ class EmailService:
     
     def _log_email(self, recipient, subject, status, error_message=None):
         """Log email attempt to database"""
-        conn = sqlite3.connect('barbershop.db')
-        cursor = conn.cursor()
-        
-        sent_at = datetime.now() if status == 'sent' else None
-        
-        cursor.execute('''
-            INSERT INTO email_logs (recipient_email, subject, status, error_message, sent_at)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (recipient, subject, status, error_message, sent_at))
-        
-        conn.commit()
-        conn.close()
+        try:
+            conn = sqlite3.connect('barbershop.db')
+            cursor = conn.cursor()
+            
+            # Ensure email_logs table exists
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS email_logs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    recipient_email TEXT NOT NULL,
+                    subject TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    error_message TEXT,
+                    sent_at TIMESTAMP,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            sent_at = datetime.now() if status == 'sent' else None
+            
+            cursor.execute('''
+                INSERT INTO email_logs (recipient_email, subject, status, error_message, sent_at)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (recipient, subject, status, error_message, sent_at))
+            
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            print(f"Error logging email: {e}")
     
     def send_booking_confirmation(self, booking_data):
         """Send booking confirmation email"""

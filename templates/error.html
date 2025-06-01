@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}Error {{ error_code }} - BookaBarber{% endblock %}
+
+{% block extra_css %}
+<style>
+.error-page {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-align: center;
+    padding: 2rem 0;
+}
+
+.error-content {
+    max-width: 600px;
+    padding: 2rem;
+}
+
+.error-code {
+    font-size: 8rem;
+    font-weight: bold;
+    line-height: 1;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.error-message {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.error-description {
+    font-size: 1.1rem;
+    margin-bottom: 3rem;
+    opacity: 0.8;
+}
+
+.error-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-home {
+    background: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 12px 30px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.btn-home:hover {
+    background: rgba(255,255,255,0.3);
+    border-color: rgba(255,255,255,0.5);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-back {
+    background: transparent;
+    border: 2px solid rgba(255,255,255,0.5);
+    color: white;
+    padding: 12px 30px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.error-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+    .error-code {
+        font-size: 5rem;
+    }
+    
+    .error-message {
+        font-size: 1.2rem;
+    }
+    
+    .error-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-page">
+    <div class="error-content">
+        {% if error_code == 404 %}
+        <div class="error-icon">
+            <i class="fas fa-compass"></i>
+        </div>
+        <div class="error-code">404</div>
+        <div class="error-message">Page Not Found</div>
+        <div class="error-description">
+            The page you're looking for doesn't exist. It might have been moved, deleted, or you entered the wrong URL.
+        </div>
+        {% elif error_code == 500 %}
+        <div class="error-icon">
+            <i class="fas fa-tools"></i>
+        </div>
+        <div class="error-code">500</div>
+        <div class="error-message">Server Error</div>
+        <div class="error-description">
+            Something went wrong on our end. We're working to fix this issue. Please try again later.
+        </div>
+        {% elif error_code == 403 %}
+        <div class="error-icon">
+            <i class="fas fa-lock"></i>
+        </div>
+        <div class="error-code">403</div>
+        <div class="error-message">Access Forbidden</div>
+        <div class="error-description">
+            You don't have permission to access this resource. Please check your credentials or contact support.
+        </div>
+        {% else %}
+        <div class="error-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="error-code">{{ error_code or 'Error' }}</div>
+        <div class="error-message">{{ error_message or 'Something went wrong' }}</div>
+        <div class="error-description">
+            An unexpected error occurred. Please try again or contact support if the problem persists.
+        </div>
+        {% endif %}
+        
+        <div class="error-actions">
+            <a href="{{ url_for('home') }}" class="btn-home">
+                <i class="fas fa-home me-2"></i>Go Home
+            </a>
+            <a href="javascript:history.back()" class="btn-back">
+                <i class="fas fa-arrow-left me-2"></i>Go Back
+            </a>
+        </div>
+        
+        {% if error_code == 404 %}
+        <div class="mt-4">
+            <p class="mb-3">Looking for something specific?</p>
+            <div class="d-flex flex-wrap justify-content-center gap-2">
+                <a href="{{ url_for('booking_page') }}" class="btn btn-sm btn-outline-light">Book Appointment</a>
+                <a href="{{ url_for('find_nearby') }}" class="btn btn-sm btn-outline-light">Find Barbers</a>
+                <a href="{{ url_for('contactus') }}" class="btn btn-sm btn-outline-light">Contact Us</a>
+                <a href="{{ url_for('faq') }}" class="btn btn-sm btn-outline-light">FAQ</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Additional Help Section -->
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center">
+                <h3 class="mb-4">Need Help?</h3>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-question-circle fa-2x text-primary mb-3"></i>
+                                <h6>FAQ</h6>
+                                <p class="small text-muted">Find answers to common questions</p>
+                                <a href="{{ url_for('faq') }}" class="btn btn-sm btn-primary">View FAQ</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-headset fa-2x text-success mb-3"></i>
+                                <h6>Support</h6>
+                                <p class="small text-muted">Get help from our team</p>
+                                <a href="{{ url_for('contactus') }}" class="btn btn-sm btn-success">Contact Support</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-info-circle fa-2x text-info mb-3"></i>
+                                <h6>Help Center</h6>
+                                <p class="small text-muted">Browse our help documentation</p>
+                                <a href="{{ url_for('helpcenter') }}" class="btn btn-sm btn-info">Help Center</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<body 
+  data-error-code="{{ error_code }}" 
+  data-error-message="{{ error_message }}"
+  data-home-url="{{ url_for('home') }}"
+>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const code = document.body.dataset.errorCode;
+    const message = document.body.dataset.errorMessage;
+    const homeUrl = document.body.dataset.homeUrl;
+
+    if (code == "500") {
+        setTimeout(function () {
+            if (confirm("Would you like to be redirected to the home page?")) {
+                window.location.href = homeUrl;
+            }
+        }, 10000);
+    }
+
+    if (typeof gtag !== "undefined") {
+        gtag("event", "exception", {
+            description: `Error ${code}: ${message}`,
+            fatal: code === "500"
+        });
+    }
+});
+</script>
+
+{% endblock %}

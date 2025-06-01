@@ -4,6 +4,618 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
+<style>
+/* Dark/Light Mode Variables */
+:root {
+  /* Light Mode (Default) */
+  --bg-color: #f8f9fa;
+  --card-bg: #ffffff;
+  --text-color: #212529;
+  --border-color: #dee2e6;
+  --step-number-bg: #0d6efd;
+  --step-number-color: #ffffff;
+  --card-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --input-bg: #ffffff;
+  --input-border: #ced4da;
+  --input-text: #212529;
+  --time-slot-bg: #e9ecef;
+  --time-slot-hover: #dee2e6;
+  --time-slot-active: #0d6efd;
+  --time-slot-active-text: #ffffff;
+  --summary-bg: #f1f8ff;
+  --summary-border: #b8daff;
+  --total-amount-bg: #e9f5ff;
+  --alert-info-bg: #cff4fc;
+  --alert-info-text: #055160;
+  --header-bg: #343a40;
+  --header-text: #ffffff;
+}
+
+[data-theme="dark"] {
+  --bg-color: #121212;
+  --card-bg: #1e1e1e;
+  --text-color: #e0e0e0;
+  --border-color: #333333;
+  --card-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+  --input-bg: #2d2d2d;
+  --input-border: #444444;
+  --input-text: #e0e0e0;
+  --time-slot-bg: #2d2d2d;
+  --time-slot-hover: #3d3d3d;
+  --summary-bg: #2a3344;
+  --summary-border: #364760;
+  --total-amount-bg: #1a2233;
+  --alert-info-bg: #1a3446;
+  --alert-info-text: #8cdae5;
+  --header-bg: #1a1a1a;
+}
+
+.find-nearby-page {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  padding: 0;
+}
+
+/* Card Styling */
+.find-nearby-page .card {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border: none;
+  transition: all 0.3s ease;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.find-nearby-page .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+  background: linear-gradient(45deg, var(--header-bg) 0%, rgba(52, 58, 64, 0.9) 100%) !important;
+  color: var(--header-text) !important;
+  font-weight: 600;
+  border: none;
+  padding: 1.25rem 1.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-header:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at top right, rgba(255,255,255,0.1) 0%, transparent 70%);
+}
+
+.card-body {
+  padding: 2rem;
+}
+
+/* Page Header */
+.page-header {
+  background: linear-gradient(90deg, rgba(11, 94, 215, 1) 0%, rgba(13, 110, 253, 1) 50%, rgba(83, 183, 237, 1) 100%);
+  padding: 10px;
+  text-align: center;
+}
+
+.page-header-content {
+  padding: 20px;
+}
+
+.page-title, .page-subtitle {
+  color: white !important;
+}
+
+.page-header-actions {
+  margin-top: 20px;
+}
+
+.header-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  gap: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  text-decoration: none;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.header-btn:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.header-btn-outline {
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  color: white;
+  padding: 0.6rem 1.2rem;
+  background-color: transparent;
+  font-weight: 600;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
+  gap: 1rem;
+  margin-left: 10px;
+}
+
+.header-btn-outline:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.3);
+}
+
+/* Notifications */
+.system-notification,
+.login-required-notification {
+  background-color: var(--card-bg);
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border-left: 5px solid #0d6efd;
+  transition: all 0.3s ease;
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+.notification-icon {
+  font-size: 2.5rem;
+  color: #0d6efd;
+  flex-shrink: 0;
+}
+
+.notification-title {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--text-color);
+  font-size: 1.25rem;
+}
+
+.notification-message {
+  margin-bottom: 1rem;
+  color: var(--text-color);
+  opacity: 0.9;
+}
+
+.notification-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.notification-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.notification-btn-primary {
+  color: #ffffff;
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  border: none;
+  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+}
+
+.notification-btn-secondary {
+  color: #ffffff;
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+  border: none;
+  box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3);
+}
+
+.notification-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Search Section Styling */
+.search-section {
+  background-color: var(--card-bg);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.search-section h2 {
+  margin-bottom: 1.5rem;
+  color: var(--text-color);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.search-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.search-location-group {
+  flex: 1;
+  position: relative;
+}
+
+.search-location-input {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border: 2px solid var(--input-border);
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.search-radius-select {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border: 2px solid var(--input-border);
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  width: auto;
+}
+
+.search-btn {
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  border: none;
+  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+  transition: all 0.3s ease;
+  color: white;
+  min-width: 120px;
+}
+
+.search-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(13, 110, 253, 0.4);
+}
+
+.location-actions {
+  margin-top: 1rem;
+}
+
+.use-location-btn {
+  background: transparent;
+  border: none;
+  color: #0d6efd;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.use-location-btn:hover {
+  color: #0a58ca;
+  transform: translateX(5px);
+}
+
+/* Filters Section Styling */
+.filters-section {
+  background-color: var(--card-bg);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.filters-title {
+  margin-bottom: 1.5rem;
+  color: var(--text-color);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filter-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filter-label {
+  color: var(--text-color);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.form-select {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border: 2px solid var(--input-border);
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.form-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+  transform: translateY(-2px);
+}
+
+.clear-filters-btn {
+  background: transparent;
+  border: 2px solid var(--input-border);
+  color: var(--text-color);
+  font-weight: 500;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 24px;
+}
+
+.clear-filters-btn:hover {
+  background-color: var(--input-border);
+  transform: translateY(-2px);
+}
+
+/* Results Section Styling */
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.results-count {
+  color: var(--text-color);
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+.view-toggle .btn {
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  border-color: var(--input-border);
+  transition: all 0.3s ease;
+}
+
+.view-toggle .btn-check:checked + .btn {
+  background-color: #0d6efd;
+  color: white;
+  border-color: #0d6efd;
+}
+
+/* Barber Cards Styling */
+#barbers-container .card {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+#barbers-container .card-body {
+  padding: 1.5rem;
+}
+
+#barbers-container .card-title {
+  color: var(--text-color);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+#barbers-container .card-text {
+  color: var(--text-color);
+  opacity: 0.9;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+}
+
+.badge {
+  padding: 0.5rem 0.75rem;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.btn-primary {
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  border: none;
+  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(13, 110, 253, 0.4);
+  background: linear-gradient(135deg, #0a58ca 0%, #084298 100%);
+}
+
+.btn-outline-secondary {
+  color: var(--text-color);
+  border: 2px solid var(--input-border);
+  background-color: transparent;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--input-border);
+  color: var(--text-color);
+}
+
+/* Grid View Styling */
+.grid-view-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.grid-view-container .card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.grid-view-container .card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.grid-view-container .btn-group {
+  margin-top: auto;
+}
+
+/* Modal styling */
+.modal-content {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border-color: var(--border-color);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.modal-header {
+  background: linear-gradient(45deg, var(--header-bg) 0%, rgba(52, 58, 64, 0.9) 100%);
+  color: var(--header-text);
+  border: none;
+  padding: 1.5rem;
+}
+
+.modal-body {
+  padding: 2rem;
+}
+
+.modal-footer {
+  border-top-color: var(--border-color);
+  padding: 1.5rem;
+}
+
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--text-color);
+}
+
+.dark-mode-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+  .search-form-row {
+    flex-direction: column;
+  }
+  
+  .search-radius-select {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .filter-group {
+    flex: 100%;
+  }
+  
+  .notification-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .notification-icon {
+    margin-bottom: 1rem;
+  }
+  
+  .results-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .notification-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .notification-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+body[data-theme="dark"] {
+  background-color: var(--bg-color);
+}
+
+.find-nearby-page .card:hover {
+  background-color: var(--card-bg);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -33,7 +645,7 @@
 
     <div class="container">
         <!-- System Notifications -->
-        <div class="system-notification">
+        <div class="system-notification" style="transform: translateX(0px)">
             <div class="notification-content">
                 <div class="notification-icon">
                     <i class="fas fa-map-marker-alt"></i>
@@ -152,6 +764,7 @@
                     </select>
                 </div>
                 <div class="filter-group">
+                    <label class="filter-label">Clear Filters</label>
                     <button class="clear-filters-btn" id="clear-filters-btn">
                         <i class="fas fa-times me-2"></i>Clear All Filters
                     </button>
@@ -192,6 +805,7 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Original functionality
     const locationInput = document.getElementById('location-input');
     const radiusSelect = document.getElementById('radius-select');
     const searchBtn = document.getElementById('search-btn');
@@ -202,9 +816,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const ratingFilter = document.getElementById('rating-filter');
     const availabilityFilter = document.getElementById('availability-filter');
     const clearFiltersBtn = document.getElementById('clear-filters-btn');
+    const gridView = document.getElementById('grid-view');
+    const listView = document.getElementById('list-view');
     
     let allBarbers = [];
     let filteredBarbers = [];
+    let currentView = 'list'; // Default view
+
+    // Create dark mode toggle
+    const toggleButton = document.createElement('button');
+    toggleButton.classList.add('dark-mode-toggle');
+    toggleButton.setAttribute('aria-label', 'Toggle dark mode');
+    toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+    toggleButton.addEventListener('click', toggleDarkMode);
+    document.body.appendChild(toggleButton);
+    
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        toggleButton.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    }
 
     // Load barbers on page load
     loadNearbyBarbers();
@@ -216,6 +848,21 @@ document.addEventListener('DOMContentLoaded', function() {
     ratingFilter.addEventListener('change', applyFilters);
     availabilityFilter.addEventListener('change', applyFilters);
     clearFiltersBtn.addEventListener('click', clearFilters);
+    
+    // View toggle handlers
+    gridView.addEventListener('change', function() {
+        if (this.checked) {
+            currentView = 'grid';
+            displayBarbers(filteredBarbers);
+        }
+    });
+    
+    listView.addEventListener('change', function() {
+        if (this.checked) {
+            currentView = 'list';
+            displayBarbers(filteredBarbers);
+        }
+    });
 
     // Handle enter key in location input
     locationInput.addEventListener('keypress', function(e) {
@@ -283,6 +930,14 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        if (currentView === 'grid') {
+            displayGridView(barbers);
+        } else {
+            displayListView(barbers);
+        }
+    }
+
+    function displayListView(barbers) {
         const barbersHtml = barbers.map(barber => `
             <div class="card mb-3">
                 <div class="card-body">
@@ -326,6 +981,50 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `).join('');
+
+        barbersContainer.innerHTML = barbersHtml;
+    }
+
+    function displayGridView(barbers) {
+        const barbersHtml = `
+            <div class="grid-view-container">
+                ${barbers.map(barber => `
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-2">
+                                <i class="fas fa-cut me-2 text-primary"></i>${barber.name}
+                            </h5>
+                            <p class="card-text mb-2">
+                                <strong>${barber.shop_name}</strong><br>
+                                <i class="fas fa-map-marker-alt me-1 text-muted"></i>${barber.address}
+                            </p>
+                            ${barber.specialties ? `
+                                <p class="card-text mb-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-star me-1"></i>Specialties: ${barber.specialties}
+                                    </small>
+                                </p>
+                            ` : ''}
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="rating">
+                                    ${generateStars(barber.rating)}
+                                    <span class="ms-1">${barber.rating}</span>
+                                </div>
+                                <span class="badge bg-success">${barber.distance}</span>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <a href="/booking?barber_id=${barber.id}" class="btn btn-primary">
+                                    <i class="fas fa-calendar-plus me-2"></i>Book Now
+                                </a>
+                                <button class="btn btn-outline-secondary btn-sm" onclick="viewBarberDetails(${barber.id})">
+                                    <i class="fas fa-info-circle me-1"></i>Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
 
         barbersContainer.innerHTML = barbersHtml;
     }
@@ -455,6 +1154,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 maximumAge: 300000
             }
         );
+    }
+
+    // Function to toggle dark mode
+    function toggleDarkMode() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+            toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            toggleButton.innerHTML = '<i class="fas fa-sun"></i>';
+        }
     }
 
     // Global function for barber details

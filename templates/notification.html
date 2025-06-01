@@ -4,96 +4,588 @@
 
 {% block extra_css %}
 <style>
+/* Color Variables with Dark Mode Support */
+:root {
+    /* Light Mode Variables */
+    --bg-main: #f8f9fa;
+    --bg-secondary: #f0f2f5;
+    --bg-card: #ffffff;
+    --bg-input: #f8f9fa;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --border-color: #dee2e6;
+    --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    --primary-color: #0d6efd;
+    --primary-hover: #0a58ca;
+    --primary-rgb: 13, 110, 253;
+    --success-color: #28a745;
+    --success-hover: #218838;
+    --success-light: rgba(40, 167, 69, 0.1);
+    --warning-color: #ffc107;
+    --warning-hover: #e0a800;
+    --warning-light: rgba(255, 193, 7, 0.1);
+    --danger-color: #dc3545;
+    --danger-hover: #c82333;
+    --danger-light: rgba(220, 53, 69, 0.1);
+    --info-color: #17a2b8;
+    --info-hover: #138496;
+    --info-light: rgba(23, 162, 184, 0.1);
+    --empty-bg: linear-gradient(135deg, #ffffff, #f8f9fa);
+    --empty-text: #6c757d;
+    --tab-active-bg: rgba(13, 110, 253, 0.05);
+    --notification-unread-border: #0d6efd;
+    --notification-unread-bg: rgba(13, 110, 253, 0.05);
+    --notification-header-border: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] {
+    /* Dark Mode Variables */
+    --bg-main: #121212;
+    --bg-secondary: #1a1a1a;
+    --bg-card: #1e1e1e;
+    --bg-input: #2d2d2d;
+    --text-primary: #e0e0e0;
+    --text-secondary: #aaaaaa;
+    --border-color: #333333;
+    --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    --primary-color: #3d8bfd;
+    --primary-hover: #5a9dfd;
+    --primary-rgb: 61, 139, 253;
+    --success-color: #2ea04a;
+    --success-hover: #3ab854;
+    --success-light: rgba(46, 160, 74, 0.1);
+    --warning-color: #ffca2c;
+    --warning-hover: #ffcf47;
+    --warning-light: rgba(255, 202, 44, 0.1);
+    --danger-color: #e74c3c;
+    --danger-hover: #e95e4f;
+    --danger-light: rgba(231, 76, 60, 0.1);
+    --info-color: #3abbd3;
+    --info-hover: #4fc4da;
+    --info-light: rgba(58, 187, 211, 0.1);
+    --empty-bg: linear-gradient(135deg, #1e1e1e, #252525);
+    --empty-text: #888888;
+    --tab-active-bg: rgba(61, 139, 253, 0.1);
+    --notification-unread-border: #3d8bfd;
+    --notification-unread-bg: rgba(61, 139, 253, 0.08);
+    --notification-header-border: rgba(255, 255, 255, 0.05);
+}
+
+/* Page & Container Styling */
 .notifications-page {
-    background: #f8f9fa;
-    min-height: 100vh;
-    padding: 2rem 0;
+    background: var(--bg-secondary);
+    min-height: calc(100vh - 70px);
+    padding: 0 0 4rem 0;
+    transition: background-color 0.3s ease;
+    color: var(--text-primary);
 }
 
-.notification-item {
-    background: white;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    border-left: 4px solid #dee2e6;
+.notifications-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    color: white;
+    padding: 3rem 0 6rem;
+    margin-bottom: -4rem;
+    position: relative;
+    transition: background 0.3s ease;
+}
+
+.notification-container {
+    position: relative;
+    z-index: 10;
+}
+
+/* Filter Card Styling */
+.filter-card {
+    background: var(--bg-card);
+    border-radius: 15px;
+    padding: 0;
+    margin-bottom: 2rem;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.filter-tabs {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
+    border-bottom: 1px solid var(--border-color);
+    transition: border-color 0.3s ease;
+}
+
+.filter-tabs::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
+}
+
+.filter-tab {
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+    padding: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
     transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
 }
 
-.notification-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+.filter-tab.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    background-color: var(--tab-active-bg);
 }
 
-.notification-item.unread {
-    border-left-color: #007bff;
-    background: #f8f9fa;
+.filter-tab:hover:not(.active) {
+    background-color: rgba(var(--primary-rgb), 0.02);
+    color: var(--primary-color);
+    border-bottom-color: rgba(var(--primary-rgb), 0.3);
 }
 
-.notification-item.success {
-    border-left-color: #28a745;
+.filter-tab-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
 }
 
-.notification-item.warning {
-    border-left-color: #ffc107;
+.filter-tab:hover .filter-tab-icon {
+    transform: scale(1.1);
 }
 
-.notification-item.error {
-    border-left-color: #dc3545;
+.filter-tab-count {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: scale(0);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 2px 5px rgba(var(--primary-rgb), 0.3);
+}
+
+.filter-tab-count.show {
+    transform: scale(1);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(var(--primary-rgb), 0); }
+    100% { box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0); }
+}
+
+/* Notification Card Styling */
+.notification-card {
+    position: relative;
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
+    background-color: var(--bg-card);
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+}
+
+.notification-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .notification-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    border-color: rgba(var(--primary-rgb), 0.2);
+}
+
+.notification-card.unread {
+    border-left: 4px solid var(--notification-unread-border);
+    box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.15);
+}
+
+.notification-card.read-transition {
+    animation: readTransition 1s ease;
+}
+
+@keyframes readTransition {
+    0% { background-color: var(--notification-unread-bg); }
+    100% { background-color: var(--bg-card); }
 }
 
 .notification-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--notification-header-border);
     display: flex;
-    justify-content: between;
+    justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.notification-card.unread .notification-header {
+    background-color: var(--notification-unread-bg);
+}
+
+.notification-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(var(--primary-rgb), 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.notification-card:hover .notification-icon {
+    transform: scale(1.1);
+}
+
+.notification-card.success .notification-icon {
+    background-color: var(--success-light);
+    color: var(--success-color);
+}
+
+.notification-card.warning .notification-icon {
+    background-color: var(--warning-light);
+    color: var(--warning-color);
+}
+
+.notification-card.error .notification-icon {
+    background-color: var(--danger-light);
+    color: var(--danger-color);
+}
+
+.notification-card.info .notification-icon {
+    background-color: var(--info-light);
+    color: var(--info-color);
 }
 
 .notification-title {
-    font-weight: bold;
+    font-weight: 600;
     margin: 0;
-    color: #495057;
+    font-size: 1rem;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
 }
 
 .notification-time {
+    color: var(--text-secondary);
     font-size: 0.85rem;
-    color: #6c757d;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.3s ease;
 }
 
-.notification-message {
-    color: #6c757d;
-    margin-bottom: 1rem;
+.unread-indicator {
+    width: 8px;
+    height: 8px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+}
+
+.notification-body {
+    padding: 1.25rem 1.5rem;
+    transition: background-color 0.3s ease;
+}
+
+.notification-content {
+    color: var(--text-secondary);
+    margin-bottom: 1.25rem;
+    transition: color 0.3s ease;
 }
 
 .notification-actions {
     display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    transition: all 0.3s ease;
+}
+
+/* Button Styling */
+.action-btn {
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
     gap: 0.5rem;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: none;
+    cursor: pointer;
 }
 
-.mark-read-btn {
-    font-size: 0.8rem;
-    padding: 0.25rem 0.5rem;
+.btn-read {
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    border: none;
+    position: relative;
+    overflow: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.notifications-header {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+.btn-read::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(var(--primary-rgb), 0.3);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%);
+    transform-origin: 50% 50%;
+}
+
+.btn-read:focus:not(:active)::after {
+    animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(20, 20);
+        opacity: 0;
+    }
+}
+
+.btn-read:hover {
+    background: var(--bg-input);
+    transform: translateY(-2px);
+    color: var(--primary-color);
+}
+
+.btn-view {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
     color: white;
-    padding: 2rem 0;
-    margin-bottom: 2rem;
+    box-shadow: 0 4px 10px rgba(var(--primary-rgb), 0.3);
 }
 
-.filter-tabs {
-    background: white;
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+[data-theme="dark"] .btn-view {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
+.btn-view:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(var(--primary-rgb), 0.4);
+}
+
+[data-theme="dark"] .btn-view:hover {
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Empty State Styling */
 .empty-state {
     text-align: center;
-    padding: 3rem;
-    color: #6c757d;
+    padding: 4rem 1rem;
+    background: var(--empty-bg);
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.empty-state-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    color: var(--empty-text);
+    opacity: 0.5;
+    transition: all 0.3s ease;
+}
+
+.empty-state:hover .empty-state-icon {
+    transform: scale(1.1) rotate(10deg);
+    opacity: 0.7;
+}
+
+.empty-state-title {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.empty-state-text {
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
+}
+
+/* Header Actions Styling */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.refresh-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.refresh-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(180deg);
+}
+
+.mark-all-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50px;
+    color: white;
+    padding: 0.5rem 1.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.mark-all-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.mark-all-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Add this to style the navbar notification badge */
+#notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--danger-color);
+    color: white;
+    font-size: 0.65rem;
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    box-shadow: 0 2px 5px rgba(220, 53, 69, 0.5);
+}
+
+@keyframes pulse-animation {
+    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
+
+.pulse-animation {
+    animation: pulse-animation 1.5s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+}
+
+/* Animations */
+.notification-card {
+    animation: slideInUp 0.4s ease-out;
+    animation-fill-mode: both;
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.notification-card:nth-child(2) { animation-delay: 0.1s; }
+.notification-card:nth-child(3) { animation-delay: 0.2s; }
+.notification-card:nth-child(4) { animation-delay: 0.3s; }
+.notification-card:nth-child(5) { animation-delay: 0.4s; }
+
+/* Tab pane transitions */
+.tab-pane {
+    display: none;
+    transition: opacity 0.3s ease;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* Dark Mode Enhancement Tweaks */
+[data-theme="dark"] .notification-card {
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .notification-card.unread {
+    border-left: 4px solid var(--notification-unread-border);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .empty-state {
+    background: linear-gradient(135deg, #1e1e1e, #252525);
+    border: 1px solid var(--border-color);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .notifications-header {
+        padding: 2rem 0 5rem;
+    }
+    
+    .notification-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .notification-time {
+        margin-left: 3.5rem;
+    }
+    
+    .action-btn {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .header-actions {
+        margin-top: 1rem;
+        width: 100%;
+    }
+    
+    .mark-all-btn {
+        flex: 1;
+    }
 }
 </style>
 {% endblock %}
@@ -110,13 +602,15 @@
                     </h1>
                     <p class="mb-0 opacity-75">Stay updated with your latest activities and system updates</p>
                 </div>
-                <div class="col-lg-4 text-lg-end">
-                    <div class="d-flex align-items-center justify-content-end">
-                        <span class="badge bg-light text-dark me-3">
-                            {{ unread_count }} unread
-                        </span>
-                        <button class="btn btn-light" onclick="markAllAsRead()">
-                            <i class="fas fa-check-double me-2"></i>Mark All Read
+                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                    <div class="header-actions">
+                        <button class="refresh-btn" id="refresh-btn" onclick="refreshNotifications()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button class="mark-all-btn" id="mark-all-btn" onclick="markAllAsRead()" disabled>
+                            <i class="fas fa-check-double me-2"></i>
+                            Mark All as Read
+                            <span id="unread-badge" class="ms-1 d-none">(0)</span>
                         </button>
                     </div>
                 </div>
@@ -124,110 +618,124 @@
         </div>
     </section>
 
-    <div class="container">
+    <div class="container notification-container">
         <!-- Filter Tabs -->
-        <div class="filter-tabs">
-            <ul class="nav nav-pills" id="notification-tabs">
-                <li class="nav-item">
-                    <a class="nav-link active" data-bs-toggle="pill" href="#all-notifications">
-                        <i class="fas fa-list me-2"></i>All ({{ notifications|length }})
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="pill" href="#unread-notifications">
-                        <i class="fas fa-envelope me-2"></i>Unread ({{ unread_count }})
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="pill" href="#booking-notifications">
-                        <i class="fas fa-calendar me-2"></i>Bookings
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="pill" href="#system-notifications">
-                        <i class="fas fa-cog me-2"></i>System
-                    </a>
-                </li>
-            </ul>
+        <div class="filter-card mb-4">
+            <div class="filter-tabs">
+                <div class="filter-tab active" data-target="all-notifications" onclick="changeTab(this)">
+                    <div class="filter-tab-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div>All</div>
+                    <span class="filter-tab-count" id="all-count">{{ notifications|length }}</span>
+                </div>
+                <div class="filter-tab" data-target="unread-notifications" onclick="changeTab(this)">
+                    <div class="filter-tab-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div>Unread</div>
+                    <span class="filter-tab-count" id="unread-count">{{ unread_count }}</span>
+                </div>
+                <div class="filter-tab" data-target="booking-notifications" onclick="changeTab(this)">
+                    <div class="filter-tab-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div>Bookings</div>
+                    <span class="filter-tab-count" id="booking-count">0</span>
+                </div>
+                <div class="filter-tab" data-target="system-notifications" onclick="changeTab(this)">
+                    <div class="filter-tab-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div>System</div>
+                    <span class="filter-tab-count" id="system-count">0</span>
+                </div>
+            </div>
         </div>
 
-        <!-- Notifications Content -->
-        <div class="tab-content">
-            <!-- All Notifications -->
-            <div class="tab-pane fade show active" id="all-notifications">
+        <!-- Notification Content -->
+        <div id="notification-content">
+            <!-- All Notifications Tab -->
+            <div class="tab-pane active" id="all-notifications">
                 {% if notifications %}
                     {% for notification in notifications %}
-                    <div class="notification-item {{ notification[5] }} {{ 'unread' if not notification[6] else '' }}" 
-                         data-notification-id="{{ notification[0] }}"
-                         data-type="{{ notification[5] }}">
+                    <div class="notification-card {{ notification[5] }} {{ 'unread' if not notification[6] else '' }}" 
+                        data-notification-id="{{ notification[0] }}"
+                        data-category="{{ notification[5] }}"
+                        data-read="{{ notification[6]|lower }}">
                         <div class="notification-header">
-                            <h6 class="notification-title">
-                                {% if notification[5] == 'success' %}
-                                    <i class="fas fa-check-circle text-success me-2"></i>
-                                {% elif notification[5] == 'warning' %}
-                                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
-                                {% elif notification[5] == 'error' %}
-                                    <i class="fas fa-times-circle text-danger me-2"></i>
-                                {% else %}
-                                    <i class="fas fa-info-circle text-info me-2"></i>
+                            <div class="notification-title-group">
+                                <div class="notification-icon">
+                                    {% if notification[5] == 'success' %}
+                                        <i class="fas fa-check"></i>
+                                    {% elif notification[5] == 'warning' %}
+                                        <i class="fas fa-exclamation"></i>
+                                    {% elif notification[5] == 'error' %}
+                                        <i class="fas fa-times"></i>
+                                    {% elif notification[5] == 'booking' %}
+                                        <i class="fas fa-calendar-check"></i>
+                                    {% else %}
+                                        <i class="fas fa-info"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="notification-title">
+                                    {{ notification[2] }}
+                                </div>
+                            </div>
+                            <div class="notification-time">
+                                {% if not notification[6] %}
+                                    <span class="unread-indicator" title="Unread"></span>
                                 {% endif %}
-                                {{ notification[2] }}
-                            </h6>
-                            <span class="notification-time">
+                                <i class="far fa-clock me-1"></i>
                                 {{ moment(notification[7]).fromNow() if moment else notification[7] }}
-                            </span>
+                            </div>
                         </div>
                         
-                        <div class="notification-message">
-                            {{ notification[3] }}
-                        </div>
-                        
-                        <div class="notification-actions">
-                            {% if notification[6] %}
-                                <span class="badge bg-secondary">Read</span>
-                            {% else %}
-                                <button class="btn btn-sm btn-outline-primary mark-read-btn" 
-                                        onclick="markAsRead('{{ notification[0] }}')">
-                                    <i class="fas fa-check me-1"></i>Mark as Read
-                                </button>
-                            {% endif %}
+                        <div class="notification-body">
+                            <div class="notification-content">
+                                {{ notification[3] }}
+                            </div>
                             
-                            {% if notification[7] %}
-                                <a href="{{ notification[7] }}" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-external-link-alt me-1"></i>View
-                                </a>
-                            {% endif %}
+                            <div class="notification-actions">
+                                {% if not notification[6] %}
+                                    <button class="action-btn btn-read" onclick="markAsRead('{{ notification[0] }}')">
+                                        <i class="fas fa-check"></i>
+                                        Mark as Read
+                                    </button>
+                                {% endif %}
+                                
+                                {% if notification[4] %}
+                                    <a href="{{ notification[4] }}" class="action-btn btn-view" onclick="return viewNotificationDetails('{{ notification[4] }}', '{{ notification[0] }}')">
+                                        <i class="fas fa-external-link-alt"></i>
+                                        View Details
+                                    </a>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                     {% endfor %}
                 {% else %}
                     <div class="empty-state">
-                        <i class="fas fa-bell-slash fa-3x mb-3"></i>
-                        <h5>No notifications yet</h5>
-                        <p>You'll see your notifications here when you have some</p>
+                        <i class="fas fa-bell-slash empty-state-icon"></i>
+                        <h3 class="empty-state-title">No notifications yet</h3>
+                        <p class="empty-state-text">When you receive notifications, they will appear here</p>
                     </div>
                 {% endif %}
             </div>
-
-            <!-- Other tab content would be similar with filtering -->
-            <div class="tab-pane fade" id="unread-notifications">
-                {% for notification in notifications if not notification[6] %}
-                    <!-- Same notification item structure -->
-                {% else %}
-                    <div class="empty-state">
-                        <i class="fas fa-check-double fa-3x mb-3"></i>
-                        <h5>All caught up!</h5>
-                        <p>You have no unread notifications</p>
-                    </div>
-                {% endfor %}
+            
+            <!-- Unread Notifications -->
+            <div class="tab-pane" id="unread-notifications">
+                <div id="unread-notifications-content"></div>
             </div>
-
-            <div class="tab-pane fade" id="booking-notifications">
-                <!-- Filter booking-related notifications -->
+            
+            <!-- Booking Notifications -->
+            <div class="tab-pane" id="booking-notifications">
+                <div id="booking-notifications-content"></div>
             </div>
-
-            <div class="tab-pane fade" id="system-notifications">
-                <!-- Filter system notifications -->
+            
+            <!-- System Notifications -->
+            <div class="tab-pane" id="system-notifications">
+                <div id="system-notifications-content"></div>
             </div>
         </div>
     </div>
@@ -236,46 +744,226 @@
 
 {% block scripts %}
 <script>
-async function markAsRead(notificationId) {
-    try {
-        const response = await fetch(`/api/notifications/mark-read/${notificationId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        
-        if (response.ok) {
-            // Update UI
-            const notificationItem = document.querySelector(`[data-notification-id="${notificationId}"]`);
-            notificationItem.classList.remove('unread');
-            
-            const markReadBtn = notificationItem.querySelector('.mark-read-btn');
-            markReadBtn.innerHTML = '<span class="badge bg-secondary">Read</span>';
-            
-            // Update unread count
-            updateUnreadCount();
-        }
-    } catch (error) {
-        console.error('Error marking notification as read:', error);
-    }
-}
-
-async function markAllAsRead() {
-    const unreadNotifications = document.querySelectorAll('.notification-item.unread');
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize counts and filters
+    initializeNotifications();
     
-    for (const notification of unreadNotifications) {
+    // Update tab counters
+    updateTabCounters();
+    
+    // Show counters if greater than 0
+    showCounters();
+});
+
+// Fixed version of initializeNotifications function
+function initializeNotifications() {
+    // Get all notification cards
+    const allNotifications = Array.from(document.querySelectorAll('#all-notifications .notification-card'));
+    
+    // Get containers
+    const unreadContent = document.getElementById('unread-notifications-content');
+    const bookingContent = document.getElementById('booking-notifications-content');
+    const systemContent = document.getElementById('system-notifications-content');
+    
+    // Clear contents
+    unreadContent.innerHTML = '';
+    bookingContent.innerHTML = '';
+    systemContent.innerHTML = '';
+    
+    // Better categorization logic with tracking to prevent duplicates
+    const unreadNotifications = [];
+    const bookingNotifications = [];
+    const systemNotifications = [];
+    
+    // Track notification IDs to prevent duplicates
+    const bookingIds = new Set();
+    const systemIds = new Set();
+    
+    // Process and categorize all notifications
+    allNotifications.forEach(notification => {
+        // Get notification ID and other properties
         const notificationId = notification.dataset.notificationId;
-        await markAsRead(notificationId);
+        const category = notification.dataset.category || '';
+        // Fix: Ensure read status is properly evaluated
+        const isUnread = notification.classList.contains('unread');
+        const title = notification.querySelector('.notification-title')?.textContent.toLowerCase() || '';
+        const content = notification.querySelector('.notification-content')?.textContent.toLowerCase() || '';
+        
+        // Clone the notification for placing in filtered tabs
+        const clonedNotification = notification.cloneNode(true);
+        
+        // Add to unread list - Fix: Only add if it has unread class
+        if (isUnread) {
+            unreadNotifications.push(clonedNotification);
+        }
+        
+        // Add to booking list - check multiple signals for booking-related content
+        if ((category === 'booking' || 
+            category === 'success' ||
+            title.includes('booking') || 
+            title.includes('appointment') ||
+            content.includes('booking') || 
+            content.includes('appointment')) && 
+            !bookingIds.has(notificationId)) {
+            
+            bookingIds.add(notificationId);
+            bookingNotifications.push(clonedNotification);
+        }
+        
+        // Add to system list - check for system-related content
+        if ((category === 'info' || 
+            category === 'system' ||
+            title.includes('system') ||
+            content.includes('update') ||
+            notification.classList.contains('info')) && 
+            !systemIds.has(notificationId)) {
+            
+            systemIds.add(notificationId);
+            systemNotifications.push(clonedNotification);
+        }
+    });
+    
+    // Function to populate a tab with notifications or show empty state with specific messages
+    function populateTab(container, notifications, emptyIcon, emptyTitle, emptyText) {
+        if (notifications.length > 0) {
+            notifications.forEach(notification => {
+                container.appendChild(notification);
+            });
+        } else {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-${emptyIcon} empty-state-icon"></i>
+                    <h3 class="empty-state-title">${emptyTitle}</h3>
+                    <p class="empty-state-text">${emptyText}</p>
+                </div>
+            `;
+        }
     }
+    
+    // Populate tabs with appropriate notifications and better empty state messages
+    populateTab(
+        unreadContent, 
+        unreadNotifications, 
+        'check-double', 
+        'All caught up!', 
+        'You have no unread notifications'
+    );
+    
+    populateTab(
+        bookingContent, 
+        bookingNotifications, 
+        'calendar-alt', 
+        'No booking notifications', 
+        'Booking-related notifications will appear here when you receive them'
+    );
+    
+    populateTab(
+        systemContent, 
+        systemNotifications, 
+        'cog', 
+        'No system notifications', 
+        'System updates and announcements will appear in this section'
+    );
+    
+    // Re-attach event handlers for each tab
+    document.querySelectorAll('.tab-pane .notification-card button.btn-read').forEach(btn => {
+        const notificationId = btn.closest('.notification-card').dataset.notificationId;
+        btn.onclick = function(e) {
+            e.preventDefault();
+            markAsRead(notificationId);
+        };
+    });
+    
+    document.querySelectorAll('.tab-pane .notification-card a.btn-view').forEach(link => {
+        const notificationCard = link.closest('.notification-card');
+        const notificationId = notificationCard.dataset.notificationId;
+        const href = link.getAttribute('href');
+        
+        link.onclick = function(e) {
+            e.preventDefault();
+            viewNotificationDetails(href, notificationId);
+        };
+    });
+    
+    // Update counters
+    updateTabCounters();
 }
 
-function updateUnreadCount() {
-    const unreadItems = document.querySelectorAll('.notification-item.unread').length;
-    document.querySelector('.badge.bg-light').textContent = `${unreadItems} unread`;
+// Modify updateTabCounters to correctly count notifications
+function updateTabCounters() {
+    // All notifications count
+    const allCount = document.querySelectorAll('#all-notifications .notification-card').length;
+    document.getElementById('all-count').textContent = allCount;
+    
+    // Unread notifications count
+    const unreadCount = document.querySelectorAll('#all-notifications .notification-card.unread').length;
+    document.getElementById('unread-count').textContent = unreadCount;
+    document.getElementById('unread-badge').textContent = `(${unreadCount})`;
+    
+    // Enable or disable mark all button
+    const markAllBtn = document.getElementById('mark-all-btn');
+    if (unreadCount > 0) {
+        markAllBtn.removeAttribute('disabled');
+        document.getElementById('unread-badge').classList.remove('d-none');
+    } else {
+        markAllBtn.setAttribute('disabled', 'true');
+        document.getElementById('unread-badge').classList.add('d-none');
+    }
+    
+    // Better counting for booking notifications
+    const bookingCount = document.querySelectorAll('#booking-notifications-content .notification-card').length;
+    document.getElementById('booking-count').textContent = bookingCount;
+    
+    // Better counting for system notifications
+    const systemCount = document.querySelectorAll('#system-notifications-content .notification-card').length;
+    document.getElementById('system-count').textContent = systemCount;
 }
 
-// Auto-refresh notifications every 30 seconds
-setInterval(() => {
-    // You can implement real-time updates here
-}, 30000);
+// Fix the changeTab function to make it more reliable
+function changeTab(element) {
+    // Store the target ID
+    const targetId = element.dataset.target;
+    
+    // Remove active class from all tabs
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Add active class to clicked tab
+    element.classList.add('active');
+    
+    // Hide all tab panes
+    document.querySelectorAll('.tab-pane').forEach(pane => {
+        pane.classList.remove('active');
+    });
+    
+    // Show the selected tab pane
+    document.getElementById(targetId).classList.add('active');
+    
+    // Animate tab entry
+    const activePane = document.getElementById(targetId);
+    activePane.style.opacity = 0;
+    activePane.classList.add('active');
+    
+    // Animate in
+    setTimeout(() => {
+        activePane.style.transition = 'opacity 0.3s ease';
+        activePane.style.opacity = 1;
+    }, 50);
+}
+
+// Update the DOMContentLoaded handler to initialize everything properly
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize notifications first
+    initializeNotifications();
+    
+    // Show counters
+    showCounters();
+    
+    // Add real-time refresh every 60 seconds
+    setInterval(() => {
+        refreshNotifications();
+    }, 60000);
+});
 </script>
 {% endblock %}
