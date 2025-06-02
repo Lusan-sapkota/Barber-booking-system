@@ -94,9 +94,19 @@ body {
 .card {
   background-color: var(--card-bg);
   border-color: var(--card-border);
-  transition: all 0.3s ease;
   border-radius: 12px;
   overflow: hidden;
+}
+
+.card:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  background-color: inherit !important; /* Optional */
+  cursor: default !important;          /* Optional */
+}
+
+.card-body {
+    padding: 10px !important;
 }
 
 .stat-card {
@@ -132,7 +142,6 @@ body {
 
 .booking-card {
     border-left: 4px solid var(--primary-color);
-    transition: all 0.3s ease;
     margin-bottom: 1rem;
     position: relative;
     overflow: hidden;

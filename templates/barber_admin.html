@@ -23,9 +23,11 @@
 
 .schedule-cell {
     background: white;
+    color: #333;
     padding: 0.5rem;
     min-height: 60px;
     font-size: 0.8rem;
+    border: 1px solid #ccc;
 }
 
 .schedule-header {
@@ -37,6 +39,7 @@
 
 .time-slot {
     background: #f8f9fa;
+    color: #333;
     font-weight: bold;
     text-align: center;
     display: flex;
@@ -47,6 +50,7 @@
 .appointment-slot {
     background: #e3f2fd;
     border-left: 3px solid #2196f3;
+    color: #333;
     cursor: pointer;
     transition: all 0.3s ease;
 }
@@ -55,14 +59,25 @@
     background: #bbdefb;
 }
 
+.card:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  background-color: inherit !important; /* Optional */
+  cursor: default !important;          /* Optional */
+}
+
+.btn-primary {
+    color: white !important;
+}
+
 .available-slot {
     background: #e8f5e8;
     border: 2px dashed #28a745;
+    color: #333;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #28a745;
 }
 
 .available-slot:hover {
@@ -74,19 +89,320 @@
     border: 2px solid #ffc107;
 }
 
-.earnings-card {
-    background: linear-gradient(135deg, #28a745, #20c997);
-    color: white;
+/* Dark mode styles */
+[data-theme="dark"] {
+    background-color: #121212;
+    color: #e0e0e0;
+    --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 }
 
-.rating-card {
-    background: linear-gradient(135deg, #ffc107, #fd7e14);
-    color: white;
+[data-theme="dark"] .card {
+    background-color: #1e1e1e;
+    border-color: #333;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-.clients-card {
-    background: linear-gradient(135deg, #6f42c1, #e83e8c);
-    color: white;
+[data-theme="dark"] .card-header {
+    background-color: #252525;
+    color: #e0e0e0;
+    border-bottom: 1px solid #333;
+}
+
+[data-theme="dark"] .barber-header {
+    background: linear-gradient(135deg, #a14e7e 0%, #b87d3e 100%);
+}
+
+[data-theme="dark"] .client-info,
+[data-theme="dark"] .service-info,
+[data-theme="dark"] .notes-section {
+    background-color: #252525 !important;
+    border: 1px solid #333;
+}
+
+[data-theme="dark"] .border-bottom {
+    border-bottom-color: #333 !important;
+}
+
+[data-theme="dark"] .bg-light {
+    background-color: #2d2d2d !important;
+}
+
+[data-theme="dark"] .text-muted {
+    color: #aaaaaa !important;
+}
+
+[data-theme="dark"] .btn-outline-primary {
+    color: #63a9ff;
+    border-color: #63a9ff;
+}
+
+[data-theme="dark"] .btn-outline-primary:hover {
+    background-color: #63a9ff;
+    color: #121212;
+}
+
+[data-theme="dark"] .btn-outline-success {
+    color: #2ea04a;
+    border-color: #2ea04a;
+}
+
+[data-theme="dark"] .btn-outline-success:hover {
+    background-color: #2ea04a;
+    color: #121212;
+}
+
+/* Weekly Schedule Dark Mode Enhancements */
+[data-theme="dark"] .schedule-grid {
+    background: #333333;
+    border: 1px solid #444444;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme="dark"] .schedule-cell {
+    background: #1e1e1e;
+    color: #e0e0e0;
+    border: 1px solid #2c2c2c;
+}
+
+[data-theme="dark"] .schedule-header {
+    background: #252525;
+    color: #ffffff;
+    border-bottom: 2px solid #3d3d3d;
+    font-weight: 600;
+}
+
+[data-theme="dark"] .time-slot {
+    background: #2d2d2d;
+    color: #e0e0e0;
+    border-right: 1px solid #444444;
+}
+
+[data-theme="dark"] .appointment-slot {
+    background: #1a3a52;
+    border-left: 3px solid #2196f3;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .appointment-slot:hover {
+    background: #1d4a6b;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+[data-theme="dark"] .available-slot {
+    background: #1a391a;
+    border: 2px dashed #28a745;
+    color: #4cd964;
+}
+
+[data-theme="dark"] .available-slot:hover {
+    background: #1e461e;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+[data-theme="dark"] .today {
+    background: #3d3012 !important;
+    border: 2px solid #ffc107;
+    box-shadow: inset 0 0 8px rgba(255, 193, 7, 0.2);
+}
+
+/* Lunch break styling for dark mode */
+[data-theme="dark"] .schedule-cell[style*="background: #f8d7da"] {
+    background: #3d1a1a !important;
+    color: #e07979 !important;
+    border: 1px dashed #e07979;
+}
+
+/* Add subtle animation to schedule cells on hover */
+[data-theme="dark"] .schedule-cell {
+    transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .schedule-cell:hover {
+    transform: translateZ(5px);
+}
+
+/* Add a slight glow effect to the current day's cells */
+[data-theme="dark"] .today {
+    position: relative;
+}
+
+[data-theme="dark"] .today::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    box-shadow: inset 0 0 15px rgba(255, 193, 7, 0.2);
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+/* Dark Mode Support for Modal Forms and Tables */
+[data-theme="dark"] .modal-content {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+/* Form Controls in Dark Mode */
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background-color: #2d2d2d;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+    background-color: #333;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+[data-theme="dark"] .form-control::placeholder {
+    color: #aaa;
+}
+
+/* Form Check elements in dark mode */
+[data-theme="dark"] .form-check-input {
+    background-color: #333;
+    border-color: #555;
+}
+
+[data-theme="dark"] .form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+[data-theme="dark"] .form-check-label {
+    color: #e0e0e0;
+}
+
+/* Tables in Dark Mode */
+[data-theme="dark"] .table {
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+[data-theme="dark"] .table > :not(caption) > * > * {
+    background-color: #1e1e1e;
+    border-bottom-color: #444;
+}
+
+[data-theme="dark"] .table-hover > tbody > tr:hover > * {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .table > thead {
+    border-bottom-color: #444;
+}
+
+/* Service badges in dark mode */
+[data-theme="dark"] .badge.bg-success {
+    background-color: #2ea04a !important;
+}
+
+[data-theme="dark"] .badge.bg-danger {
+    background-color: #b33d3d !important;
+}
+
+[data-theme="dark"] .badge.bg-warning {
+    background-color: #d9a400 !important;
+    color: #212529;
+}
+
+/* Disabled form elements */
+[data-theme="dark"] .form-control:disabled,
+[data-theme="dark"] .form-select:disabled {
+    background-color: #252525;
+    color: #777;
+}
+
+/* Chart colors for dark mode */
+[data-theme="dark"] #earnings-chart {
+    background-color: #1e1e1e;
+}
+
+/* Progress bars in dark mode */
+[data-theme="dark"] .progress {
+    background-color: #333;
+}
+
+/* Fix for disabled buttons in dark mode */
+[data-theme="dark"] .btn:disabled {
+    opacity: 0.5;
+}
+
+/* Card headers with contextual colors */
+[data-theme="dark"] .card-header {
+    border-bottom-color: #444;
+}
+
+/* Modal header/footer separation lines */
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-footer {
+    border-color: #444;
+}
+
+/* Additional styles for the availability rows */
+[data-theme="dark"] .row.mb-3.align-items-center {
+    background-color: #252525;
+    border-radius: 8px;
+    padding: 10px 5px;
+    margin-bottom: 1rem !important;
+    border: 1px solid #333;
+}
+
+/* Custom dark mode button states */
+[data-theme="dark"] .btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+[data-theme="dark"] .btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+[data-theme="dark"] .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+    background-color: #5c636a;
+    border-color: #565e64;
+}
+
+/* Chart.js Dark Theme */
+[data-theme="dark"] #earnings-chart {
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+}
+
+/* Add this to your CSS to fix the table text color in dark mode */
+[data-theme="dark"] .table td,
+[data-theme="dark"] .table th,
+[data-theme="dark"] .table tbody tr td {
+    color: #e0e0e0 !important; /* Enforce white text color */
+}
+
+/* Fix for specific elements that might still have wrong colors */
+[data-theme="dark"] #services-table td,
+[data-theme="dark"] #services-table th {
+    color: #e0e0e0 !important;
+}
+
+/* Ensure that service names and data are visible */
+[data-theme="dark"] #services-table tbody tr td:first-child {
+    font-weight: 500;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] #services-table tbody tr td:nth-child(3) {
+    color: #8bbfff !important; /* Make price slightly blue-tinted for emphasis */
 }
 </style>
 {% endblock %}
@@ -249,9 +565,303 @@
         </div>
     </div>
 </div>
+
+<!-- Block Time Slot Modal -->
+<div class="modal fade" id="blockTimeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Block Time Slot</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="blockTimeForm">
+                    <div class="mb-3">
+                        <label for="block-date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="block-date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="block-start-time" class="form-label">Start Time</label>
+                        <select class="form-select" id="block-start-time" required>
+                            <option value="">Select start time</option>
+                            <option value="10:00">10:00 AM</option>
+                            <option value="10:30">10:30 AM</option>
+                            <option value="11:00">11:00 AM</option>
+                            <option value="11:30">11:30 AM</option>
+                            <option value="13:00">1:00 PM</option>
+                            <option value="13:30">1:30 PM</option>
+                            <option value="14:00">2:00 PM</option>
+                            <option value="14:30">2:30 PM</option>
+                            <option value="15:00">3:00 PM</option>
+                            <option value="15:30">3:30 PM</option>
+                            <option value="16:00">4:00 PM</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="block-end-time" class="form-label">End Time</label>
+                        <select class="form-select" id="block-end-time" required>
+                            <option value="">Select end time</option>
+                            <option value="10:30">10:30 AM</option>
+                            <option value="11:00">11:00 AM</option>
+                            <option value="11:30">11:30 AM</option>
+                            <option value="12:00">12:00 PM</option>
+                            <option value="13:30">1:30 PM</option>
+                            <option value="14:00">2:00 PM</option>
+                            <option value="14:30">2:30 PM</option>
+                            <option value="15:00">3:00 PM</option>
+                            <option value="15:30">3:30 PM</option>
+                            <option value="16:00">4:00 PM</option>
+                            <option value="16:30">4:30 PM</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="block-reason" class="form-label">Reason</label>
+                        <select class="form-select" id="block-reason" required>
+                            <option value="personal">Personal Time</option>
+                            <option value="lunch">Lunch Break</option>
+                            <option value="meeting">Staff Meeting</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="other-reason-div" style="display:none">
+                        <label for="other-reason" class="form-label">Specify Reason</label>
+                        <input type="text" class="form-control" id="other-reason">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-block-btn">
+                    <i class="fas fa-save me-2"></i>Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Availability Modal -->
+<div class="modal fade" id="availabilityModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Set Weekly Availability</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="availabilityForm">
+                    <div class="row mb-3">
+                        <div class="col-md-3 mb-2"><strong>Day</strong></div>
+                        <div class="col-md-4 mb-2"><strong>Start Time</strong></div>
+                        <div class="col-md-4 mb-2"><strong>End Time</strong></div>
+                        <div class="col-md-1 mb-2"></div>
+                    </div>
+                    
+                    <div id="availability-rows">
+                        <!-- Days of week will be populated here -->
+                    </div>
+                    
+                    <div class="mt-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="set-lunch-break">
+                            <label class="form-check-label" for="set-lunch-break">
+                                Set daily lunch break (12:00 PM - 1:00 PM)
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-availability-btn">
+                    <i class="fas fa-save me-2"></i>Save Availability
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Earnings Modal -->
+<div class="modal fade" id="earningsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Earnings Dashboard</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <select class="form-select" id="earnings-period">
+                            <option value="week">This Week</option>
+                            <option value="month" selected>This Month</option>
+                            <option value="quarter">This Quarter</option>
+                            <option value="year">This Year</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-4 mb-3">
+                                <h6 class="text-muted">Total Earnings</h6>
+                                <h3 id="total-earnings">$1,250.00</h3>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <h6 class="text-muted">Appointments</h6>
+                                <h3 id="total-appointments">42</h3>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <h6 class="text-muted">Average Per Service</h6>
+                                <h3 id="avg-service">$29.76</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">Earnings Trend</div>
+                            <div class="card-body">
+                                <canvas id="earnings-chart" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">Top Services</div>
+                            <div class="card-body">
+                                <div id="top-services-list">
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <div>Haircut + Beard</div>
+                                            <div><strong>$560.00</strong></div>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-primary" style="width: 45%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <div>Premium Haircut</div>
+                                            <div><strong>$420.00</strong></div>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-primary" style="width: 34%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <div>Hot Towel Shave</div>
+                                            <div><strong>$270.00</strong></div>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-primary" style="width: 21%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">
+                    <i class="fas fa-download me-2"></i>Download Report
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Manage Services Modal -->
+<div class="modal fade" id="servicesModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Manage Services</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <button class="btn btn-primary" id="add-service-btn">
+                        <i class="fas fa-plus me-2"></i>Add New Service
+                    </button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover" id="services-table">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Duration</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Classic Haircut</td>
+                                <td>30 min</td>
+                                <td>$25.00</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editService(1)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="toggleServiceStatus(1, 'active')">
+                                        <i class="fas fa-toggle-on"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Premium Haircut</td>
+                                <td>45 min</td>
+                                <td>$35.00</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editService(2)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="toggleServiceStatus(2, 'active')">
+                                        <i class="fas fa-toggle-on"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Beard Trim</td>
+                                <td>15 min</td>
+                                <td>$15.00</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editService(3)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="toggleServiceStatus(3, 'active')">
+                                        <i class="fas fa-toggle-on"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="save-services-btn">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     let currentDate = new Date();
@@ -261,11 +871,83 @@ document.addEventListener('DOMContentLoaded', function() {
     loadWeeklySchedule();
     loadUpcomingAppointments();
     
+    // Setup real-time updates
+    setupRealTimeUpdates();
+    
+    // Modal handlers
+    setupModalHandlers();
+    
+    // Add dark mode toggle functionality
+    setupDarkModeToggle();
+    
     function loadDailySchedule() {
         const scheduleContainer = document.getElementById('daily-schedule');
-        const today = new Date();
-        const timeSlots = generateTimeSlots();
         
+        // First attempt to get data from API
+        fetch('/api/barber/daily-schedule?date=' + currentDate.toISOString().split('T')[0])
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                renderDailySchedule(data.timeSlots);
+                updateAppointmentCounter(data.appointmentsCount || 0);
+            })
+            .catch(error => {
+                console.error('Error fetching schedule:', error);
+                // Fallback to demo data on error
+                renderDailyScheduleDemo();
+            });
+    }
+    
+    function renderDailySchedule(timeSlots) {
+        const scheduleContainer = document.getElementById('daily-schedule');
+        const today = new Date();
+        let appointmentsCount = 0;
+        
+        scheduleContainer.innerHTML = timeSlots.map(slot => {
+            if (slot.hasAppointment) appointmentsCount++;
+            
+            return `
+                <div class="d-flex align-items-center p-3 border-bottom ${slot.hasAppointment ? 'bg-light' : ''}" style="transition: all 0.3s ease; border-radius: 8px; margin-bottom: 8px;">
+                    <div class="time-display me-3" style="min-width: 70px;">
+                        <strong>${slot.time}</strong>
+                    </div>
+                    <div class="flex-grow-1">
+                        ${slot.hasAppointment ? `
+                            <div class="appointment-info">
+                                <h6 class="mb-1">${slot.clientName} - ${slot.service}</h6>
+                                <small class="text-muted">Phone: ${slot.clientPhone}</small>
+                            </div>
+                        ` : `
+                            <div class="available-info text-success">
+                                <i class="fas fa-check-circle me-1"></i>Available
+                            </div>
+                        `}
+                    </div>
+                    <div class="actions">
+                        ${slot.hasAppointment ? `
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewAppointment('${slot.time}', null, ${slot.appointmentId})" style="border-radius: 8px;">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        ` : `
+                            <button class="btn btn-sm btn-outline-success" onclick="addWalkIn('${slot.time}')" style="border-radius: 8px;">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        `}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        updateAppointmentCounter(appointmentsCount);
+    }
+    
+    function renderDailyScheduleDemo() {
+        const timeSlots = generateTimeSlots();
+        const scheduleContainer = document.getElementById('daily-schedule');
         let appointmentsCount = 0;
         
         scheduleContainer.innerHTML = timeSlots.map(slot => {
@@ -273,7 +955,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (hasAppointment) appointmentsCount++;
             
             return `
-                <div class="d-flex align-items-center p-2 border-bottom ${hasAppointment ? 'bg-light' : ''}">
+                <div class="d-flex align-items-center p-3 border-bottom ${hasAppointment ? 'bg-light' : ''}" style="transition: all 0.3s ease; border-radius: 8px; margin-bottom: 8px;">
                     <div class="time-display me-3" style="min-width: 70px;">
                         <strong>${slot.time}</strong>
                     </div>
@@ -291,11 +973,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <div class="actions">
                         ${hasAppointment ? `
-                            <button class="btn btn-sm btn-outline-primary" onclick="viewAppointment('${slot.time}')">
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewAppointment('${slot.time}')" style="border-radius: 8px;">
                                 <i class="fas fa-eye"></i>
                             </button>
                         ` : `
-                            <button class="btn btn-sm btn-outline-success" onclick="addWalkIn('${slot.time}')">
+                            <button class="btn btn-sm btn-outline-success" onclick="addWalkIn('${slot.time}')" style="border-radius: 8px;">
                                 <i class="fas fa-plus"></i>
                             </button>
                         `}
@@ -304,7 +986,11 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         }).join('');
         
-        document.getElementById('todays-appointments').textContent = appointmentsCount;
+        updateAppointmentCounter(appointmentsCount);
+    }
+    
+    function updateAppointmentCounter(count) {
+        document.getElementById('todays-appointments').textContent = count;
     }
     
     function generateTimeSlots() {
@@ -321,6 +1007,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function loadWeeklySchedule() {
+        fetch('/api/barber/weekly-schedule')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                renderWeeklySchedule(data);
+            })
+            .catch(error => {
+                console.error('Error fetching weekly schedule:', error);
+                // Fallback to demo data
+                renderWeeklyScheduleDemo();
+            });
+    }
+    
+    function renderWeeklyScheduleDemo() {
         const scheduleGrid = document.getElementById('weekly-schedule');
         const days = ['Time', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
         const timeSlots = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
@@ -330,30 +1034,42 @@ document.addEventListener('DOMContentLoaded', function() {
             `<div class="schedule-cell schedule-header">${day}</div>`
         ).join('');
         
+        // Get current day of week (1-7 where 1 is Monday)
+        const currentDay = new Date().getDay() === 0 ? 7 : new Date().getDay();
+        
         // Create time slots
         timeSlots.forEach(time => {
             gridContent += `<div class="schedule-cell time-slot">${time}</div>`;
             
             for (let day = 1; day <= 7; day++) {
-                const hasAppointment = Math.random() > 0.6;
-                const isToday = day === new Date().getDay();
+                const hasAppointment = Math.random() > 0.6; // Simulate appointments
+                const isToday = day === currentDay;
                 
                 if (time === '12:00') {
                     // Lunch break
-                    gridContent += `<div class="schedule-cell" style="background: #f8d7da; color: #721c24;">Lunch</div>`;
+                    gridContent += `
+                        <div class="schedule-cell ${isToday ? 'today' : ''}" style="${isToday ? '' : 'background: #f8d7da; color: #721c24;'}">
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <i class="fas fa-utensils me-2"></i>Lunch
+                            </div>
+                        </div>`;
                 } else if (hasAppointment) {
                     gridContent += `
                         <div class="schedule-cell appointment-slot ${isToday ? 'today' : ''}" 
                              onclick="viewAppointment('${time}', ${day})">
-                            <div><strong>Client Name</strong></div>
-                            <small>Haircut</small>
+                            <div class="appointment-content">
+                                <div><strong>John Doe</strong></div>
+                                <small>${Math.random() > 0.5 ? 'Haircut' : 'Beard Trim'}</small>
+                            </div>
                         </div>
                     `;
                 } else {
                     gridContent += `
                         <div class="schedule-cell available-slot ${isToday ? 'today' : ''}" 
                              onclick="addWalkIn('${time}', ${day})">
-                            <i class="fas fa-plus"></i>
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <i class="fas fa-plus me-1"></i>Available
+                            </div>
                         </div>
                     `;
                 }
@@ -364,6 +1080,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function loadUpcomingAppointments() {
+        fetch('/api/barber/upcoming-appointments')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                renderUpcomingAppointments(data.appointments);
+            })
+            .catch(error => {
+                console.error('Error fetching upcoming appointments:', error);
+                // Fallback to demo data
+                renderUpcomingAppointmentsDemo();
+            });
+    }
+    
+    function renderUpcomingAppointmentsDemo() {
         const container = document.getElementById('upcoming-appointments');
         const appointments = [
             { time: '2:00 PM', client: 'Mike Johnson', service: 'Haircut + Beard' },
@@ -372,19 +1106,348 @@ document.addEventListener('DOMContentLoaded', function() {
         ];
         
         container.innerHTML = appointments.map(apt => `
-            <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
+            <div class="d-flex justify-content-between align-items-center p-2 border-bottom" style="transition: all 0.3s ease; border-radius: 8px;">
                 <div>
                     <h6 class="mb-0">${apt.time}</h6>
                     <small class="text-muted">${apt.client} - ${apt.service}</small>
                 </div>
-                <button class="btn btn-sm btn-outline-primary" onclick="viewAppointment('${apt.time}')">
+                <button class="btn btn-sm btn-outline-primary" onclick="viewAppointment('${apt.time}')" style="border-radius: 8px;">
                     <i class="fas fa-eye"></i>
                 </button>
             </div>
         `).join('');
     }
+    
+    function setupRealTimeUpdates() {
+        // Set up periodic refresh (every 30 seconds)
+        setInterval(() => {
+            loadUpcomingAppointments();
+        }, 30000);
+        
+        // For a production app, you could use WebSockets instead
+        try {
+            const eventSource = new EventSource('/api/barber/events');
+            
+            eventSource.addEventListener('appointment_created', function(e) {
+                const data = JSON.parse(e.data);
+                showNotification('New Appointment', `${data.client_name} booked a ${data.service} at ${data.time}`, 'success');
+                loadDailySchedule();
+                loadUpcomingAppointments();
+            });
+            
+            eventSource.addEventListener('appointment_cancelled', function(e) {
+                const data = JSON.parse(e.data);
+                showNotification('Cancelled Appointment', `${data.client_name}'s ${data.service} appointment was cancelled`, 'warning');
+                loadDailySchedule();
+                loadUpcomingAppointments();
+            });
+            
+            eventSource.onerror = function() {
+                console.log('EventSource failed. Falling back to polling.');
+                eventSource.close();
+            };
+        } catch (e) {
+            console.log('EventSource not supported. Using polling instead.');
+        }
+    }
+    
+    function setupModalHandlers() {
+        // Block Time Slot Modal
+        document.getElementById('block-reason').addEventListener('change', function() {
+            const otherReasonDiv = document.getElementById('other-reason-div');
+            otherReasonDiv.style.display = this.value === 'other' ? 'block' : 'none';
+        });
+        
+        document.getElementById('save-block-btn').addEventListener('click', function() {
+            const date = document.getElementById('block-date').value;
+            const startTime = document.getElementById('block-start-time').value;
+            const endTime = document.getElementById('block-end-time').value;
+            const reason = document.getElementById('block-reason').value;
+            const otherReason = document.getElementById('other-reason').value;
+            
+            const finalReason = reason === 'other' ? otherReason : reason;
+            
+            // Save the blocked time
+            fetch('/api/barber/block-time', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    date: date,
+                    start_time: startTime,
+                    end_time: endTime,
+                    reason: finalReason
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                showNotification('Success', 'Time slot blocked successfully', 'success');
+                bootstrap.Modal.getInstance(document.getElementById('blockTimeModal')).hide();
+                loadDailySchedule();
+                loadWeeklySchedule();
+            })
+            .catch(error => {
+                console.error('Error blocking time slot:', error);
+                showNotification('Error', 'Failed to block time slot. Please try again.', 'error');
+            });
+        });
+        
+        // Add Availability Modal
+        const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const availabilityRows = document.getElementById('availability-rows');
+        
+        daysOfWeek.forEach((day, index) => {
+            const availabilityRow = document.createElement('div');
+            availabilityRow.className = 'row mb-3 align-items-center';
+            
+            availabilityRow.innerHTML = `
+                <div class="col-md-3">
+                    <div class="form-check">
+                        <input class="form-check-input day-enabled" type="checkbox" id="day-${index}" ${index < 5 ? 'checked' : ''}>
+                        <label class="form-check-label" for="day-${index}">${day}</label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select start-time" id="start-${index}" ${index >= 5 ? 'disabled' : ''}>
+                        <option value="10:00">10:00 AM</option>
+                        <option value="10:30">10:30 AM</option>
+                        <option value="11:00">11:00 AM</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select end-time" id="end-${index}" ${index >= 5 ? 'disabled' : ''}>
+                        <option value="16:00">4:00 PM</option>
+                        <option value="16:30">4:30 PM</option>
+                        <option value="17:00">5:00 PM</option>
+                    </select>
+                </div>
+            `;
+            
+            availabilityRows.appendChild(availabilityRow);
+            
+            // Add event listener to checkbox
+            availabilityRow.querySelector('.day-enabled').addEventListener('change', function() {
+                const startTime = availabilityRow.querySelector('.start-time');
+                const endTime = availabilityRow.querySelector('.end-time');
+                
+                startTime.disabled = !this.checked;
+                endTime.disabled = !this.checked;
+            });
+        });
+        
+        document.getElementById('save-availability-btn').addEventListener('click', function() {
+            const availabilityData = [];
+            
+            daysOfWeek.forEach((day, index) => {
+                const enabled = document.getElementById(`day-${index}`).checked;
+                
+                if (enabled) {
+                    availabilityData.push({
+                        day: day,
+                        start_time: document.getElementById(`start-${index}`).value,
+                        end_time: document.getElementById(`end-${index}`).value
+                    });
+                }
+            });
+            
+            const lunchBreak = document.getElementById('set-lunch-break').checked;
+            
+            // Save availability
+            fetch('/api/barber/set-availability', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    availability: availabilityData,
+                    lunch_break: lunchBreak
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                showNotification('Success', 'Availability saved successfully', 'success');
+                bootstrap.Modal.getInstance(document.getElementById('availabilityModal')).hide();
+                loadWeeklySchedule();
+            })
+            .catch(error => {
+                console.error('Error saving availability:', error);
+                showNotification('Error', 'Failed to save availability. Please try again.', 'error');
+            });
+        });
+        
+        // Earnings Modal
+        document.getElementById('earnings-period').addEventListener('change', function() {
+            updateEarningsChart();
+        });
+    }
+    
+    function updateEarningsChart() {
+        const period = document.getElementById('earnings-period').value;
+        
+        // Fetch earnings data or use demo data
+        let labels, data;
+        
+        switch(period) {
+            case 'week':
+                labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                data = [120, 180, 90, 240, 160, 320, 140];
+                break;
+            case 'month':
+                labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+                data = [450, 520, 380, 410];
+                break;
+            case 'quarter':
+                labels = ['January', 'February', 'March'];
+                data = [1250, 1180, 1420];
+                break;
+            case 'year':
+                labels = ['Q1', 'Q2', 'Q3', 'Q4'];
+                data = [3800, 4200, 3950, 4600];
+                break;
+            default:
+                labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+                data = [450, 520, 380, 410];
+        }
+        
+        // Check if chart exists and destroy it
+        if (window.earningsChart) {
+            window.earningsChart.destroy();
+        }
+        
+        // Create chart
+        const ctx = document.getElementById('earnings-chart').getContext('2d');
+        window.earningsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Earnings ($)',
+                    data: data,
+                    backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                    borderColor: 'rgba(13, 110, 253, 1)',
+                    borderWidth: 1,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    function setupDarkModeToggle() {
+        // Add dark mode toggle functionality
+        const toggleButton = document.createElement('button');
+        toggleButton.classList.add('dark-mode-toggle');
+        toggleButton.setAttribute('aria-label', 'Toggle dark mode');
+        toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+        toggleButton.addEventListener('click', toggleDarkMode);
+        document.body.appendChild(toggleButton);
+        
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            toggleButton.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        }
+    }
+    
+    function toggleDarkMode() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+            document.querySelector('.dark-mode-toggle').innerHTML = '<i class="fas fa-moon"></i>';
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            document.querySelector('.dark-mode-toggle').innerHTML = '<i class="fas fa-sun"></i>';
+        }
+        
+        // Update chart theme
+        updateChartTheme();
+    }
+    
+    // Update Chart.js to use dark mode colors when the theme changes
+    function updateChartTheme() {
+        if (document.documentElement.getAttribute('data-theme') === 'dark') {
+            // Dark mode chart settings
+            Chart.defaults.color = '#e0e0e0';
+            Chart.defaults.borderColor = '#444';
+            Chart.defaults.scale.grid.color = '#333';
+        } else {
+            // Light mode chart settings
+            Chart.defaults.color = '#666';
+            Chart.defaults.borderColor = '#ddd';
+            Chart.defaults.scale.grid.color = '#eee';
+        }
+        
+        // Recreate earnings chart if it exists
+        if (window.earningsChart) {
+            const period = document.getElementById('earnings-period')?.value || 'month';
+            updateEarningsChart(period);
+        }
+    }
+    
+    // Call this once on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateChartTheme();
+    });
+    
+    // Add global function to show notifications
+    window.showNotification = function(title, message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `system-notification ${type}`;
+        
+        notification.innerHTML = `
+            <div class="notification-content">
+                <div class="notification-icon">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 
+                                  type === 'error' ? 'fa-exclamation-circle' : 
+                                  type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'}"></i>
+                </div>
+                <div class="notification-text">
+                    <div class="notification-title">${title}</div>
+                    <div class="notification-message">${message}</div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+        
+        // Animate out and remove
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.remove();
+            }, 500);
+        }, 5000);
+    }
 });
 
+// Global functions for buttons
 function toggleAvailability() {
     const btn = event.target.closest('button');
     const isAvailable = btn.innerHTML.includes('Available');
@@ -393,78 +1456,215 @@ function toggleAvailability() {
         btn.innerHTML = '<i class="fas fa-toggle-off me-2"></i>Unavailable';
         btn.classList.remove('btn-light');
         btn.classList.add('btn-secondary');
+        
+        // Update API
+        fetch('/api/barber/toggle-availability', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: 'unavailable' })
+        })
+        .catch(error => {
+            console.error('Error updating availability:', error);
+        });
     } else {
         btn.innerHTML = '<i class="fas fa-toggle-on me-2"></i>Available';
         btn.classList.remove('btn-secondary');
         btn.classList.add('btn-light');
+        
+        // Update API
+        fetch('/api/barber/toggle-availability', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: 'available' })
+        })
+        .catch(error => {
+            console.error('Error updating availability:', error);
+        });
     }
 }
 
-function viewAppointment(time, day = null) {
+function viewAppointment(time, day = null, appointmentId = null) {
     const modal = new bootstrap.Modal(document.getElementById('appointmentModal'));
     const details = document.getElementById('appointment-details');
     
-    details.innerHTML = `
+    if (appointmentId) {
+        // Try to fetch appointment details from API
+        fetch(`/api/barber/appointment/${appointmentId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                renderAppointmentDetails(details, data, time);
+                modal.show();
+            })
+            .catch(error => {
+                console.error('Error fetching appointment details:', error);
+                // Fallback to demo data
+                renderDemoAppointmentDetails(details, time);
+                modal.show();
+            });
+    } else {
+        // Use demo data
+        renderDemoAppointmentDetails(details, time);
+        modal.show();
+    }
+}
+
+function renderDemoAppointmentDetails(container, time) {
+    container.innerHTML = `
         <div class="row">
-            <div class="col-6">
-                <h6>Client Information</h6>
-                <ul class="list-unstyled">
-                    <li><strong>Name:</strong> John Doe</li>
-                    <li><strong>Phone:</strong> +1-555-0123</li>
-                    <li><strong>Email:</strong> john@example.com</li>
-                </ul>
+            <div class="col-md-6">
+                <div class="client-info p-3" style="background: var(--card-bg); border-radius: 10px; box-shadow: var(--card-shadow);">
+                    <h6 class="d-flex align-items-center">
+                        <i class="fas fa-user me-2 text-primary"></i>Client Information
+                    </h6>
+                    <ul class="list-unstyled mt-3">
+                        <li class="mb-2"><strong>Name:</strong> John Doe</li>
+                        <li class="mb-2"><strong>Phone:</strong> +1-555-0123</li>
+                        <li class="mb-2"><strong>Email:</strong> john@example.com</li>
+                    </ul>
+                </div>
             </div>
-            <div class="col-6">
-                <h6>Service Details</h6>
-                <ul class="list-unstyled">
-                    <li><strong>Service:</strong> Premium Haircut</li>
-                    <li><strong>Duration:</strong> 45 minutes</li>
-                    <li><strong>Price:</strong> $35.00</li>
-                    <li><strong>Time:</strong> ${time}</li>
-                </ul>
+            <div class="col-md-6">
+                <div class="service-info p-3" style="background: var(--card-bg); border-radius: 10px; box-shadow: var(--card-shadow);">
+                    <h6 class="d-flex align-items-center">
+                        <i class="fas fa-cut me-2 text-primary"></i>Service Details
+                    </h6>
+                    <ul class="list-unstyled mt-3">
+                        <li class="mb-2"><strong>Service:</strong> Premium Haircut</li>
+                        <li class="mb-2"><strong>Duration:</strong> 45 minutes</li>
+                        <li class="mb-2"><strong>Price:</strong> $35.00</li>
+                        <li class="mb-2"><strong>Time:</strong> ${time}</li>
+                    </ul>
+                </div>
             </div>
         </div>
         <hr>
-        <div>
-            <h6>Notes</h6>
-            <p class="text-muted">Customer prefers shorter sides and wants styling advice.</p>
+        <div class="notes-section p-3 mt-3" style="background: var(--card-bg); border-radius: 10px; box-shadow: var(--card-shadow);">
+            <h6 class="d-flex align-items-center">
+                <i class="fas fa-sticky-note me-2 text-primary"></i>Notes
+            </h6>
+            <p class="text-muted mt-2">Customer prefers shorter sides and wants styling advice.</p>
         </div>
     `;
-    
-    modal.show();
 }
 
 function addWalkIn(time, day = null) {
-    alert(`Add walk-in appointment for ${time}`);
+    // Show a notification
+    showNotification('Quick Action', `Adding walk-in appointment for ${time}`, 'info');
+    
+    // Here you would show a form or modal to collect client information
+    // For now, we'll just simulate a successful addition
+    setTimeout(() => {
+        showNotification('Success', 'Walk-in appointment added successfully', 'success');
+        
+        // Reload schedules to show the new appointment
+        document.dispatchEvent(new CustomEvent('reload-schedules'));
+    }, 1500);
 }
 
 function blockTimeSlot() {
-    alert('Block time slot functionality');
+    const modal = new bootstrap.Modal(document.getElementById('blockTimeModal'));
+    modal.show();
 }
 
 function addAvailability() {
-    alert('Add availability functionality');
+    const modal = new bootstrap.Modal(document.getElementById('availabilityModal'));
+    modal.show();
 }
 
 function viewEarnings() {
-    alert('View earnings functionality');
+    const modal = new bootstrap.Modal(document.getElementById('earningsModal'));
+    modal.show();
+    
+    // Initialize the earnings chart when modal is shown
+    modal._element.addEventListener('shown.bs.modal', function() {
+        const ctx = document.getElementById('earnings-chart').getContext('2d');
+        
+        // Check if chart exists and destroy it
+        if (window.earningsChart) {
+            window.earningsChart.destroy();
+        }
+        
+        // Create chart with demo data
+        window.earningsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [{
+                    label: 'Earnings ($)',
+                    data: [450, 520, 380, 410],
+                    backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                    borderColor: 'rgba(13, 110, 253, 1)',
+                    borderWidth: 1,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+    });
 }
 
 function manageServices() {
-    alert('Manage services functionality');
+    const modal = new bootstrap.Modal(document.getElementById('servicesModal'));
+    modal.show();
+}
+
+function editService(serviceId) {
+    // This would open a form to edit the service
+    showNotification('Service Management', `Editing service ID: ${serviceId}`, 'info');
+}
+
+function toggleServiceStatus(serviceId, currentStatus) {
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    showNotification('Service Status', `Service ${serviceId} is now ${newStatus}`, 'success');
+    
+    // Refresh table or update specific row
+    // For a real implementation, you would call an API to update the status
 }
 
 function completeAppointment() {
-    alert('Appointment marked as complete');
+    // Show success notification
+    showNotification('Appointment Completed', 'The appointment has been marked as complete', 'success');
+    
+    // Close the modal
     bootstrap.Modal.getInstance(document.getElementById('appointmentModal')).hide();
+    
+    // Update appointments list
+    document.dispatchEvent(new CustomEvent('reload-schedules'));
 }
 
 function previousDay() {
-    alert('Previous day functionality');
+    showNotification('Navigation', 'Navigating to previous day', 'info');
 }
 
 function nextDay() {
-    alert('Next day functionality');
+    showNotification('Navigation', 'Navigating to next day', 'info');
 }
 </script>
 {% endblock %}

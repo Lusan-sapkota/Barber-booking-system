@@ -328,6 +328,30 @@
   transform: translateX(5px);
 }
 
+.use-home-location-btn {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 30px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.use-home-location-btn:hover {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #fff;
+}
+
+.use-home-location-btn i {
+  margin-right: 0.5rem;
+}
+
 /* Filters Section Styling */
 .filters-section {
   background-color: var(--card-bg);
@@ -726,6 +750,12 @@ body[data-theme="dark"] {
                 <button class="use-location-btn" id="use-location-btn">
                     <i class="fas fa-crosshairs me-1"></i>Use My Current Location
                 </button>
+                
+                {% if session.get('user_id') %}
+                <button class="use-home-location-btn" id="use-home-location-btn">
+                    <i class="fas fa-home me-1"></i>Use My Home Location
+                </button>
+                {% endif %}
             </div>
         </div>
 
@@ -1175,6 +1205,40 @@ document.addEventListener('DOMContentLoaded', function() {
         alert(`Viewing details for barber ID: ${barberId}`);
         // In a real app, this would open a modal or navigate to a details page
     };
+
+    // Add handler for home location button
+    const useHomeLocationBtn = document.getElementById('use-home-location-btn');
+    if (useHomeLocationBtn) {
+        useHomeLocationBtn.addEventListener('click', useHomeLocation);
+    }
+    
+    // Function to use home location
+    function useHomeLocation() {
+        // Show loading state
+        useHomeLocationBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Loading...';
+        useHomeLocationBtn.disabled = true;
+        
+        // Get saved home location from the server
+        fetch('/api/user/home-location')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.location) {
+                    locationInput.value = data.location;
+                    loadNearbyBarbers(); // Use existing function to search
+                } else {
+                    alert('No home location saved. Please update your profile first.');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching home location:', error);
+                alert('Error retrieving home location. Please try again.');
+            })
+            .finally(() => {
+                // Reset button
+                useHomeLocationBtn.innerHTML = '<i class="fas fa-home me-1"></i>Use My Home Location';
+                useHomeLocationBtn.disabled = false;
+            });
+    }
 });
 </script>
 {% endblock %}

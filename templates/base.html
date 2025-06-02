@@ -662,6 +662,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     });
 });
+
+// Hide irrelevant navigation for shop owners
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if user is a shop owner and hide irrelevant navigation
+    const userType = '{{ session.get("user_type", "") }}';
+    
+    if (userType === 'shop_owner') {
+        // Hide customer-focused navigation items
+        const hideNavItems = ['Book Appointment', 'Find Nearby'];
+        
+        document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
+            hideNavItems.forEach(item => {
+                if (link.textContent.includes(item)) {
+                    link.parentElement.style.display = 'none';
+                }
+            });
+        });
+    }
+});
 </script>
 </body>
 </html>

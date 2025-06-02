@@ -382,6 +382,21 @@ body {
                             <input type="text" class="form-control" id="created_at" value="{{ user.created_at }}" readonly>
                         </div>
 
+                        <!-- New Home Location Field -->
+                        <div class="mb-3">
+                            <label for="home_location" class="form-label">
+                                <i class="fas fa-home me-2"></i>Home Location
+                            </label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="home_location" name="home_location" 
+                                       value="{{ user.home_location or '' }}" placeholder="Enter your home address">
+                                <button class="btn btn-outline-secondary" type="button" id="use-current-location-btn">
+                                    <i class="fas fa-crosshairs"></i>
+                                </button>
+                            </div>
+                            <small class="form-text text-muted">This will be used for quicker searches in Find Nearby</small>
+                        </div>
+
                         <div class="d-flex gap-3">
                             <button type="button" class="btn btn-primary" id="edit-btn">
                                 <i class="fas fa-edit me-2"></i>Edit Profile
@@ -562,6 +577,59 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear file input and hide preview
         imageUpload.value = '';
         previewContainer.style.display = 'none';
+    });
+
+    // New functionality for home location
+    document.getElementById('use-current-location-btn').addEventListener('click', function() {
+        const homeLocationInput = document.getElementById('home_location');
+        
+        // Show loading state
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        homeLocationInput.placeholder = "Getting your location...";
+        
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                async function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    try {
+                        // Use backend proxy for reverse geocoding
+                        const response = await fetch(`/api/reverse-geocode?lat=${lat}&lon=${lng}`);
+                        const data = await response.json();
+                        
+                        if (data.success && data.address) {
+                            homeLocationInput.value = data.address;
+                        } else {
+                            homeLocationInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                        }
+                    } catch (error) {
+                        console.log('Geocoding failed, using coordinates:', error);
+                        homeLocationInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                    }
+                    
+                    // Reset button
+                    document.getElementById('use-current-location-btn').disabled = false;
+                    document.getElementById('use-current-location-btn').innerHTML = '<i class="fas fa-crosshairs"></i>';
+                },
+                function(error) {
+                    console.error('Geolocation error:', error);
+                    alert('Unable to get your location. Please enter it manually.');
+                    
+                    // Reset button
+                    document.getElementById('use-current-location-btn').disabled = false;
+                    document.getElementById('use-current-location-btn').innerHTML = '<i class="fas fa-crosshairs"></i>';
+                    homeLocationInput.placeholder = "Enter your home address";
+                }
+            );
+        } else {
+            alert('Geolocation is not supported by your browser');
+            // Reset button
+            this.disabled = false;
+            this.innerHTML = '<i class="fas fa-crosshairs"></i>';
+            homeLocationInput.placeholder = "Enter your home address";
+        }
     });
 });
 </script>

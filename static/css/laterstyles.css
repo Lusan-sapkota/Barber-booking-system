@@ -6,15 +6,63 @@
     --danger-color: #dc3545;
     --warning-color: #ffc107;
     --info-color: #0dcaf0;
+
+    /* Updated Modern Thin Scrollbar - High Priority */
+    /* Scrollbar Colors - Light Mode */
+    --scrollbar-width: 6px !important;
+    --scrollbar-track: rgba(0, 0, 0, 0.05) !important;
+    --scrollbar-thumb: rgba(13, 110, 253, 0.4) !important;
+    --scrollbar-thumb-hover: rgba(13, 110, 253, 0.6) !important;
 }
 
-/* Card Styling */
-.booking-page .card {
-  background-color: var(--card-bg);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  transition: all 0.3s ease;
-  border-radius: 12px;
-  overflow: hidden;
-  margin-bottom: 2rem;
+[data-theme="dark"] {
+    /* Scrollbar Colors - Dark Mode */
+    --scrollbar-track: rgba(255, 255, 255, 0.05) !important;
+    --scrollbar-thumb: rgba(99, 169, 255, 0.4) !important;
+    --scrollbar-thumb-hover: rgba(99, 169, 255, 0.6) !important;
+}
+
+/* Apply to html and body specifically */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+div::-webkit-scrollbar {
+    width: var(--scrollbar-width) !important;
+    height: var(--scrollbar-width) !important;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+div::-webkit-scrollbar-track {
+    background: var(--scrollbar-track) !important;
+    border-radius: 4px !important;
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+div::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb) !important;
+    border-radius: 4px !important;
+    transition: background 0.3s ease !important;
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+div::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover) !important;
+}
+
+/* Firefox - more specific */
+html, body, div {
+    scrollbar-width: thin !important;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track) !important;
+}
+
+/* Mobile adjustment */
+@media (max-width: 768px) {
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar,
+    div::-webkit-scrollbar {
+        width: 4px !important;
+        height: 4px !important;
+    }
 }

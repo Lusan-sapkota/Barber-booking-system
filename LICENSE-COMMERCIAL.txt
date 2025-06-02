@@ -1,0 +1,20 @@
+Custom License for Commercial Use via Gumroad
+Copyright (c) 2025 Lusan Sapkota
+
+This software is licensed for commercial and personal use **only to verified purchasers** from Gumroad or official authorized platforms.
+
+By purchasing, you are granted a **non-exclusive, non-transferable** license to:
+
+✔ Use the codebase for personal or commercial projects  
+✔ Modify and adapt the code for your own business use  
+✔ Deploy unlimited projects for yourself or your company  
+
+You may **not**:
+
+✘ Redistribute or resell the source code, paid or free  
+✘ Publish it as your own on GitHub or other platforms  
+✘ Use it to create a direct competitor product for resale
+
+Support and updates are not guaranteed, but feel free to reach out via contact provided at point of purchase.
+
+If you need an extended or whitelabel license, please contact Lusan Sapkota.

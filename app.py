@@ -3,7 +3,7 @@ import sqlite3
 from datetime import datetime, date
 import hashlib
 from models import (init_db, Booking, Barber, Customer, Service, User, Shop, 
-                   Notification, AdminAction, SystemSettings)
+                   Notification, AdminAction, SystemSettings, Review)
 from algorithms import find_available_slots, optimize_barber_schedule
 import os
 import requests
@@ -55,6 +55,9 @@ def ensure_required_columns():
     add_column_if_not_exists('bookings', 'status', 'TEXT DEFAULT "confirmed"')
     add_column_if_not_exists('services', 'status', 'TEXT DEFAULT "active"')
     add_column_if_not_exists('shops', 'status', 'TEXT DEFAULT "active"')
+    
+    # Add home_location column to users table
+    add_column_if_not_exists('users', 'home_location', 'TEXT')
     
     conn.close()
 
@@ -649,7 +652,7 @@ def api_book_appointment():
             
     except Exception as e:
         print(f"Error in booking API: {e}")
-        return jsonify({"success": False, "message": f"An error occurred: {str(e)}"}), 500
+        return jsonify({"success": False, "message": str(e)}), 500
 
 # Authentication API Routes
 @app.route('/api/login', methods=['POST'])
@@ -792,7 +795,7 @@ def api_login():
 
 @app.route('/api/signup', methods=['POST'])
 def api_signup():
-    """User signup API"""
+    """User signup API with home location support"""
     try:
         data = request.form
         
@@ -802,9 +805,14 @@ def api_signup():
         last_name = data.get('last_name')
         phone = data.get('phone')
         user_type = data.get('user_type', 'customer')
+        home_location = data.get('home_location', '')
+        
+        # Make home_location required for shop_owner and barber
+        if user_type in ['shop_owner', 'barber'] and not home_location:
+            return jsonify({"success": False, "message": "Home/Business location is required"}), 400
         
         if not all([email, password, first_name, last_name]):
-            return jsonify({"success": False, "message": "All fields are required"}), 400
+            return jsonify({"success": False, "message": "All required fields must be filled"}), 400
         
         # Check if user already exists
         conn = sqlite3.connect('barbershop.db')
@@ -814,9 +822,17 @@ def api_signup():
             conn.close()
             return jsonify({"success": False, "message": "Email already registered"}), 409
         
-        # Create user
+        # Create user with home_location
         password_hash = hash_password(password)
-        user_id = User.create(email, password_hash, first_name, last_name, phone, user_type)
+        
+        cursor.execute('''
+            INSERT INTO users (email, password_hash, first_name, last_name, phone, user_type, home_location)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (email, password_hash, first_name, last_name, phone, user_type, home_location))
+        
+        user_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
         
         # Send welcome email
         try:
@@ -829,7 +845,6 @@ def api_signup():
         except Exception as e:
             print(f"Failed to send welcome email: {e}")
         
-        conn.close()
         return jsonify({"success": True, "message": "Account created successfully"})
         
     except Exception as e:
@@ -1662,8 +1677,205 @@ def api_update_barber_status():
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+# Helper function to generate a random password
+def generate_password(length=10):
+    """Generate a random alphanumeric password"""
+    import string
+    import random
+    chars = string.ascii_letters + string.digits
+    return ''.join(random.choice(chars) for _ in range(length))
 
-# Add these routes for additional pages
+# Shop Owner API Endpoints
+
+@app.route('/api/shop-owner/shop-info', methods=['POST'])
+def api_update_shop_info():
+    """Update shop information"""
+    if not session.get('user_id') or session.get('user_type') != 'shop_owner':
+        return jsonify({"success": False, "message": "Unauthorized"}), 403
+        
+    try:
+        shop_id = session.get('shop_id')
+        if not shop_id:
+            return jsonify({"success": False, "message": "No shop associated with this account"}), 400
+            
+        data = request.json
+        Shop.update(shop_id, **data)
+        
+        # Log action
+        AdminAction.log(
+            admin_id=session.get('user_id'),
+            action_type='update',
+            target_type='shop',
+            target_id=shop_id,
+            description=f"Updated shop information",
+            ip_address=request.remote_addr
+        )
+        
+        return jsonify({"success": True, "message": "Shop information updated successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
+
+@app.route('/api/shop-owner/working-hours', methods=['POST'])
+def api_set_working_hours():
+    """Set shop working hours"""
+    if not session.get('user_id') or session.get('user_type') != 'shop_owner':
+        return jsonify({"success": False, "message": "Unauthorized"}), 403
+        
+    try:
+        shop_id = session.get('shop_id')
+        if not shop_id:
+            return jsonify({"success": False, "message": "No shop associated with this account"}), 400
+            
+        data = request.json
+        hours_data = data.get('hours', [])
+        apply_to_all = data.get('apply_to_all', False)
+        
+        if apply_to_all and hours_data:
+            # Use first day's hours for all days
+            first_day = hours_data[0]
+            for day in hours_data[1:]:
+                if not day.get('closed', False):
+                    day['open_time'] = first_day.get('open_time')
+                    day['close_time'] = first_day.get('close_time')
+        
+        Shop.set_working_hours(shop_id, hours_data)
+        
+        # Log action
+        AdminAction.log(
+            admin_id=session.get('user_id'),
+            action_type='update',
+            target_type='shop',
+            target_id=shop_id,
+            description=f"Updated shop working hours",
+            ip_address=request.remote_addr
+        )
+        
+        return jsonify({"success": True, "message": "Working hours updated successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
+
+@app.route('/api/shop-owner/reviews/respond/<int:review_id>', methods=['POST'])
+def api_respond_to_review(review_id):
+    """Respond to a review"""
+    if not session.get('user_id') or session.get('user_type') != 'shop_owner':
+        return jsonify({"success": False, "message": "Unauthorized"}), 403
+        
+    try:
+        response_text = request.json.get('response')
+        if not response_text:
+            return jsonify({"success": False, "message": "Response text is required"}), 400
+            
+        Review.add_response(review_id, response_text)
+        
+        return jsonify({"success": True, "message": "Response added successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
+
+@app.route('/api/shop-owner/reviews', methods=['GET'])
+def api_get_reviews():
+    """Get reviews for a shop"""
+    if not session.get('user_id') or session.get('user_type') != 'shop_owner':
+        return jsonify({"success": False, "message": "Unauthorized"}), 403
+        
+    try:
+        shop_id = session.get('shop_id')
+        if not shop_id:
+            return jsonify({"success": False, "message": "No shop associated with this account"}), 400
+            
+        filter_by = request.args.get('filter')
+        sort_by = request.args.get('sort')
+        
+        reviews = Review.get_by_shop(shop_id, filter_by, sort_by)
+        
+        return jsonify({"success": True, "reviews": reviews})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
+
+@app.route('/api/shop-owner/barbers', methods=['POST'])
+def api_add_barber():
+    """Add a new barber"""
+    if not session.get('user_id') or session.get('user_type') != 'shop_owner':
+        return jsonify({"success": False, "message": "Unauthorized"}), 403
+        
+    try:
+        shop_id = session.get('shop_id')
+        if not shop_id:
+            return jsonify({"success": False, "message": "No shop associated with this account"}), 400
+            
+        data = request.json
+        name = data.get('name')
+        email = data.get('email')
+        
+        if not name or not email:
+            return jsonify({"success": False, "message": "Name and email are required"}), 400
+        
+        # Create user first if email is provided
+        user_id = None
+        if email:
+            password = generate_password()
+            password_hash = hash_password(password)
+            
+            user_id = User.create(
+                email=email,
+                password_hash=password_hash,
+                first_name=name.split()[0] if ' ' in name else name,
+                last_name=name.split(' ', 1)[1] if ' ' in name else '',
+                phone=data.get('phone', ''),
+                user_type='barber',
+                shop_id=shop_id
+            )
+        
+        # Create barber
+        barber_id = Barber.create(
+            user_id=user_id,
+            name=name,
+            shop_id=shop_id,
+            specialties=data.get('specialties', ''),
+            status='active' if data.get('active', True) else 'inactive'
+        )
+        
+        return jsonify({
+            "success": True, 
+            "message": "Barber added successfully",
+            "barber_id": barber_id
+        })
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
+
+@app.route('/api/shop-owner/barbers/<int:barber_id>', methods=['GET'])
+def api_get_barber_details(barber_id):
+    """Get details for a barber"""
+    if not session.get('user_id'):
+        return jsonify({"success": False, "message": "Unauthorized"}), 403
+        
+    try:
+        barber = Barber.get_by_id(barber_id)
+        if not barber:
+            return jsonify({"success": False, "message": "Barber not found"}), 404
+            
+        # Get user details if associated
+        user = None
+        if barber[1]:  # user_id field
+            user = User.get_by_id(barber[1])
+        
+        # Get appointments for today
+        today = datetime.now().strftime('%Y-%m-%d')
+        appointments = Booking.get_by_barber(barber_id, date=today)
+        
+        # Get performance stats
+        stats = Barber.get_stats(barber_id)
+        
+        return jsonify({
+            "success": True,
+            "barber": barber,
+            "user": user,
+            "appointments": appointments,
+            "stats": stats
+        })
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
+
 @app.route('/contactus')
 def contactus():
     """Contact us page"""

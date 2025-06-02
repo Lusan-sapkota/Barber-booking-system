@@ -1050,6 +1050,164 @@ body[data-theme="dark"] {
                                         <label for="specialties" class="floating-label">Your Specialties</label>
                                     </div>
                                 </div>
+                                
+                                <!-- Add home location field -->
+                                <div class="form-group">
+                                    <div class="input-wrapper">
+                                        <i class="fas fa-home input-icon"></i>
+                                        <input type="text" class="form-control" id="home_location" name="home_location" placeholder=" " required>
+                                        <label for="home_location" class="floating-label">Home/Business Location</label>
+                                    </div>
+                                    <div class="input-group mt-2">
+                                        <button type="button" class="btn btn-sm btn-outline-primary w-100" id="use-location-btn">
+                                            <i class="fas fa-crosshairs me-1"></i>Use Current Location
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Business Information for Shop Owners -->
+                            <div class="business-info-shop" style="display: none;">
+                                <h5 class="mb-4">Shop Information</h5>
+                                
+                                <div class="form-group mb-3">
+                                    <div class="input-wrapper">
+                                        <i class="fas fa-store input-icon"></i>
+                                        <input type="text" class="form-control" id="shop_name" name="shop_name" placeholder=" " required>
+                                        <label for="shop_name" class="floating-label">Shop Name</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <div class="input-wrapper">
+                                        <i class="fas fa-map-marker-alt input-icon"></i>
+                                        <input type="text" class="form-control" id="shop_address" name="shop_address" placeholder=" " required>
+                                        <label for="shop_address" class="floating-label">Shop Address</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <div class="input-wrapper">
+                                            <i class="fas fa-phone input-icon"></i>
+                                            <input type="text" class="form-control" id="shop_phone" name="shop_phone" placeholder=" " required>
+                                            <label for="shop_phone" class="floating-label">Shop Phone Number</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="input-wrapper">
+                                            <i class="fas fa-envelope input-icon"></i>
+                                            <input type="email" class="form-control" id="shop_email" name="shop_email" placeholder=" ">
+                                            <label for="shop_email" class="floating-label">Shop Email (optional)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <div class="input-wrapper">
+                                        <i class="fas fa-info-circle input-icon"></i>
+                                        <textarea class="form-control" id="shop_description" name="shop_description" rows="3" placeholder=" "></textarea>
+                                        <label for="shop_description" class="floating-label">Shop Description</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group mb-4">
+                                    <label class="d-block mb-2">Business Hours</label>
+                                    <div class="d-flex flex-wrap">
+                                        <div class="form-check me-4 mb-2">
+                                            <input class="form-check-input" type="checkbox" id="monday" name="business_days[]" value="monday" checked>
+                                            <label class="form-check-label" for="monday">Monday</label>
+                                        </div>
+                                        <div class="form-check me-4 mb-2">
+                                            <input class="form-check-input" type="checkbox" id="tuesday" name="business_days[]" value="tuesday" checked>
+                                            <label class="form-check-label" for="tuesday">Tuesday</label>
+                                        </div>
+                                        <div class="form-check me-4 mb-2">
+                                            <input class="form-check-input" type="checkbox" id="wednesday" name="business_days[]" value="wednesday" checked>
+                                            <label class="form-check-label" for="wednesday">Wednesday</label>
+                                        </div>
+                                        <div class="form-check me-4 mb-2">
+                                            <input class="form-check-input" type="checkbox" id="thursday" name="business_days[]" value="thursday" checked>
+                                            <label class="form-check-label" for="thursday">Thursday</label>
+                                        </div>
+                                        <div class="form-check me-4 mb-2">
+                                            <input class="form-check-input" type="checkbox" id="friday" name="business_days[]" value="friday" checked>
+                                            <label class="form-check-label" for="friday">Friday</label>
+                                        </div>
+                                        <div class="form-check me-4 mb-2">
+                                            <input class="form-check-input" type="checkbox" id="saturday" name="business_days[]" value="saturday">
+                                            <label class="form-check-label" for="saturday">Saturday</label>
+                                        </div>
+                                        <div class="form-check me-4 mb-2">
+                                            <input class="form-check-input" type="checkbox" id="sunday" name="business_days[]" value="sunday">
+                                            <label class="form-check-label" for="sunday">Sunday</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="input-wrapper">
+                                            <i class="fas fa-clock input-icon"></i>
+                                            <select class="form-control" id="opening_time" name="opening_time" required>
+                                                <option value="">Select opening time</option>
+                                                <option value="09:00">9:00 AM</option>
+                                                <option value="09:30">9:30 AM</option>
+                                                <option value="10:00" selected>10:00 AM</option>
+                                                <option value="10:30">10:30 AM</option>
+                                            </select>
+                                            <label for="opening_time" class="floating-label">Opening Time</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="input-wrapper">
+                                            <i class="fas fa-clock input-icon"></i>
+                                            <select class="form-control" id="closing_time" name="closing_time" required>
+                                                <option value="">Select closing time</option>
+                                                <option value="17:00">5:00 PM</option>
+                                                <option value="17:30">5:30 PM</option>
+                                                <option value="18:00" selected>6:00 PM</option>
+                                                <option value="18:30">6:30 PM</option>
+                                                <option value="19:00">7:00 PM</option>
+                                            </select>
+                                            <label for="closing_time" class="floating-label">Closing Time</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label class="d-block mb-2">Shop Services (Select all that apply)</label>
+                                    <div class="d-flex flex-wrap">
+                                        <div class="form-check me-4 mb-2">
+                                            <input class="form-check-input" type="checkbox" id="service_haircut" name="services[]" value="haircut" checked>
+                                            <label class="form-check-label" for="service_haircut">Haircuts</label>
+                                        </div>
+                                        <div class="form-check me-4 mb-2">
+                                            <input class="form-check-input" type="checkbox" id="service_beard" name="services[]" value="beard">
+                                            <label class="form-check-label" for="service_beard">Beard Trimming</label>
+                                        </div>
+                                        <div class="form-check me-4 mb-2">
+                                            <input class="form-check-input" type="checkbox" id="service_styling" name="services[]" value="styling">
+                                            <label class="form-check-label" for="service_styling">Hair Styling</label>
+                                        </div>
+                                        <div class="form-check me-4 mb-2">
+                                            <input class="form-check-input" type="checkbox" id="service_color" name="services[]" value="color">
+                                            <label class="form-check-label" for="service_color">Hair Coloring</label>
+                                        </div>
+                                        <div class="form-check me-4 mb-2">
+                                            <input class="form-check-input" type="checkbox" id="service_facial" name="services[]" value="facial">
+                                            <label class="form-check-label" for="service_facial">Facial Treatments</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group mb-4">
+                                    <div class="input-wrapper">
+                                        <i class="fas fa-image input-icon"></i>
+                                        <input type="file" class="form-control" id="shop_image" name="shop_image">
+                                        <label for="shop_image" class="floating-label">Shop Image (optional)</label>
+                                    </div>
+                                </div>
                             </div>
                             
                             <!-- Terms and Conditions -->
@@ -1331,6 +1489,73 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.classList.remove('form-loading');
                 }
             }, result && result.success ? 0 : 1500);
+        }
+    });
+    
+    // Use Current Location button handler
+    document.getElementById('use-location-btn').addEventListener('click', function() {
+        // Show loading state
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Getting location...';
+        
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                async function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    try {
+                        // Use backend proxy for reverse geocoding
+                        const response = await fetch(`/api/reverse-geocode?lat=${lat}&lon=${lng}`);
+                        const data = await response.json();
+                        
+                        if (data.success && data.address) {
+                            document.getElementById('home_location').value = data.address;
+                        } else {
+                            document.getElementById('home_location').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                        }
+                    } catch (error) {
+                        console.log('Geocoding failed, using coordinates:', error);
+                        document.getElementById('home_location').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                    }
+                    
+                    // Reset button
+                    document.getElementById('use-location-btn').disabled = false;
+                    document.getElementById('use-location-btn').innerHTML = '<i class="fas fa-crosshairs me-1"></i>Use Current Location';
+                },
+                function(error) {
+                    console.error('Geolocation error:', error);
+                    alert('Unable to get your location. Please enter it manually.');
+                    
+                    // Reset button
+                    document.getElementById('use-location-btn').disabled = false;
+                    document.getElementById('use-location-btn').innerHTML = '<i class="fas fa-crosshairs me-1"></i>Use Current Location';
+                }
+            );
+        } else {
+            alert('Geolocation is not supported by your browser');
+            this.disabled = false;
+            this.innerHTML = '<i class="fas fa-crosshairs me-1"></i>Use Current Location';
+        }
+    });
+    
+    // Validate form before submission
+    function validateForm() {
+        const userType = document.querySelector('input[name="user_type"]:checked').value;
+        const homeLocation = document.getElementById('home_location');
+        
+        if ((userType === 'barber' || userType === 'shop_owner') && !homeLocation.value) {
+            alert('Home/Business Location is required for barber and shop owner accounts');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // Update existing form submission code
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+        if (!validateForm()) {
+            e.preventDefault();
         }
     });
     

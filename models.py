@@ -169,6 +169,72 @@ def init_db():
     )
     ''')
     
+    # Add shop_hours table
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS shop_hours (
+        id INTEGER PRIMARY KEY,
+        shop_id INTEGER NOT NULL,
+        day TEXT NOT NULL,
+        open_time TEXT,
+        close_time TEXT,
+        is_closed BOOLEAN DEFAULT 0,
+        day_order INTEGER DEFAULT 0,
+        FOREIGN KEY (shop_id) REFERENCES shops (id)
+    )
+    ''')
+    
+    # Add shop_special_days table for holidays and special hours
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS shop_special_days (
+        id INTEGER PRIMARY KEY,
+        shop_id INTEGER NOT NULL,
+        date TEXT NOT NULL,
+        description TEXT,
+        is_closed BOOLEAN DEFAULT 0,
+        open_time TEXT,
+        close_time TEXT,
+        FOREIGN KEY (shop_id) REFERENCES shops (id)
+    )
+    ''')
+    
+    # Add reviews table
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS reviews (
+        id INTEGER PRIMARY KEY,
+        shop_id INTEGER NOT NULL,
+        barber_id INTEGER,
+        customer_id INTEGER NOT NULL,
+        service_id INTEGER,
+        booking_id INTEGER,
+        rating INTEGER NOT NULL,
+        review_text TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        response_text TEXT,
+        response_at TIMESTAMP,
+        FOREIGN KEY (shop_id) REFERENCES shops (id),
+        FOREIGN KEY (barber_id) REFERENCES barbers (id),
+        FOREIGN KEY (customer_id) REFERENCES customers (id),
+        FOREIGN KEY (service_id) REFERENCES services (id),
+        FOREIGN KEY (booking_id) REFERENCES bookings (id)
+    )
+    ''')
+    
+    # Add inventory table
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS inventory (
+        id INTEGER PRIMARY KEY,
+        shop_id INTEGER NOT NULL,
+        item_name TEXT NOT NULL,
+        category TEXT,
+        quantity INTEGER DEFAULT 0,
+        low_stock_threshold INTEGER DEFAULT 5,
+        unit_price REAL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (shop_id) REFERENCES shops (id)
+    )
+    ''')
+    
     # Insert default system settings
     default_settings = [
         ('site_name', 'BookaBarber', 'Website name'),
@@ -192,19 +258,168 @@ def init_db():
 
 class Shop:
     @staticmethod
-    def create(name, address, phone, email, owner_id):
+    def create(name, address, phone=None, email=None, owner_id=None, description=None, logo_path=None, working_days="Monday-Friday", opening_time="10:00", closing_time="18:00"):
+        """Create a new shop with extended information"""
         conn = sqlite3.connect('barbershop.db')
         cursor = conn.cursor()
         
         cursor.execute('''
-            INSERT INTO shops (name, address, phone, email, owner_id)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (name, address, phone, email, owner_id))
+            INSERT INTO shops (
+                name, address, phone, email, owner_id, description, logo_path,
+                working_days, opening_time, closing_time, created_at, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, 'active')
+        ''', (name, address, phone, email, owner_id, description, logo_path, 
+              working_days, opening_time, closing_time))
         
         shop_id = cursor.lastrowid
         conn.commit()
         conn.close()
         return shop_id
+    
+    @staticmethod
+    def update(shop_id, **kwargs):
+        """Update shop information with any provided fields"""
+        if not kwargs:
+            return False
+            
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        
+        # Build the update query dynamically based on provided fields
+        set_clause = ", ".join([f"{key} = ?" for key in kwargs.keys()])
+        query = f"UPDATE shops SET {set_clause} WHERE id = ?"
+        
+        # Extract values and add shop_id as the last parameter
+        values = list(kwargs.values())
+        values.append(shop_id)
+        
+        cursor.execute(query, values)
+        conn.commit()
+        success = cursor.rowcount > 0
+        conn.close()
+        return success
+    
+    @staticmethod
+    def get_working_hours(shop_id):
+        """Get the working hours for a shop"""
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT day, open_time, close_time, is_closed FROM shop_hours 
+            WHERE shop_id = ? ORDER BY day_order
+        ''', (shop_id,))
+        hours = cursor.fetchall()
+        conn.close()
+        return hours
+    
+    @staticmethod
+    def set_working_hours(shop_id, hours_data):
+        """Set working hours for a shop"""
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        
+        # Delete existing hours
+        cursor.execute('DELETE FROM shop_hours WHERE shop_id = ?', (shop_id,))
+        
+        # Insert new hours
+        day_mapping = {
+            'Monday': 0, 'Tuesday': 1, 'Wednesday': 2, 'Thursday': 3,
+            'Friday': 4, 'Saturday': 5, 'Sunday': 6
+        }
+        
+        for hours in hours_data:
+            day = hours.get('day')
+            is_closed = hours.get('closed', False)
+            
+            if day in day_mapping:
+                cursor.execute('''
+                    INSERT INTO shop_hours (shop_id, day, open_time, close_time, is_closed, day_order)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                ''', (
+                    shop_id, 
+                    day, 
+                    hours.get('open_time', '09:00') if not is_closed else None,
+                    hours.get('close_time', '18:00') if not is_closed else None,
+                    is_closed,
+                    day_mapping[day]
+                ))
+        
+        conn.commit()
+        conn.close()
+        return True
+    
+    @staticmethod
+    def get_stats(shop_id):
+        """Get statistics for a shop dashboard"""
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        
+        # Get month revenue
+        first_day_of_month = datetime.datetime.now().replace(day=1).strftime('%Y-%m-%d')
+        cursor.execute('''
+            SELECT COALESCE(SUM(total_price), 0) FROM bookings 
+            WHERE shop_id = ? AND date >= ? AND status != 'cancelled'
+        ''', (shop_id, first_day_of_month))
+        month_revenue = cursor.fetchone()[0] or 0
+        
+        # Get today's bookings count
+        today = datetime.datetime.now().strftime('%Y-%m-%d')
+        cursor.execute('''
+            SELECT COUNT(*) FROM bookings 
+            WHERE shop_id = ? AND date = ?
+        ''', (shop_id, today))
+        today_bookings = cursor.fetchone()[0] or 0
+        
+        # Get total active barbers
+        cursor.execute('''
+            SELECT COUNT(*) FROM barbers 
+            WHERE shop_id = ? AND status = 'active'
+        ''', (shop_id,))
+        total_barbers = cursor.fetchone()[0] or 0
+        
+        # Get average rating
+        cursor.execute('''
+            SELECT COALESCE(AVG(rating), 0) FROM reviews 
+            WHERE shop_id = ?
+        ''', (shop_id,))
+        avg_rating = round(cursor.fetchone()[0] or 0, 1)
+        
+        # Get recent bookings
+        cursor.execute('''
+            SELECT b.*, s.name as service_name, br.name as barber_name, c.name as customer_name
+            FROM bookings b
+            JOIN services s ON b.service_id = s.id
+            JOIN barbers br ON b.barber_id = br.id
+            JOIN customers c ON b.customer_id = c.id
+            WHERE b.shop_id = ?
+            ORDER BY b.date DESC, b.start_time DESC
+            LIMIT 10
+        ''', (shop_id,))
+        recent_bookings = cursor.fetchall()
+        
+        # Get barber performance
+        cursor.execute('''
+            SELECT b.id, b.name, 
+                   (SELECT AVG(r.rating) FROM reviews r WHERE r.barber_id = b.id) as avg_rating,
+                   (SELECT COUNT(*) FROM bookings bk WHERE bk.barber_id = b.id AND bk.date = ?) as today_bookings,
+                   b.specialties,
+                   (SELECT COUNT(*) FROM bookings bk WHERE bk.barber_id = b.id AND bk.date = ? AND bk.start_time > time('now')) as upcoming_today
+            FROM barbers b
+            WHERE b.shop_id = ? AND b.status = 'active'
+            ORDER BY today_bookings DESC
+        ''', (today, today, shop_id))
+        barber_performance = cursor.fetchall()
+        
+        conn.close()
+        
+        return {
+            'month_revenue': round(month_revenue, 2),
+            'today_bookings': today_bookings,
+            'total_barbers': total_barbers,
+            'avg_rating': avg_rating,
+            'recent_bookings': recent_bookings,
+            'barber_performance': barber_performance
+        }
     
     @staticmethod
     def get_all():
@@ -474,3 +689,130 @@ class SystemSettings:
         settings = cursor.fetchall()
         conn.close()
         return settings
+
+class Review:
+    @staticmethod
+    def create(shop_id, customer_id, rating, review_text, barber_id=None, service_id=None, booking_id=None):
+        """Create a new review"""
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            INSERT INTO reviews (shop_id, customer_id, barber_id, service_id, booking_id, 
+                               rating, review_text, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        ''', (shop_id, customer_id, barber_id, service_id, booking_id, rating, review_text))
+        
+        review_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        return review_id
+    
+    @staticmethod
+    def add_response(review_id, response_text):
+        """Add a response to a review"""
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            UPDATE reviews 
+            SET response_text = ?, response_at = CURRENT_TIMESTAMP 
+            WHERE id = ?
+        ''', (response_text, review_id))
+        
+        conn.commit()
+        conn.close()
+        return True
+    
+    @staticmethod
+    def get_by_shop(shop_id, filter_by=None, sort_by=None):
+        """Get reviews for a shop with optional filtering and sorting"""
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        
+        query = '''
+            SELECT r.*, c.name as customer_name, b.name as barber_name,
+                   s.name as service_name, r.created_at as date
+            FROM reviews r
+            JOIN customers c ON r.customer_id = c.id
+            LEFT JOIN barbers b ON r.barber_id = b.id
+            LEFT JOIN services s ON r.service_id = s.id
+            WHERE r.shop_id = ?
+        '''
+        params = [shop_id]
+        
+        # Apply filters
+        if filter_by == 'positive':
+            query += ' AND r.rating >= 4'
+        elif filter_by == 'neutral':
+            query += ' AND r.rating = 3'
+        elif filter_by == 'negative':
+            query += ' AND r.rating <= 2'
+        
+        # Apply sorting
+        if sort_by == 'newest':
+            query += ' ORDER BY r.created_at DESC'
+        elif sort_by == 'oldest':
+            query += ' ORDER BY r.created_at ASC'
+        elif sort_by == 'highest':
+            query += ' ORDER BY r.rating DESC'
+        elif sort_by == 'lowest':
+            query += ' ORDER BY r.rating ASC'
+        else:
+            query += ' ORDER BY r.created_at DESC'
+        
+        cursor.execute(query, params)
+        reviews = cursor.fetchall()
+        
+        conn.close()
+        return reviews
+
+class Inventory:
+    @staticmethod
+    def add_item(shop_id, item_name, category, quantity, low_stock_threshold, unit_price=None):
+        """Add a new inventory item"""
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            INSERT INTO inventory (shop_id, item_name, category, quantity, 
+                                 low_stock_threshold, unit_price)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (shop_id, item_name, category, quantity, low_stock_threshold, unit_price))
+        
+        item_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        return item_id
+    
+    @staticmethod
+    def update_quantity(item_id, quantity_change):
+        """Update inventory quantity"""
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            UPDATE inventory 
+            SET quantity = quantity + ?, updated_at = CURRENT_TIMESTAMP 
+            WHERE id = ?
+        ''', (quantity_change, item_id))
+        
+        conn.commit()
+        conn.close()
+        return True
+    
+    @staticmethod
+    def get_by_shop(shop_id):
+        """Get inventory items for a shop"""
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT * FROM inventory 
+            WHERE shop_id = ? 
+            ORDER BY category, item_name
+        ''', (shop_id,))
+        
+        items = cursor.fetchall()
+        conn.close()
+        return items
