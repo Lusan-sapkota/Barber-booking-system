@@ -75,6 +75,13 @@ body {
   transition: all 0.3s ease;
 }
 
+.card:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  background-color: inherit !important; /* Optional */
+  cursor: default !important;          /* Optional */
+}
+
 .card-header {
   border-bottom: 1px solid var(--card-border);
   background-color: var(--card-bg);
@@ -123,11 +130,12 @@ body {
   right: 0;
   background-color: var(--card-bg);
   min-width: 250px;
-  box-shadow: var(--card-shadow);
-  z-index: 1;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
   border-radius: 10px;
   padding: 1rem;
   border: 1px solid var(--card-border);
+  transition: all 0.3s;
 }
 
 .shop-actions:hover .shop-actions-content {
@@ -560,6 +568,265 @@ body {
 
 .modal-footer {
   border-top-color: var(--modal-border);
+}
+
+/* Toast container and animations */
+.toast-container {
+    z-index: 1050;
+}
+
+.toast {
+    backdrop-filter: blur(10px);
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    min-width: 300px;
+    transition: all 0.3s ease;
+    opacity: 1;
+}
+
+.toast.hide {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.toast-header {
+    background: rgba(255,255,255,0.2);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.notification-success {
+    background-color: rgba(46, 160, 67, 0.15);
+}
+
+.notification-error {
+    background-color: rgba(248, 81, 73, 0.15);
+}
+
+.notification-warning {
+    background-color: rgba(210, 153, 34, 0.15);
+}
+
+.notification-info {
+    background-color: rgba(33, 136, 255, 0.15);
+}
+
+/* Dark Mode Versions */
+[data-theme="dark"] .toast {
+    background-color: rgba(30, 30, 30, 0.95);
+    color: #e0e0e0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+[data-theme="dark"] .toast-header {
+    background-color: rgba(37, 37, 37, 0.8);
+    color: #e0e0e0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+[data-theme="dark"] .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+[data-theme="dark"] .notification-success {
+    background-color: rgba(46, 160, 67, 0.15);
+}
+
+[data-theme="dark"] .notification-error {
+    background-color: rgba(248, 81, 73, 0.15);
+}
+
+[data-theme="dark"] .notification-warning {
+    background-color: rgba(210, 153, 34, 0.15);
+}
+
+[data-theme="dark"] .notification-info {
+    background-color: rgba(33, 136, 255, 0.15);
+}
+
+/* Enhanced Dark Mode Styling Fixes */
+[data-theme="dark"] {
+    color-scheme: dark;
+}
+
+/* Fix card backgrounds and headers */
+[data-theme="dark"] .card,
+[data-theme="dark"] .card-header,
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .list-group-item,
+[data-theme="dark"] .dropdown-menu {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+/* Fix notification center */
+[data-theme="dark"] #notifications-list .list-group-item {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+}
+
+[data-theme="dark"] .list-group-flush .list-group-item {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+}
+
+/* Fix activity log */
+[data-theme="dark"] .table {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Fix modal and review containers */
+[data-theme="dark"] .modal-body {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .review-summary,
+[data-theme="dark"] .bg-light,
+[data-theme="dark"] .review-stats-card.bg-white,
+[data-theme="dark"] .review-card-extended,
+[data-theme="dark"] .review-response {
+    background-color: var(--modal-header) !important;
+    color: var(--text-color);
+}
+
+/* Fix headers with colored backgrounds */
+[data-theme="dark"] .modal-header.bg-primary {
+    background-color: #4e54c8 !important;
+}
+
+[data-theme="dark"] .modal-header.bg-secondary {
+    background-color: #6c757d !important;
+}
+
+[data-theme="dark"] .card-header.bg-primary {
+    background-color: #4e54c8 !important;
+}
+
+/* Fix dropdowns */
+[data-theme="dark"] .dropdown-item {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .dropdown-item:hover, 
+[data-theme="dark"] .dropdown-item:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .dropdown-divider {
+    border-top: 1px solid var(--card-border);
+}
+
+/* Fix tickets list and detail */
+[data-theme="dark"] .tickets-container,
+[data-theme="dark"] .tickets-list,
+[data-theme="dark"] .ticket-detail {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .ticket-item {
+    background-color: var(--card-bg);
+}
+
+[data-theme="dark"] .ticket-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .ticket-item.active {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Override any bootstrap white backgrounds */
+[data-theme="dark"] .bg-white {
+    background-color: var(--card-bg) !important;
+}
+
+/* Fix pagination */
+[data-theme="dark"] .page-item:not(.active) .page-link {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .page-item.disabled .page-link {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    color: var(--text-muted);
+}
+
+/* Reviews container */
+[data-theme="dark"] .reviews-container {
+    background-color: var(--bg-color) !important;
+}
+
+/* Fix border colors */
+[data-theme="dark"] .border,
+[data-theme="dark"] .border-bottom,
+[data-theme="dark"] .border-top,
+[data-theme="dark"] .border-start,
+[data-theme="dark"] .border-end {
+    border-color: var(--card-border) !important;
+}
+
+/* Fix spinner colors */
+[data-theme="dark"] .spinner-border.text-primary {
+    color: var(--primary-color) !important;
+}
+
+/* Fix shop actions dropdown */
+[data-theme="dark"] .shop-actions-content {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+}
+
+/* Stats cards maintain their gradient colors */
+[data-theme="dark"] .stat-card {
+    color: white !important;
+}
+
+/* Fix form inputs inside modals */
+[data-theme="dark"] .modal input,
+[data-theme="dark"] .modal textarea,
+[data-theme="dark"] .modal select {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--text-color);
+}
+
+/* Fix input groups */
+[data-theme="dark"] .input-group-text {
+    background-color: var(--modal-header);
+    border-color: var(--input-border);
+    color: var(--text-color);
+}
+
+/* Fix buttons */
+[data-theme="dark"] .btn-light {
+    background-color: var(--modal-header);
+    border-color: var(--card-border);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .btn-outline-secondary {
+    color: var(--text-color);
+    border-color: var(--secondary-color);
+}
+
+/* Ensure proper dark mode spacing at bottom of page */
+[data-theme="dark"] .container {
+    margin-bottom: 80px;
 }
 </style>
 {% endblock %}
@@ -1143,21 +1410,21 @@ function renderStaffMembers(staffMembers) {
                                 <button class="btn btn-sm btn-outline-primary" onclick="editStaff(${staff.id})">
                                     <i class="fas fa-edit me-1"></i>Edit
                                 </button>
-                                ${staff.status === 'active' ? 
-                                    `<button class="btn btn-sm btn-outline-danger" onclick="deactivateStaff(${staff.id})">
-                                        <i class="fas fa-power-off me-1"></i>Deactivate
-                                    </button>` : 
-                                    `<button class="btn btn-sm btn-outline-success" onclick="updateStaffStatus(${staff.id})">
-                                        <i class="fas fa-power-off me-1"></i>Activate
-                                    </button>`
-                                }
+                                <div>
+                                    ${staff.status === 'active' ? 
+                                        `<button class="btn btn-sm btn-outline-danger" onclick="deactivateStaff(${staff.id})">
+                                        </button>` : 
+                                        `<button class="btn btn-sm btn-outline-success" onclick="updateStaffStatus(${staff.id})">
+                                        </button>`
+                                    }
                             </div>
                         </div>
                     </div>
                 </div>
-            `).join('')}
-        </div>
-    `;
+            </div>
+        `).join('')}
+    </div>
+`;
     
     staffContainer.innerHTML = html;
 }
@@ -1560,6 +1827,11 @@ function initializeRevenueChart() {
 }
 
 function createRevenueChart(context, labels, data) {
+    // Destroy previous chart if it exists
+    if (window.revenueChart) {
+        window.revenueChart.destroy();
+    }
+    
     window.revenueChart = new Chart(context, {
         type: 'bar',
         data: {
@@ -1757,8 +2029,19 @@ function refreshDashboardData() {
 
 // Shop Management Functions
 function editShopProfile() {
-    const modal = new bootstrap.Modal(document.getElementById('shopProfileModal'));
-    modal.show();
+    // Pull shop data
+    const shopName = document.getElementById('shop-name').textContent;
+    const shopDescription = document.getElementById('shop-description').textContent;
+    
+    // Set form values if available
+    if (document.getElementById('shop-name-input')) {
+        document.getElementById('shop-name-input').value = shopName || 'Elite Cuts Barbershop';
+        document.getElementById('shop-description-input').value = shopDescription || 'Premium grooming services since 2018';
+    }
+    
+    // Show modal
+    const shopProfileModal = new bootstrap.Modal(document.getElementById('shopProfileModal'));
+    shopProfileModal.show();
 }
 
 function changeShopLogo() {
@@ -1789,9 +2072,317 @@ function uploadShopLogo(event) {
     }, 1500);
 }
 
-// More utility functions...
+function saveShopProfile() {
+    const shopName = document.getElementById('shop-name-input').value;
+    const shopDescription = document.getElementById('shop-description-input').value;
+    
+    // Update shop info on main page
+    document.getElementById('shop-name').textContent = shopName;
+    document.getElementById('shop-description').textContent = shopDescription;
+    
+    // Show success notification
+    showNotification('Shop Profile', 'Profile updated successfully', 'success');
+    
+    // Close modal
+    bootstrap.Modal.getInstance(document.getElementById('shopProfileModal')).hide();
+}
 
-// Notifications system
+// Shop Action Menu Functionality
+function toggleShopStatus() {
+    const currentStatus = document.querySelector('.shop-actions-item:nth-child(2)').innerText.includes('Online') ? 'Online' : 'Offline';
+    const newStatus = currentStatus === 'Online' ? 'Offline' : 'Online';
+    
+    fetch('/api/shop-owner/toggle-status', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus.toLowerCase() })
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Failed to update status');
+        return response.json();
+    })
+    .then(data => {
+        showNotification('Shop Status', `Shop status changed to ${newStatus}`, 'success');
+        // Update menu text
+        document.querySelector('.shop-actions-item:nth-child(2)').innerHTML = `
+            <i class="fas fa-toggle-${newStatus === 'Online' ? 'on' : 'off'}"></i> Set Shop ${newStatus === 'Online' ? 'Offline' : 'Online'}
+        `;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Shop Status', `Shop status changed to ${newStatus}`, 'success');
+    });
+}
+
+function manageShopHours() {
+    // Create and show modal for shop hours management
+    const modal = `
+    <div class="modal fade" id="shopHoursModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Manage Shop Hours</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-3 mb-2"><strong>Day</strong></div>
+                        <div class="col-md-4 mb-2"><strong>Open</strong></div>
+                        <div class="col-md-4 mb-2"><strong>Close</strong></div>
+                        <div class="col-md-1 mb-2"><strong>Open?</strong></div>
+                    </div>
+                    <div id="hours-rows">
+                        ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, index) => `
+                            <div class="row mb-3 align-items-center">
+                                <div class="col-md-3">
+                                    <label>${day}</label>
+                                </div>
+                                <div class="col-md-4">
+                                    <select class="form-select" id="open-${index}">
+                                        ${generateTimeOptions(9, 12)}
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <select class="form-select" id="close-${index}">
+                                        ${generateTimeOptions(17, 21)}
+                                    </select>
+                                </div>
+                                <div class="col-md-1">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="day-enabled-${index}" ${index < 6 ? 'checked' : ''}>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveShopHours()">
+                        <i class="fas fa-save me-2"></i>Save Hours
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    // Add modal to body if it doesn't exist
+    if (!document.getElementById('shopHoursModal')) {
+        document.body.insertAdjacentHTML('beforeend', modal);
+    }
+    
+    // Show the modal
+    const shopHoursModal = new bootstrap.Modal(document.getElementById('shopHoursModal'));
+    shopHoursModal.show();
+}
+
+function generateTimeOptions(start, end) {
+    let options = '';
+    for (let hour = start; hour <= end; hour++) {
+        const hour12 = hour > 12 ? hour - 12 : hour;
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        
+        options += `<option value="${hour}:00">${hour12}:00 ${ampm}</option>`;
+        options += `<option value="${hour}:30">${hour12}:30 ${ampm}</option>`;
+    }
+    return options;
+}
+
+function saveShopHours() {
+    showNotification('Shop Hours', 'Shop hours updated successfully', 'success');
+    bootstrap.Modal.getInstance(document.getElementById('shopHoursModal')).hide();
+}
+
+function manageShopPolicies() {
+    // Create and show modal for shop policies
+    const modal = `
+    <div class="modal fade" id="shopPoliciesModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Shop Policies</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="cancellation-policy" class="form-label">Cancellation Policy</label>
+                        <select class="form-select" id="cancellation-policy">
+                            <option value="1">1 hour notice</option>
+                            <option value="2" selected>2 hours notice</option>
+                            <option value="4">4 hours notice</option>
+                            <option value="24">24 hours notice</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="late-policy" class="form-label">Late Arrival Policy</label>
+                        <select class="form-select" id="late-policy">
+                            <option value="10">10 minutes grace period</option>
+                            <option value="15" selected>15 minutes grace period</option>
+                            <option value="20">20 minutes grace period</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="payment-policy" class="form-label">Payment Policy</label>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="allow-cash" checked>
+                            <label class="form-check-label" for="allow-cash">Accept Cash</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="allow-credit" checked>
+                            <label class="form-check-label" for="allow-credit">Accept Credit Cards</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="require-deposit">
+                            <label class="form-check-label" for="require-deposit">Require Deposit</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="additional-policies" class="form-label">Additional Policies</label>
+                        <textarea class="form-control" id="additional-policies" rows="4" placeholder="Enter any additional shop policies here..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="savePolicies()">
+                        <i class="fas fa-save me-2"></i>Save Policies
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    // Add modal to body if it doesn't exist
+    if (!document.getElementById('shopPoliciesModal')) {
+        document.body.insertAdjacentHTML('beforeend', modal);
+    }
+    
+    // Show the modal
+    const shopPoliciesModal = new bootstrap.Modal(document.getElementById('shopPoliciesModal'));
+    shopPoliciesModal.show();
+}
+
+function savePolicies() {
+    showNotification('Policies', 'Shop policies updated successfully', 'success');
+    bootstrap.Modal.getInstance(document.getElementById('shopPoliciesModal')).hide();
+}
+
+function viewShopAnalytics() {
+    window.location.href = '/shop-owner-admin/analytics';
+}
+
+// Fix shop actions dropdown for click - this makes the dropdown toggle correctly
+document.addEventListener('DOMContentLoaded', function() {
+    const shopActionsBtn = document.querySelector('.shop-actions button');
+    const shopActionsContent = document.querySelector('.shop-actions-content');
+    
+    if (shopActionsBtn) {
+        shopActionsBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            shopActionsContent.classList.toggle('show');
+        });
+        
+        // Close when clicking elsewhere
+        document.addEventListener('click', function() {
+            shopActionsContent.classList.remove('show');
+        });
+        
+        // Prevent closing when clicking inside dropdown
+        shopActionsContent.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+});
+
+// Additional CSS to fix the shop actions dropdown
+document.addEventListener('DOMContentLoaded', function() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .shop-actions-content.show {
+            display: block !important;
+        }
+        .shop-actions:hover .shop-actions-content {
+            display: none;
+        }
+    `;
+    document.head.appendChild(style);
+});
+
+// Quick Actions Functions
+function manageServices() {
+    // Create and show services modal
+    const modal = `
+    <div class="modal fade" id="servicesModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Manage Services</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <button class="btn btn-primary" id="add-service-btn" onclick="showAddServiceForm()">
+                            <i class="fas fa-plus me-2"></i>Add New Service
+                        </button>
+                    </div>
+                    
+                    <div id="add-service-form" style="display: none;" class="card mb-3 p-3 border">
+                        <h6 class="mb-3">Add New Service</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Service Name</label>
+                                <input type="text" class="form-control" id="new-service-name">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Duration (mins)</label>
+                                <input type="number" class="form-control" id="new-service-duration" min="15" step="15" value="30">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Price ($)</label>
+                                <input type="number" class="form-control" id="new-service-price" min="1" step="0.01" value="25.00">
+                            </div>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-end">
+                            <button class="btn btn-success me-2" onclick="addService()">Add Service</button>
+                            <button class="btn btn-secondary" onclick="hideAddServiceForm()">Cancel</button>
+                        </div>
+                    </div>
+                    <table class="table table-hover" id="services-table">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Duration</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Services will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    // In a real app, you would submit to API
+    showNotification('Promotion', 'New promotion created successfully!', 'success');
+    
+    // Close modal
+    bootstrap.Modal.getInstance(document.getElementById('promotionModal')).hide();
+}
+
+// Fix for quick actions not working and notifications disappearing too quickly
+
+// 1. First let's fix the notification duration to make them stay longer
 function showNotification(title, message, type = 'info') {
     // Create notification element
     const notification = document.createElement('div');
@@ -1799,9 +2390,16 @@ function showNotification(title, message, type = 'info') {
     notification.setAttribute('role', 'alert');
     notification.setAttribute('aria-live', 'assertive');
     notification.setAttribute('aria-atomic', 'true');
+    
+    // Get appropriate icon based on type
+    let iconClass = 'fa-info-circle text-info';
+    if (type === 'success') iconClass = 'fa-check-circle text-success';
+    if (type === 'warning') iconClass = 'fa-exclamation-triangle text-warning';
+    if (type === 'error') iconClass = 'fa-exclamation-circle text-danger';
+    
     notification.innerHTML = `
         <div class="toast-header">
-            <i class="fas ${getIconForNotificationType(type)} me-2"></i>
+            <i class="fas ${iconClass} me-2"></i>
             <strong class="me-auto">${title}</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
@@ -1810,7 +2408,2335 @@ function showNotification(title, message, type = 'info') {
         </div>
     `;
     
-    // Add to container
+    // Add to container (create if it doesn't exist)
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+        document.body.appendChild(container);
+    }
+    
+    container.appendChild(notification);
+    
+    // Auto-hide after 5 seconds - INCREASED from default
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            notification.remove();
+        }, 500);
+    }, 8000); // Changed from 5000 to 8000 ms (8 seconds)
+}
+
+// 2. Fix Manage Services function
+function manageServices() {
+    // First check if modal already exists
+    let servicesModal = document.getElementById('servicesModal');
+    
+    if (!servicesModal) {
+        // Create modal content
+        const modalHTML = `
+        <div class="modal fade" id="servicesModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Manage Services</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <button class="btn btn-primary" id="add-service-btn" onclick="showAddServiceForm()">
+                                <i class="fas fa-plus me-2"></i>Add New Service
+                            </button>
+                        </div>
+                        
+                        <div id="add-service-form" style="display: none;" class="card mb-3 p-3 border">
+                            <h6 class="mb-3">Add New Service</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Service Name</label>
+                                    <input type="text" class="form-control" id="new-service-name">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Duration (mins)</label>
+                                    <input type="number" class="form-control" id="new-service-duration" min="15" step="15" value="30">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Price ($)</label>
+                                    <input type="number" class="form-control" id="new-service-price" min="0" step="0.01" value="25.00">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-control" id="new-service-description" rows="2"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <button type="button" class="btn btn-primary" onclick="addNewService()">Save Service</button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="hideAddServiceForm()">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="services-table">
+                                <thead>
+                                    <tr>
+                                        <th>Service</th>
+                                        <th>Duration</th>
+                                        <th>Price</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Classic Haircut</td>
+                                        <td>30 min</td>
+                                        <td>$25.00</td>
+                                        <td><span class="badge bg-success">Active</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-1" onclick="editService(1)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="toggleServiceStatus(1, 'active')">
+                                                <i class="fas fa-toggle-on"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Premium Haircut</td>
+                                        <td>45 min</td>
+                                        <td>$35.00</td>
+                                        <td><span class="badge bg-success">Active</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-1" onclick="editService(2)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="toggleServiceStatus(2, 'active')">
+                                                <i class="fas fa-toggle-on"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Beard Trim</td>
+                                        <td>15 min</td>
+                                        <td>$15.00</td>
+                                        <td><span class="badge bg-success">Active</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-1" onclick="editService(3)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="toggleServiceStatus(3, 'active')">
+                                                <i class="fas fa-toggle-on"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="save-services-btn">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+        
+        // Add the modal to the document
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+    
+    // Show the modal
+    const modal = new bootstrap.Modal(document.getElementById('servicesModal'));
+    modal.show();
+}
+
+// Support functions for service management
+function showAddServiceForm() {
+    document.getElementById('add-service-form').style.display = 'block';
+}
+
+function hideAddServiceForm() {
+    document.getElementById('add-service-form').style.display = 'none';
+}
+
+function addNewService() {
+    const name = document.getElementById('new-service-name').value;
+    const duration = document.getElementById('new-service-duration').value;
+    const price = document.getElementById('new-service-price').value;
+    const description = document.getElementById('new-service-description').value;
+    
+    if (!name || !duration || !price) {
+        showNotification('Validation Error', 'Please fill in all required fields', 'error');
+        return;
+    }
+    
+    // Add service to table (in a real app, you would send this to the server)
+    const servicesTable = document.getElementById('services-table').querySelector('tbody');
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `
+        <td>${name}</td>
+        <td>${duration} min</td>
+        <td>$${parseFloat(price).toFixed(2)}</td>
+        <td><span class="badge bg-success">Active</span></td>
+        <td>
+            <button class="btn btn-sm btn-outline-primary me-1" onclick="editService(4)">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="toggleServiceStatus(4, 'active')">
+                <i class="fas fa-toggle-on"></i>
+            </button>
+        </td>
+    `;
+    servicesTable.appendChild(newRow);
+    
+    // Show success message
+    showNotification('Service Added', 'New service added successfully', 'success');
+    
+    // Hide form and reset values
+    hideAddServiceForm();
+    document.getElementById('new-service-name').value = '';
+    document.getElementById('new-service-duration').value = '30';
+    document.getElementById('new-service-price').value = '25.00';
+    document.getElementById('new-service-description').value = '';
+}
+
+function editService(serviceId) {
+    showNotification('Service Management', `Editing service ID: ${serviceId}`, 'info');
+}
+
+function toggleServiceStatus(serviceId, currentStatus) {
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    showNotification('Service Status', `Service ${serviceId} is now ${newStatus}`, 'success');
+    
+    // In a real app, you would update the database and then update the UI
+    const statusElement = event.target.closest('tr').querySelector('.badge');
+    if (newStatus === 'active') {
+        statusElement.className = 'badge bg-success';
+        statusElement.textContent = 'Active';
+        event.target.innerHTML = '<i class="fas fa-toggle-on"></i>';
+    } else {
+        statusElement.className = 'badge bg-secondary';
+        statusElement.textContent = 'Inactive';
+        event.target.innerHTML = '<i class="fas fa-toggle-off"></i>';
+    }
+}
+
+// 3. Fix Add Promotion function
+function addPromotion() {
+    // Make sure promotionModal is properly defined and shown
+    const promotionModal = document.getElementById('promotionModal');
+    if (promotionModal) {
+        // Fill in any missing inputs to make sure the modal works properly
+        const promoStartInput = promotionModal.querySelector('#promo-start');
+        if (promoStartInput && !promoStartInput.value) {
+            const today = new Date();
+            promoStartInput.value = today.toISOString().split('T')[0];
+        }
+        
+        const promoEndInput = promotionModal.querySelector('#promo-end');
+        if (promoEndInput && !promoEndInput.value) {
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            promoEndInput.value = nextMonth.toISOString().split('T')[0];
+        }
+        
+        new bootstrap.Modal(promotionModal).show();
+    }
+}
+
+function savePromotion() {
+    const promoData = {
+        name: document.getElementById('promo-name').value,
+        start_date: document.getElementById('promo-start').value,
+        end_date: document.getElementById('promo-end').value,
+        type: document.getElementById('promo-type').value,
+        discount_value: document.getElementById('discount-value').value,
+        services: Array.from(document.getElementById('applicable-services').selectedOptions).map(opt => opt.value),
+        description: document.getElementById('promo-description').value,
+        active: document.getElementById('promo-active').checked
+    };
+    
+    // Validation
+    if (!promoData.name || !promoData.start_date || !promoData.end_date) {
+        showNotification('Validation Error', 'Please fill in all required fields', 'error');
+        return;
+    }
+    
+    // In a real app, you would submit to API
+    showNotification('Promotion', 'New promotion created successfully!', 'success');
+    
+    // Close modal
+    bootstrap.Modal.getInstance(document.getElementById('promotionModal')).hide();
+}
+
+function inventoryAlert() {
+    // Create and show inventory modal
+    const modal = `
+    <div class="modal fade" id="inventoryModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Inventory Management</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <button class="btn btn-primary" onclick="addInventoryItem()">
+                            <i class="fas fa-plus me-2"></i>Add New Item
+                        </button>
+                        <div class="input-group" style="width: 250px;">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" placeholder="Search items..." id="inventory-search">
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Category</th>
+                                    <th>Current Stock</th>
+                                    <th>Low Stock Alert</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Premium Hair Spray</td>
+                                    <td>Hair Products</td>
+                                    <td><span class="text-danger">2</span></td>
+                                    <td>5</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary me-1" onclick="updateInventory(1)">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-success" onclick="reorderInventory(1)">
+                                            <i class="fas fa-shopping-cart"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Styling Gel</td>
+                                    <td>Hair Products</td>
+                                    <td>8</td>
+                                    <td>5</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary me-1" onclick="updateInventory(2)">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-success" onclick="reorderInventory(2)">
+                                            <i class="fas fa-shopping-cart"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Aftershave Lotion</td>
+                                    <td>Shaving Products</td>
+                                    <td><span class="text-danger">3</span></td>
+                                    <td>5</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary me-1" onclick="updateInventory(3)">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-success" onclick="reorderInventory(3)">
+                                            <i class="fas fa-shopping-cart"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="exportInventory()">
+                        <i class="fas fa-file-export me-2"></i>Export Inventory
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    // Add modal to body if it doesn't exist
+    if (!document.getElementById('inventoryModal')) {
+        document.body.insertAdjacentHTML('beforeend', modal);
+    }
+    
+    // Show the modal
+    const inventoryModal = new bootstrap.Modal(document.getElementById('inventoryModal'));
+    inventoryModal.show();
+}
+
+function addInventoryItem() {
+    showNotification('Inventory', 'Add inventory item form opened', 'info');
+}
+
+function updateInventory(itemId) {
+    showNotification('Inventory', `Updating inventory item ${itemId}`, 'info');
+}
+
+function reorderInventory(itemId) {
+    showNotification('Inventory', `Reorder placed for item ${itemId}`, 'success');
+}
+
+function exportInventory() {
+    showNotification('Inventory', 'Inventory export started', 'info');
+    
+    // Simulate download after delay
+    setTimeout(() => {
+        showNotification('Inventory', 'Inventory exported successfully', 'success');
+    }, 1500);
+}
+
+function sendNotification() {
+    // Create and show notification modal
+    const modal = `
+    <div class="modal fade" id="sendNotificationModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Send Notification</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="notification-type" class="form-label">Notification Type</label>
+                        <select class="form-select" id="notification-type">
+                            <option value="all_customers">All Customers</option>
+                            <option value="specific_customer">Specific Customer</option>
+                            <option value="upcoming_appointments">Customers with Upcoming Appointments</option>
+                            <option value="staff">Staff Members</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="specific-customer-container" style="display: none;">
+                        <label for="customer-select" class="form-label">Select Customer</label>
+                        <select class="form-select" id="customer-select">
+                            <option value="">Select a customer...</option>
+                            <option value="1">John Smith</option>
+                            <option value="2">Sarah Johnson</option>
+                            <option value="3">Michael Williams</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notification-title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="notification-title" placeholder="Enter notification title">
+                    </div>
+                    <div class="mb-3">
+                        <label for="notification-message" class="form-label">Message</label>
+                        <textarea class="form-control" id="notification-message" rows="4" placeholder="Enter your message..."></textarea>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="send-email-copy">
+                        <label class="form-check-label" for="send-email-copy">
+                            Also send as email
+                        </label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="send-sms-copy">
+                        <label class="form-check-label" for="send-sms-copy">
+                            Also send as SMS
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="sendCustomerNotification()">
+                        <i class="fas fa-paper-plane me-2"></i>Send Notification
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    // Add modal to body if it doesn't exist
+    if (!document.getElementById('sendNotificationModal')) {
+        document.body.insertAdjacentHTML('beforeend', modal);
+        
+        // Add event listener for notification type change
+        setTimeout(() => {
+            document.getElementById('notification-type').addEventListener('change', function() {
+                const specificCustomerContainer = document.getElementById('specific-customer-container');
+                specificCustomerContainer.style.display = this.value === 'specific_customer' ? 'block' : 'none';
+            });
+        }, 100);
+    }
+    
+    // Show the modal
+    const sendNotificationModal = new bootstrap.Modal(document.getElementById('sendNotificationModal'));
+    sendNotificationModal.show();
+}
+
+function sendCustomerNotification() {
+    const title = document.getElementById('notification-title').value.trim();
+    const message = document.getElementById('notification-message').value.trim();
+    
+    if (!title || !message) {
+        showNotification('Validation Error', 'Please fill in both title and message', 'error');
+        return;
+    }
+    
+    showNotification('Notification Sent', 'Your notification has been sent successfully', 'success');
+    bootstrap.Modal.getInstance(document.getElementById('sendNotificationModal')).hide();
+}
+
+function exportStaff() {
+    showNotification('Staff Export', 'Preparing staff data for export...', 'info');
+    
+    // Simulate download preparation
+    setTimeout(() => {
+        // Create a CSV content
+        const csvContent = "data:text/csv;charset=utf-8," + 
+            "ID,First Name,Last Name,Role,Status,Bookings,Rating,Revenue\n" +
+            "1,Michael,Johnson,Senior Barber,active,42,4.9,1250\n" +
+            "2,James,Wilson,Master Barber,active,38,4.7,1120\n" +
+            "3,Chris,Adams,Barber,leave,0,4.8,0\n" +
+            "4,Lisa,Rodriguez,Stylist,active,32,4.9,980";
+        
+        // Create download link
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "staff_data.csv");
+        document.body.appendChild(link);
+        
+        // Trigger download
+        link.click();
+        
+        // Remove link element
+        document.body.removeChild(link);
+        
+        showNotification('Staff Export', 'Staff data exported successfully', 'success');
+    }, 1500);
+}
+
+// Add the staff export button to the DOM when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const staffHeader = document.querySelector('.card-header h5:contains("Staff Management")');
+    if (staffHeader) {
+        const staffCardHeader = staffHeader.closest('.card-header');
+        const exportButton = document.createElement('button');
+        exportButton.className = 'btn btn-sm btn-outline-primary ms-2';
+        exportButton.innerHTML = '<i class="fas fa-download me-1"></i>Export Staff';
+        exportButton.onclick = exportStaff;
+        
+        // Add to the header next to the Add Staff button
+        const addStaffButton = staffCardHeader.querySelector('button');
+        if (addStaffButton) {
+            addStaffButton.parentNode.insertBefore(exportButton, addStaffButton.nextSibling);
+        } else {
+            staffCardHeader.appendChild(exportButton);
+        }
+    }
+});
+
+function viewShopAnalytics() {
+    // Instead of redirecting, show an advanced analytics modal
+    const analyticsModalHtml = `
+    <div class="modal fade" id="advancedAnalyticsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-fullscreen-lg-down">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="fas fa-chart-line me-2"></i>Advanced Analytics</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" id="analyticsTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="revenue-tab" data-bs-toggle="tab" 
+                                data-bs-target="#revenue" type="button" role="tab" aria-selected="true">
+                                Revenue Analysis
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="services-tab" data-bs-toggle="tab" 
+                                data-bs-target="#services" type="button" role="tab" aria-selected="false">
+                                Services Analysis
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="staff-tab" data-bs-toggle="tab" 
+                                data-bs-target="#staff" type="button" role="tab" aria-selected="false">
+                                Staff Performance
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="customers-tab" data-bs-toggle="tab" 
+                                data-bs-target="#customers" type="button" role="tab" aria-selected="false">
+                                Customer Insights
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content mt-4" id="analyticsTabContent">
+                        <!-- Revenue Analysis Tab -->
+                        <div class="tab-pane fade show active" id="revenue" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="card mb-4">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0">Revenue Trends</h6>
+                                            <select class="form-select form-select-sm" style="width: auto;">
+                                                <option value="year">Year</option>
+                                                <option value="quarter">Quarter</option>
+                                                <option value="month" selected>Month</option>
+                                                <option value="week">Week</option>
+                                            </select>
+                                        </div>
+                                        <div class="card-body">
+                                            <canvas id="advancedRevenueChart" height="300"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card mb-4">
+                                        <div class="card-header">
+                                            <h6 class="mb-0">Revenue Breakdown</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <canvas id="revenuePieChart" height="250"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h6 class="mb-0">Detailed Revenue Report</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Date</th>
+                                                            <th>Service Revenue</th>
+                                                            <th>Product Revenue</th>
+                                                            <th>Total Revenue</th>
+                                                            <th>Appointments</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>June 1, 2023</td>
+                                                            <td>$450.00</td>
+                                                            <td>$120.00</td>
+                                                            <td>$570.00</td>
+                                                            <td>15</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>June 2, 2023</td>
+                                                            <td>$380.00</td>
+                                                            <td>$95.00</td>
+                                                            <td>$475.00</td>
+                                                            <td>12</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>June 3, 2023</td>
+                                                            <td>$520.00</td>
+                                                            <td>$150.00</td>
+                                                            <td>$670.00</td>
+                                                            <td>18</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Other tabs would go here -->
+                        <div class="tab-pane fade" id="services" role="tabpanel">
+                            <div class="text-center py-5">
+                                <h5>Services Analysis</h5>
+                                <p class="text-muted">Detailed service analytics will appear here.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="staff" role="tabpanel">
+                            <div class="text-center py-5">
+                                <h5>Staff Performance</h5>
+                                <p class="text-muted">Staff performance metrics will appear here.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="customers" role="tabpanel">
+                            <div class="text-center py-5">
+                                <h5>Customer Insights</h5>
+                                <p class="text-muted">Customer analytics will appear here.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" onclick="exportAnalyticsReport()">
+                        <i class="fas fa-download me-2"></i>Export Report
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    // Add modal to body if it doesn't exist
+    if (!document.getElementById('advancedAnalyticsModal')) {
+        document.body.insertAdjacentHTML('beforeend', analyticsModalHtml);
+        
+        // Initialize charts after modal is shown
+        const modal = document.getElementById('advancedAnalyticsModal');
+        modal.addEventListener('shown.bs.modal', function() {
+            // Revenue chart
+            const revenueCtx = document.getElementById('advancedRevenueChart').getContext('2d');
+            new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Service Revenue',
+                        data: [1200, 1380, 950, 1520],
+                        borderColor: 'rgba(78, 84, 200, 1)',
+                        backgroundColor: 'rgba(78, 84, 200, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3
+                    }, {
+                        label: 'Product Revenue',
+                        data: [350, 420, 280, 390],
+                        borderColor: 'rgba(40, 167, 69, 1)',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Revenue pie chart
+            const pieCtx = document.getElementById('revenuePieChart').getContext('2d');
+            new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Haircuts', 'Beard Trims', 'Styling', 'Products'],
+                    datasets: [{
+                        data: [45, 20, 15, 20],
+                        backgroundColor: [
+                            'rgba(78, 84, 200, 0.8)',
+                            'rgba(40, 167, 69, 0.8)',
+                            'rgba(255, 193, 7, 0.8)',
+                            'rgba(23, 162, 184, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(78, 84, 200, 1)',
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(255, 193, 7, 1)',
+                            'rgba(23, 162, 184, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    }
+    
+    // Show the modal
+    const analyticsModalInstance = new bootstrap.Modal(document.getElementById('advancedAnalyticsModal'));
+    analyticsModalInstance.show();
+}
+
+function exportAnalyticsReport() {
+    showNotification('Analytics Export', 'Preparing analytics report for export...', 'info');
+    
+    setTimeout(() => {
+        showNotification('Analytics Export', 'Analytics report downloaded successfully', 'success');
+    }, 1500);
+}
+
+function manageReviews() {
+    // Create a modal that will transition to the full page
+    const reviewsModal = `
+    <div class="modal fade" id="reviewsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-fullscreen-lg-down">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="fas fa-star me-2"></i>Reviews Management</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="reviews-container bg-light p-3">
+                        <div class="row mb-4">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                        <input type="text" class="form-control" placeholder="Search reviews..." id="review-search">
+                                        <button class="btn btn-primary" id="search-reviews-btn">Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-flex justify-content-end">
+                                    <div class="btn-group">
+                                        <button class="btn btn-outline-primary active" data-filter="all">
+                                            All
+                                        </button>
+                                        <button class="btn btn-outline-primary" data-filter="replied">
+                                            Replied
+                                        </button>
+                                        <button class="btn btn-outline-primary" data-filter="unreplied">
+                                            Unreplied
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="review-stats-card bg-white p-3 rounded shadow-sm">
+                                    <h6 class="mb-2">Overall Rating</h6>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <h2 class="me-2 mb-0">4.8</h2>
+                                        <div>
+                                            <div class="text-warning mb-1">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star-half-alt"></i>
+                                            </div>
+                                            <small class="text-muted">142 reviews</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="review-stats-card bg-white p-3 rounded shadow-sm">
+                                    <h6 class="mb-2">Rating Breakdown</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <div class="rating-label me-2">
+                                                    <small>5 stars</small>
+                                                </div>
+                                                <div class="progress flex-grow-1" style="height: 8px;">
+                                                    <div class="progress-bar bg-success" style="width: 75%"></div>
+                                                </div>
+                                                <div class="rating-count ms-2">
+                                                    <small>102</small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <div class="rating-label me-2">
+                                                    <small>4 stars</small>
+                                                </div>
+                                                <div class="progress flex-grow-1" style="height: 8px;">
+                                                    <div class="progress-bar bg-success" style="width: 18%"></div>
+                                                </div>
+                                                <div class="rating-count ms-2">
+                                                    <small>25</small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <div class="rating-label me-2">
+                                                    <small>3 stars</small>
+                                                </div>
+                                                <div class="progress flex-grow-1" style="height: 8px;">
+                                                    <div class="progress-bar bg-warning" style="width: 7%"></div>
+                                                </div>
+                                                <div class="rating-count ms-2">
+                                                    <small>10</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <div class="rating-label me-2">
+                                                    <small>2 stars</small>
+                                                </div>
+                                                <div class="progress flex-grow-1" style="height: 8px;">
+                                                    <div class="progress-bar bg-danger" style="width: 2%"></div>
+                                                </div>
+                                                <div class="rating-count ms-2">
+                                                    <small>3</small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <div class="rating-label me-2">
+                                                    <small>1 stars</small>
+                                                </div>
+                                                <div class="progress flex-grow-1" style="height: 8px;">
+                                                    <div class="progress-bar bg-danger" style="width: 1%"></div>
+                                                </div>
+                                                <div class="rating-count ms-2">
+                                                    <small>2</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="reviews-list" class="reviews-list">
+                            <!-- Content loaded dynamically -->
+                            <div class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-3 text-muted">Loading reviews...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-center mt-4">
+                            <nav aria-label="Reviews pagination">
+                                <ul class="pagination">
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" tabindex="-1">Previous</a>
+                                    </li>
+                                    <li class="page-item active">
+                                        <a class="page-link" href="#">1</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#">2</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#">3</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" onclick="downloadReviewsReport()">
+                        <i class="fas fa-download me-2"></i>Download Report
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    if (!document.getElementById('reviewsModal')) {
+        document.body.insertAdjacentHTML('beforeend', reviewsModal);
+    }
+    
+    // Show modal and load reviews
+    const modal = new bootstrap.Modal(document.getElementById('reviewsModal'));
+    modal.show();
+    
+    // Load reviews into the modal
+    loadAllReviews();
+}
+
+function loadAllReviews() {
+    const reviewsList = document.getElementById('reviews-list');
+    
+    fetch('/api/shop-owner/reviews?limit=10')
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            if (data.success && data.reviews.length > 0) {
+                reviewsList.innerHTML = renderAllReviews(data.reviews);
+            } else {
+                reviewsList.innerHTML = '<div class="text-center p-5"><p class="text-muted">No reviews found</p></div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading reviews:', error);
+            
+            // Use mock data
+            const mockReviews = [
+                {
+                    id: 1,
+                    customer: { name: 'Mark Williams', avatar: 'https://ui-avatars.com/api/?name=Mark+Williams&background=random' },
+                    rating: 5,
+                    text: 'Michael did an amazing job with my haircut. The attention to detail was impressive and the shop atmosphere is fantastic. Will definitely be coming back!',
+                    date: '2 days ago',
+                    barber: 'Michael Johnson',
+                    response: null
+                },
+                {
+                    id: 2,
+                    customer: { name: 'Sarah Johnson', avatar: 'https://ui-avatars.com/api/?name=Sarah+Johnson&background=random' },
+                    rating: 4,
+                    text: 'Great service but had to wait about 15 minutes past my appointment time. The haircut was excellent though and James was very professional.',
+                    date: '4 days ago',
+                    barber: 'James Wilson',
+                    response: 'Thank you for your feedback, Sarah! We apologize for the wait time and are working on improving our scheduling. We\'re glad you enjoyed your haircut and look forward to serving you better next time!'
+                },
+                {
+                    id: 3,
+                    customer: { name: 'David Brown', avatar: 'https://ui-avatars.com/api/?name=David+Brown&background=random' },
+                    rating: 5,
+                    text: 'Best barbershop in town! Chris gave me exactly the style I was looking for. The hot towel treatment was amazing too.',
+                    date: '1 week ago',
+                    barber: 'Chris Adams',
+                    response: null
+                },
+                {
+                    id: 4,
+                    customer: { name: 'Jennifer Lopez', avatar: 'https://ui-avatars.com/api/?name=Jennifer+Lopez&background=random' },
+                    rating: 5,
+                    text: 'Amazing experience! Lisa was fantastic and gave me exactly what I wanted.',
+                    date: '1 week ago',
+                    barber: 'Lisa Rodriguez',
+                    response: null
+                },
+                {
+                    id: 5,
+                    customer: { name: 'Robert Smith', avatar: 'https://ui-avatars.com/api/?name=Robert+Smith&background=random' },
+                    rating: 3,
+                    text: 'The haircut was good, but the wait time was too long. Waited almost 30 minutes past my appointment time.',
+                    date: '2 weeks ago',
+                    barber: 'Michael Johnson',
+                    response: "Thank you for your feedback, Robert. We apologize for the long wait time. We're addressing our scheduling system to ensure timely service in the future. We hope to serve you better next time!"
+                },
+                {
+                    id: 6,
+                    customer: { name: 'Thomas Anderson', avatar: 'https://ui-avatars.com/api/?name=Thomas+Anderson&background=random' },
+                    rating: 2,
+                    text: 'Not what I expected. The barber didn\'t listen to my requests and I ended up with a style I didn\'t want.',
+                    date: '3 weeks ago',
+                    barber: 'Chris Adams',
+                    response: "Hi Thomas, we're very sorry about your experience. Please contact us directly and we would like to offer you a complimentary haircut to make things right."
+                }
+            ];
+            
+            reviewsList.innerHTML = renderAllReviews(mockReviews);
+        });
+}
+
+function renderAllReviews(reviews) {
+    return reviews.map(review => `
+        <div class="review-card-extended ${review.response ? 'has-response' : ''} mb-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="d-flex">
+                    <img src="${review.customer.avatar}" alt="${review.customer.name}" class="avatar me-3" width="50" height="50">
+                    <div>
+                        <h6 class="mb-1">${review.customer.name}</h6>
+                        <div class="text-muted small mb-2">
+                            Reviewed ${review.barber} · ${review.date}
+                        </div>
+                        <div class="review-rating mb-2">
+                            ${renderStars(review.rating)}
+                        </div>
+                    </div>
+                </div>
+                <div class="review-actions">
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" onclick="featureReview(${review.id})">
+                                <i class="fas fa-thumbtack me-2"></i>Feature Review
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="hideReview(${review.id})">
+                                <i class="fas fa-eye-slash me-2"></i>Hide Review
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="reportReview(${review.id})">
+                                <i class="fas fa-flag me-2"></i>Report Review
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="review-text my-3">
+                ${review.text}
+            </div>
+            
+            ${review.response ? `
+                <div class="review-response mt-3 p-3 bg-light rounded">
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="https://ui-avatars.com/api/?name=Shop+Owner&background=4e54c8" 
+                            class="avatar me-2" width="30" height="30" alt="Shop Response">
+                        <strong>Shop Response</strong>
+                    </div>
+                    ${review.response}
+                </div>
+            ` : `
+                <div class="mt-3 text-end">
+                    <button class="btn btn-primary btn-sm" onclick="replyToReviewDetailed(${review.id})">
+                        <i class="fas fa-reply me-1"></i>Reply
+                    </button>
+                </div>
+            `}
+        </div>
+    `).join('');
+}
+
+function replyToReviewDetailed(reviewId) {
+    // This uses the existing replyToReview function but can be enhanced
+    replyToReview(reviewId);
+}
+
+function downloadReviewsReport() {
+    showNotification('Reports', 'Preparing reviews report for download...', 'info');
+    
+    setTimeout(() => {
+        showNotification('Reports', 'Reviews report downloaded successfully', 'success');
+    }, 1500);
+}
+
+function featureReview(reviewId) {
+    showNotification('Reviews', `Review ${reviewId} has been featured`, 'success');
+}
+
+function hideReview(reviewId) {
+    showNotification('Reviews', `Review ${reviewId} has been hidden`, 'success');
+}
+
+function reportReview(reviewId) {
+    showNotification('Reviews', `Review ${reviewId} has been reported`, 'info');
+}
+
+function viewSupportTickets() {
+    // Create a modal that will display the support ticket management interface
+    const ticketsModal = `
+    <div class="modal fade" id="supportTicketsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-fullscreen-lg-down">
+            <div class="modal-content">
+                <div class="modal-header bg-secondary text-white">
+                    <h5 class="modal-title"><i class="fas fa-ticket-alt me-2"></i>Support Tickets</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="tickets-container bg-light">
+                        <div class="p-3 border-bottom">
+                            <div class="row align-items-center">
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                        <input type="text" class="form-control" placeholder="Search tickets...">
+                                        <button class="btn btn-secondary" type="button">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 d-flex justify-content-md-end">
+                                    <div class="btn-group me-3">
+                                        <button class="btn btn-outline-secondary active" data-filter="all">All</button>
+                                        <button class="btn btn-outline-secondary" data-filter="open">Open</button>
+                                        <button class="btn btn-outline-secondary" data-filter="in-progress">In Progress</button>
+                                        <button class="btn btn-outline-secondary" data-filter="resolved">Resolved</button>
+                                    </div>
+                                    <button class="btn btn-secondary" onclick="createNewTicket()">
+                                        <i class="fas fa-plus me-1"></i>New Ticket
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-0">
+                            <div class="col-md-4 border-end">
+                                <div class="tickets-list p-0 h-100 overflow-auto" style="max-height: 600px;">
+                                    <div class="list-group list-group-flush" id="tickets-list">
+                                        <!-- Tickets loaded dynamically -->
+                                        <div class="text-center py-5">
+                                            <div class="spinner-border text-secondary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <p class="mt-3 text-muted">Loading tickets...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="ticket-detail p-4" id="ticket-detail">
+                                    <div class="text-center py-5">
+                                        <i class="fas fa-ticket-alt fa-3x text-muted mb-3"></i>
+                                        <h5 class="text-muted">Select a ticket to view details</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" onclick="exportTickets()">
+                        <i class="fas fa-download me-2"></i>Export Tickets
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    if (!document.getElementById('supportTicketsModal')) {
+        document.body.insertAdjacentHTML('beforeend', ticketsModal);
+    }
+    
+    // Show modal and load tickets
+    const modal = new bootstrap.Modal(document.getElementById('supportTicketsModal'));
+    modal.show();
+    
+    // Load tickets
+    loadSupportTickets();
+}
+
+function loadSupportTickets() {
+    const ticketsList = document.getElementById('tickets-list');
+    
+    fetch('/api/shop-owner/support-tickets')
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            if (data && data.tickets && data.tickets.length > 0) {
+                ticketsList.innerHTML = renderSupportTickets(data.tickets);
+            } else {
+                ticketsList.innerHTML = '<div class="text-center p-5"><p class="text-muted">No tickets found</p></div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading support tickets:', error);
+            
+            // Use mock data
+            const mockTickets = [
+                {
+                    id: 1,
+                    customer: { name: 'John Smith', avatar: 'https://ui-avatars.com/api/?name=John+Smith&background=random' },
+                    subject: 'Booking Cancellation Issue',
+                    message: 'I tried to cancel my booking through the app but it still shows as active. Please help.',
+                    status: 'open',
+                    priority: 'high',
+                    created: '2023-06-01T14:30:00',
+                    updated: '2023-06-01T14:30:00'
+                },
+                {
+                    id: 2,
+                    customer: { name: 'Mary Johnson', avatar: 'https://ui-avatars.com/api/?name=Mary+Johnson&background=random' },
+                    subject: 'Payment Not Processed',
+                    message: 'I made a payment for my appointment yesterday but it\'s still showing as unpaid in the system.',
+                    status: 'in-progress',
+                    priority: 'medium',
+                    created: '2023-05-30T10:15:00',
+                    updated: '2023-05-30T15:45:00'
+                },
+                {
+                    id: 3,
+                    customer: { name: 'Robert Davis', avatar: 'https://ui-avatars.com/api/?name=Robert+Davis&background=random' },
+                    subject: 'Complaint About Service',
+                    message: 'I had a haircut on May 29th and I\'m not satisfied with the results. The barber didn\'t follow my instructions.',
+                    status: 'open',
+                    priority: 'high',
+                    created: '2023-05-29T16:20:00',
+                    updated: '2023-05-29T16:20:00'
+                },
+                {
+                    id: 4,
+                    customer: { name: 'Lisa Wilson', avatar: 'https://ui-avatars.com/api/?name=Lisa+Wilson&background=random' },
+                    subject: 'Gift Card Question',
+                    message: 'Can I use a gift card for booking online or do I need to present it in person?',
+                    status: 'resolved',
+                    priority: 'low',
+                    created: '2023-05-28T09:45:00',
+                    updated: '2023-05-28T11:30:00'
+                },
+                {
+                    id: 5,
+                    customer: { name: 'David Miller', avatar: 'https://ui-avatars.com/api/?name=David+Miller&background=random' },
+                    subject: 'Account Login Issues',
+                    message: 'I can\'t log into my account. I\'ve tried resetting my password but I\'m not receiving any reset email.',
+                    status: 'in-progress',
+                    priority: 'medium',
+                    created: '2023-05-27T11:10:00',
+                    updated: '2023-05-27T14:25:00'
+                }
+            ];
+            
+            ticketsList.innerHTML = renderSupportTickets(mockTickets);
+            
+            // Set up click handlers
+            setTimeout(() => {
+                document.querySelectorAll('.ticket-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const ticketId = item.dataset.ticketId;
+                        displayTicketDetail(mockTickets.find(ticket => ticket.id == ticketId));
+                        
+                        // Mark as active
+                        document.querySelectorAll('.ticket-item').forEach(t => t.classList.remove('active'));
+                        item.classList.add('active');
+                    });
+                });
+            }, 100);
+        });
+}
+
+function renderSupportTickets(tickets) {
+    return tickets.map(ticket => {
+        // Format status badge
+        let statusBadge = '';
+        switch(ticket.status) {
+            case 'open':
+                statusBadge = '<span class="badge bg-danger">Open</span>';
+                break;
+            case 'in-progress':
+                statusBadge = '<span class="badge bg-warning text-dark">In Progress</span>';
+                break;
+            case 'resolved':
+                statusBadge = '<span class="badge bg-success">Resolved</span>';
+                break;
+            default:
+                statusBadge = '<span class="badge bg-secondary">Unknown</span>';
+        }
+        
+        // Format date
+        const ticketDate = new Date(ticket.created);
+        const formattedDate = ticketDate.toLocaleDateString() + ' ' + 
+                              ticketDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        return `
+            <div class="list-group-item list-group-item-action ticket-item d-flex align-items-center px-3 py-3"
+                 data-ticket-id="${ticket.id}">
+                <div class="me-3">
+                    <img src="${ticket.customer.avatar}" alt="Customer" class="avatar" width="40" height="40">
+                </div>
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-1 text-truncate" style="max-width: 150px;">${ticket.subject}</h6>
+                        ${statusBadge}
+                    </div>
+                    <div class="small text-muted d-flex justify-content-between">
+                        <span>${ticket.customer.name}</span>
+                        <span>${formattedDate}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function displayTicketDetail(ticket) {
+    const ticketDetail = document.getElementById('ticket-detail');
+    
+    // Format dates
+    const createdDate = new Date(ticket.created);
+    const formattedCreatedDate = createdDate.toLocaleDateString() + ' ' + 
+                                createdDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    
+    const updatedDate = new Date(ticket.updated);
+    const formattedUpdatedDate = updatedDate.toLocaleDateString() + ' ' + 
+                                updatedDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    
+    // Priority badge
+    let priorityBadge = '';
+    switch(ticket.priority) {
+        case 'high':
+            priorityBadge = '<span class="badge bg-danger">High Priority</span>';
+            break;
+        case 'medium':
+            priorityBadge = '<span class="badge bg-warning text-dark">Medium Priority</span>';
+            break;
+        case 'low':
+            priorityBadge = '<span class="badge bg-info">Low Priority</span>';
+            break;
+        default:
+            priorityBadge = '';
+    }
+    
+    // Status badge
+    let statusBadge = '';
+    switch(ticket.status) {
+        case 'open':
+            statusBadge = '<span class="badge bg-danger">Open</span>';
+            break;
+        case 'in-progress':
+            statusBadge = '<span class="badge bg-warning text-dark">In Progress</span>';
+            break;
+        case 'resolved':
+            statusBadge = '<span class="badge bg-success">Resolved</span>';
+            break;
+        default:
+            statusBadge = '<span class="badge bg-secondary">Unknown</span>';
+    }
+    
+    ticketDetail.innerHTML = `
+        <div class="ticket-header mb-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h5 class="mb-2">${ticket.subject}</h5>
+                    <div class="d-flex align-items-center">
+                        <img src="${ticket.customer.avatar}" class="avatar me-2" width="30" height="30" alt="${ticket.customer.name}">
+                        <span class="text-muted">${ticket.customer.name}</span>
+                        ${priorityBadge ? `<span class="ms-2">${priorityBadge}</span>` : ''}
+                    </div>
+                </div>
+                <div class="ticket-actions">
+                    <div class="d-flex">
+                        <div class="me-2">
+                            ${statusBadge}
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                Actions
+                            </button>
+                            <ul class="dropdown-menu">
+                                ${ticket.status !== 'in-progress' ? `
+                                    <li><a class="dropdown-item" href="#" onclick="updateTicketStatus(${ticket.id}, 'in-progress')">
+                                        <i class="fas fa-spinner me-2"></i>Mark In Progress
+                                    </a></li>
+                                ` : ''}
+                                ${ticket.status !== 'resolved' ? `
+                                    <li><a class="dropdown-item" href="#" onclick="updateTicketStatus(${ticket.id}, 'resolved')">
+                                        <i class="fas fa-check me-2"></i>Mark Resolved
+                                    </a></li>
+                                ` : ''}
+                                ${ticket.status !== 'open' ? `
+                                    <li><a class="dropdown-item" href="#" onclick="updateTicketStatus(${ticket.id}, 'open')">
+                                        <i class="fas fa-exclamation-circle me-2"></i>Reopen Ticket
+                                    </a></li>
+                                ` : ''}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" onclick="assignTicket(${ticket.id})">
+                                    <i class="fas fa-user-plus me-2"></i>Assign to Staff
+                                </a></li>
+                                <li><a class="dropdown-item text-danger" href="#" onclick="deleteTicket(${ticket.id})">
+                                    <i class="fas fa-trash me-2"></i>Delete Ticket
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ticket-info mt-3">
+                <div class="row">
+                    <div class="col-md-6">
+                        <small class="text-muted">Created: ${formattedCreatedDate}</small>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <small class="text-muted">Last Updated: ${formattedUpdatedDate}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="ticket-body mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <p>${ticket.message}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="ticket-reply">
+            <h6 class="mb-3">Reply to Customer</h6>
+            <div class="mb-3">
+                <textarea class="form-control" rows="4" placeholder="Type your response here..."></textarea>
+            </div>
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="resolve-checkbox">
+                        <label class="form-check-label" for="resolve-checkbox">
+                            Mark as resolved after sending
+                        </label>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="sendTicketReply(${ticket.id})">
+                    <i class="fas fa-paper-plane me-2"></i>Send Reply
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function updateTicketStatus(ticketId, status) {
+    showNotification('Support Ticket', `Ticket #${ticketId} marked as ${status}`, 'success');
+    
+    // In a real app, you would update the UI to reflect the new status
+    const ticketItem = document.querySelector(`.ticket-item[data-ticket-id="${ticketId}"]`);
+    if (ticketItem) {
+        const statusBadge = ticketItem.querySelector('.badge');
+        if (statusBadge) {
+            statusBadge.className = 'badge';
+            switch(status) {
+                case 'open':
+                    statusBadge.classList.add('bg-danger');
+                    statusBadge.textContent = 'Open';
+                    break;
+                case 'in-progress':
+                    statusBadge.classList.add('bg-warning', 'text-dark');
+                    statusBadge.textContent = 'In Progress';
+                    break;
+                case 'resolved':
+                    statusBadge.classList.add('bg-success');
+                    statusBadge.textContent = 'Resolved';
+                    break;
+            }
+        }
+    }
+}
+
+function assignTicket(ticketId) {
+    // Create and show staff assignment modal
+    const modal = `
+    <div class="modal fade" id="assignTicketModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Assign Ticket #${ticketId}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="staff-assign" class="form-label">Assign to Staff Member</label>
+                        <select class="form-select" id="staff-assign">
+                            <option value="">Select staff member...</option>
+                            <option value="1">Michael Johnson</option>
+                            <option value="2">James Wilson</option>
+                            <option value="3">Chris Adams</option>
+                            <option value="4">Lisa Rodriguez</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="assign-note" class="form-label">Note (Optional)</label>
+                        <textarea class="form-control" id="assign-note" rows="3" placeholder="Add a note for the staff member..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmAssignTicket(${ticketId})">
+                        <i class="fas fa-user-check me-1"></i>Assign Ticket
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    // Add modal to body if it doesn't exist
+    if (!document.getElementById('assignTicketModal')) {
+        document.body.insertAdjacentHTML('beforeend', modal);
+    } else {
+        // Update modal title if it already exists
+        document.querySelector('#assignTicketModal .modal-title').textContent = `Assign Ticket #${ticketId}`;
+    }
+    
+    // Show the modal
+    const assignModal = new bootstrap.Modal(document.getElementById('assignTicketModal'));
+    assignModal.show();
+}
+
+function confirmAssignTicket(ticketId) {
+    const staffSelect = document.getElementById('staff-assign');
+    const staffName = staffSelect.options[staffSelect.selectedIndex].text;
+    
+    showNotification('Ticket Assigned', `Ticket #${ticketId} assigned to ${staffName}`, 'success');
+    bootstrap.Modal.getInstance(document.getElementById('assignTicketModal')).hide();
+}
+
+function deleteTicket(ticketId) {
+    if (confirm(`Are you sure you want to delete ticket #${ticketId}? This action cannot be undone.`)) {
+        showNotification('Ticket Deleted', `Ticket #${ticketId} has been deleted`, 'success');
+        
+        // In a real app, you would remove the ticket from the UI
+        const ticketItem = document.querySelector(`.ticket-item[data-ticket-id="${ticketId}"]`);
+        if (ticketItem) {
+            ticketItem.remove();
+        }
+        
+        // Reset the detail view
+        document.getElementById('ticket-detail').innerHTML = `
+            <div class="text-center py-5">
+                <i class="fas fa-ticket-alt fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Select a ticket to view details</h5>
+            </div>
+        `;
+    }
+}
+
+function sendTicketReply(ticketId) {
+    const replyText = document.querySelector('.ticket-reply textarea').value.trim();
+    const markResolved = document.getElementById('resolve-checkbox').checked;
+    
+    if (!replyText) {
+        showNotification('Validation Error', 'Please enter a reply message', 'error');
+        return;
+    }
+    
+    showNotification('Reply Sent', `Your reply to ticket #${ticketId} has been sent`, 'success');
+    
+    if (markResolved) {
+        updateTicketStatus(ticketId, 'resolved');
+    }
+}
+
+function createNewTicket() {
+    // Create and show new ticket modal
+    const modal = `
+    <div class="modal fade" id="newTicketModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Support Ticket</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="customer-search" class="form-label">Customer</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="customer-search" placeholder="Search customer...">
+                            <button class="btn btn-outline-secondary" type="button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ticket-subject" class="form-label">Subject</label>
+                        <input type="text" class="form-control" id="ticket-subject">
+                    </div>
+                    <div class="mb-3">
+                        <label for="ticket-message" class="form-label">Message</label>
+                        <textarea class="form-control" id="ticket-message" rows="5"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ticket-priority" class="form-label">Priority</label>
+                        <select class="form-select" id="ticket-priority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitNewTicket()">
+                        <i class="fas fa-plus me-1"></i>Create Ticket
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    // Add modal to body if it doesn't exist
+    if (!document.getElementById('newTicketModal')) {
+        document.body.insertAdjacentHTML('beforeend', modal);
+    }
+    
+    // Show the modal
+    const newTicketModal = new bootstrap.Modal(document.getElementById('newTicketModal'));
+    newTicketModal.show();
+}
+
+function submitNewTicket() {
+    const subject = document.getElementById('ticket-subject').value.trim();
+    const message = document.getElementById('ticket-message').value.trim();
+    
+    if (!subject || !message) {
+        showNotification('Validation Error', 'Please fill in all required fields', 'error');
+        return;
+    }
+    
+    showNotification('Ticket Created', 'New support ticket created successfully', 'success');
+    bootstrap.Modal.getInstance(document.getElementById('newTicketModal')).hide();
+    
+    // In a real app, you would reload the tickets list
+    setTimeout(() => {
+        loadSupportTickets();
+    }, 500);
+}
+
+function exportTickets() {
+    showNotification('Export', 'Preparing tickets for export...', 'info');
+    
+    setTimeout(() => {
+        showNotification('Export', 'Tickets exported successfully', 'success');
+    }, 1500);
+}
+</script>
+
+<!-- Fix for Shop Owner Admin Dashboard -->
+<script>
+// 1. Fix for Chart.js error (destroy previous chart before creating a new one)
+function createRevenueChart(context, labels, data) {
+    // Destroy previous chart if it exists
+    if (window.revenueChart) {
+        window.revenueChart.destroy();
+    }
+    
+    window.revenueChart = new Chart(context, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Revenue ($)',
+                data: data,
+                backgroundColor: 'rgba(78, 84, 200, 0.7)',
+                borderColor: 'rgba(78, 84, 200, 1)',
+                borderWidth: 1,
+                borderRadius: 5,
+                barThickness: 25
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 2. Add missing Edit Shop Profile modal
+document.addEventListener('DOMContentLoaded', function() {
+    // Add Shop Profile Modal
+    const shopProfileModal = `
+    <div class="modal fade" id="shopProfileModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Shop Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="shop-profile-form">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="shop-name-input" class="form-label">Shop Name</label>
+                                <input type="text" class="form-control" id="shop-name-input" value="Elite Cuts Barbershop">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="shop-phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="shop-phone" value="(555) 123-4567">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="shop-address" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="shop-address" value="123 Main Street, Suite 101">
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="shop-city" class="form-label">City</label>
+                                <input type="text" class="form-control" id="shop-city" value="New York">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="shop-state" class="form-label">State</label>
+                                <input type="text" class="form-control" id="shop-state" value="NY">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="shop-zip" class="form-label">ZIP Code</label>
+                                <input type="text" class="form-control" id="shop-zip" value="10001">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="shop-description-input" class="form-label">Description</label>
+                            <textarea class="form-control" id="shop-description-input" rows="3">Premium grooming services since 2018</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="shop-website" class="form-label">Website</label>
+                            <input type="url" class="form-control" id="shop-website" value="https://elitecuts.com">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="shop-email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="shop-email" value="info@elitecuts.com">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Social Media</label>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text"><i class="fab fa-facebook"></i></span>
+                                <input type="text" class="form-control" placeholder="Facebook URL" value="https://facebook.com/elitecuts">
+                            </div>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text"><i class="fab fa-instagram"></i></span>
+                                <input type="text" class="form-control" placeholder="Instagram URL" value="https://instagram.com/elitecuts">
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fab fa-twitter"></i></span>
+                                <input type="text" class="form-control" placeholder="Twitter URL" value="https://twitter.com/elitecuts">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveShopProfile()">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    // Add Inventory Modal content
+    const inventoryModalContent = `
+        <div class="modal-header">
+            <h5 class="modal-title">Inventory Management</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            <div class="d-flex justify-content-between mb-3">
+                <button class="btn btn-primary" onclick="addInventoryItem()">
+                    <i class="fas fa-plus me-2"></i>Add New Item
+                </button>
+                <div class="input-group" style="width: 250px;">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Search items..." id="inventory-search">
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Category</th>
+                            <th>Current Stock</th>
+                            <th>Low Stock Alert</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Premium Hair Spray</td>
+                            <td>Hair Products</td>
+                            <td><span class="text-danger">2</span></td>
+                            <td>5</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary me-1" onclick="updateInventory(1)">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-success" onclick="reorderInventory(1)">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Styling Gel</td>
+                            <td>Hair Products</td>
+                            <td>8</td>
+                            <td>5</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary me-1" onclick="updateInventory(2)">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-success" onclick="reorderInventory(2)">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Aftershave Lotion</td>
+                            <td>Shaving Products</td>
+                            <td><span class="text-danger">3</span></td>
+                            <td>5</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary me-1" onclick="updateInventory(3)">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-success" onclick="reorderInventory(3)">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">
+                <i class="fas fa-file-export me-2"></i>Export Inventory
+            </button>
+        </div>
+    `;
+    
+    // Add Notification Modal content
+    const notificationModalContent = `
+        <div class="modal-header">
+            <h5 class="modal-title">Send Notification</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            <div class="mb-3">
+                <label for="notification-type" class="form-label">Notification Type</label>
+                <select class="form-select" id="notification-type">
+                    <option value="all_customers">All Customers</option>
+                    <option value="specific_customer">Specific Customer</option>
+                    <option value="upcoming_appointments">Customers with Upcoming Appointments</option>
+                    <option value="staff">Staff Members</option>
+                </select>
+            </div>
+            <div class="mb-3" id="specific-customer-container" style="display: none;">
+                <label for="customer-select" class="form-label">Select Customer</label>
+                <select class="form-select" id="customer-select">
+                    <option value="">Select a customer...</option>
+                    <option value="1">John Smith</option>
+                    <option value="2">Sarah Johnson</option>
+                    <option value="3">Michael Williams</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="notification-title" class="form-label">Title</label>
+                <input type="text" class="form-control" id="notification-title" placeholder="Enter notification title">
+            </div>
+            <div class="mb-3">
+                <label for="notification-message" class="form-label">Message</label>
+                <textarea class="form-control" id="notification-message" rows="4" placeholder="Enter your message..."></textarea>
+            </div>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="send-email-copy">
+                <label class="form-check-label" for="send-email-copy">
+                    Also send as email
+                </label>
+            </div>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="send-sms-copy">
+                <label class="form-check-label" for="send-sms-copy">
+                    Also send as SMS
+                </label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="sendCustomerNotification()">
+                <i class="fas fa-paper-plane me-2"></i>Send Notification
+            </button>
+        </div>
+    `;
+    
+    // Add Review Reply Modal content
+    const reviewReplyModalContent = `
+        <div class="review-summary mb-3 p-3 bg-light rounded">
+            <div class="d-flex align-items-center mb-2">
+                <img src="https://ui-avatars.com/api/?name=Shop+Owner&background=4e54c8" 
+                    class="avatar me-2" width="30" height="30" alt="Shop Response">
+                <strong>Shop Response</strong>
+            </div>
+            <div class="review-rating mb-2">
+                <i class="fas fa-star text-warning"></i>
+                <i class="fas fa-star text-warning"></i>
+                <i class="fas fa-star text-warning"></i>
+                <i class="fas fa-star text-warning"></i>
+                <i class="fas fa-star-half-alt text-warning"></i>
+            </div>
+            <div class="text-muted small mb-2">
+                Reviewed by Customer Name · 2 days ago
+            </div>
+            <div class="review-text">
+                Great service and amazing attention to detail.
+            </div>
+        </div>
+        <div class="form-floating">
+            <textarea class="form-control" id="review-reply-text" style="height: 120px" placeholder="Enter your response..."></textarea>
+            <label for="review-reply-text">Your Response</label>
+        </div>
+        <div class="form-text">
+            Your reply will be publicly visible to all customers.
+        </div>
+    `;
+    
+    // Add Services Table content
+    const servicesTableContent = `
+        <thead>
+            <tr>
+                <th>Service</th>
+                <th>Duration</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Classic Haircut</td>
+                <td>30 min</td>
+                <td>$25.00</td>
+                <td><span class="badge bg-success">Active</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editService(1)">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="toggleServiceStatus(1, 'active')">
+                        <i class="fas fa-toggle-on"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>Premium Haircut</td>
+                <td>45 min</td>
+                <td>$35.00</td>
+                <td><span class="badge bg-success">Active</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editService(2)">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="toggleServiceStatus(2, 'active')">
+                        <i class="fas fa-toggle-on"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>Beard Trim</td>
+                <td>15 min</td>
+                <td>$15.00</td>
+                <td><span class="badge bg-success">Active</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editService(3)">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="toggleServiceStatus(3, 'active')">
+                        <i class="fas fa-toggle-on"></i>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    `;
+    
+    // Add the modals to the document
+    if (!document.getElementById('shopProfileModal')) {
+        document.body.insertAdjacentHTML('beforeend', shopProfileModal);
+    }
+    
+    // Complete the empty modals
+    setTimeout(() => {
+        // Fix inventory modal
+        const inventoryModal = document.getElementById('inventoryModal');
+        if (inventoryModal && !inventoryModal.querySelector('.modal-title')) {
+            const modalContent = inventoryModal.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.innerHTML = inventoryModalContent;
+            }
+        }
+        
+        // Fix notification modal
+        const notificationModal = document.getElementById('sendNotificationModal');
+        if (notificationModal) {
+            const modalContent = notificationModal.querySelector('.modal-content');
+            if (modalContent && !modalContent.querySelector('.modal-title')) {
+                modalContent.innerHTML = notificationModalContent;
+                
+                // Add notification type change handler
+                setTimeout(() => {
+                    const notificationType = document.getElementById('notification-type');
+                    if (notificationType) {
+                        notificationType.addEventListener('change', function() {
+                            const specificCustomerContainer = document.getElementById('specific-customer-container');
+                            if (specificCustomerContainer) {
+                                specificCustomerContainer.style.display = this.value === 'specific_customer' ? 'block' : 'none';
+                            }
+                        });
+                    }
+                }, 100);
+            }
+        }
+        
+        // Fix review reply modal
+        const reviewModal = document.getElementById('reviewReplyModal');
+        if (reviewModal) {
+            const modalBody = reviewModal.querySelector('.modal-body');
+            if (modalBody && !modalBody.querySelector('.review-summary')) {
+                modalBody.innerHTML = reviewReplyModalContent;
+            }
+            
+            const primaryBtn = reviewModal.querySelector('.btn-primary');
+            if (primaryBtn && !primaryBtn.innerHTML) {
+                primaryBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Submit Reply';
+            }
+        }
+        
+        // Fix services table
+        const servicesTable = document.getElementById('services-table');
+        if (servicesTable) {
+            const thead = servicesTable.querySelector('thead tr');
+            if (thead && !thead.innerHTML.trim()) {
+                servicesTable.innerHTML = servicesTableContent;
+            }
+        }
+    }, 500);
+
+    // 3. Improved styling for dark mode and fix revenue chart layout
+    const enhancedStyle = document.createElement('style');
+    enhancedStyle.textContent = `
+        /* Improved dark mode support */
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --text-muted: #adb5bd;
+            --card-bg: #1e1e1e;
+            --card-border: #333333;
+            --card-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            --header-bg: linear-gradient(135deg, #2f3241 0%, #121212 100%);
+            --header-text: #ffffff;
+            --primary-color: #5a60d6;
+            --primary-hover: #4c51b9;
+            --success-color: #2ea043;
+            --danger-color: #f85149;
+            --warning-color: #d29922;
+            --info-color: #2188ff;
+            --table-border: #333333;
+            --table-stripe: #252525;
+            --modal-bg: #1e1e1e;
+            --modal-header: #252525;
+            --modal-border: #333333;
+            --input-bg: #2a2a2a;
+            --input-border: #444444;
+        }
+        
+        /* Fix revenue chart layout */
+        .card-body {
+            padding: 1rem;
+            position: relative;
+        }
+        
+        .card-body canvas {
+            min-height: 250px;
+            width: 100% !important;
+            max-height: 300px;
+        }
+        
+        #top-services-container {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: rgba(0,0,0,0.02);
+        }
+        
+        [data-theme="dark"] #top-services-container {
+            background-color: rgba(255,255,255,0.05);
+        }
+        
+        .progress {
+            height: 8px;
+            margin-top: 5px;
+            background-color: rgba(0,0,0,0.1);
+        }
+        
+        [data-theme="dark"] .progress {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        /* Fix shop actions dropdown */
+        .shop-actions {
+            position: relative;
+            z-index: 1000;
+        }
+        
+        .shop-actions-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: var(--card-bg);
+            min-width: 250px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            border-radius: 10px;
+            padding: 1rem;
+            border: 1px solid var(--card-border);
+            transition: all 0.3s;
+        }
+        
+        .shop-actions-content.show {
+            display: block;
+        }
+        
+        /* Enhanced notification styling */
+        .unread-notification {
+            border-left: 4px solid var(--primary-color);
+            background-color: rgba(78, 84, 200, 0.05);
+        }
+        
+        [data-theme="dark"] .unread-notification {
+            background-color: rgba(78, 84, 200, 0.1);
+        }
+        
+        /* Improved modal styling */
+        .modal-content {
+            border: none;
+        }
+        
+        [data-theme="dark"] .modal-content {
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+        }
+        
+        [data-theme="dark"] .modal-header {
+            border-bottom: 1px solid #333;
+            background-color: #252525;
+        }
+        
+        [data-theme="dark"] .modal-footer {
+            border-top: 1px solid #333;
+        }
+        
+        [data-theme="dark"] .form-control,
+        [data-theme="dark"] .form-select {
+            background-color: #2a2a2a;
+            border-color: #444;
+            color: #e0e0e0;
+        }
+        
+        [data-theme="dark"] .bg-light {
+            background-color: #252525 !important;
+        }
+        
+        [data-theme="dark"] .text-muted {
+            color: #adb5bd !important;
+        }
+        
+        /* Fix badge colors in dark mode */
+        [data-theme="dark"] .badge.bg-success {
+            background-color: #2ea043 !important;
+        }
+        
+        [data-theme="dark"] .badge.bg-warning {
+            background-color: #d29922 !important;
+        }
+        
+        [data-theme="dark"] .badge.bg-danger {
+            background-color: #f85149 !important;
+        }
+        
+        [data-theme="dark"] .badge.bg-info {
+            background-color: #2188ff !important;
+        }
+        
+        /* Make sure the page has a set height */
+        html, body {
+            min-height: 100vh;
+        }
+        
+        .container {
+            margin-bottom: 50px;
+        }
+    `;
+    
+    document.head.appendChild(enhancedStyle);
+});
+
+// 4. Shop Action functions
+function editShopProfile() {
+    // Pull shop data
+    const shopName = document.getElementById('shop-name').textContent;
+    const shopDescription = document.getElementById('shop-description').textContent;
+    
+    // Set form values if available
+    if (document.getElementById('shop-name-input')) {
+        document.getElementById('shop-name-input').value = shopName || 'Elite Cuts Barbershop';
+        document.getElementById('shop-description-input').value = shopDescription || 'Premium grooming services since 2018';
+    }
+    
+    // Show modal
+    const shopProfileModal = new bootstrap.Modal(document.getElementById('shopProfileModal'));
+    shopProfileModal.show();
+}
+
+function saveShopProfile() {
+    const shopName = document.getElementById('shop-name-input').value;
+    const shopDescription = document.getElementById('shop-description-input').value;
+    
+    // Update shop info on main page
+    document.getElementById('shop-name').textContent = shopName;
+    document.getElementById('shop-description').textContent = shopDescription;
+    
+    // Show success notification
+    showNotification('Shop Profile', 'Profile updated successfully', 'success');
+    
+    // Close modal
+    bootstrap.Modal.getInstance(document.getElementById('shopProfileModal')).hide();
+}
+
+function viewShopAnalytics() {
+    showNotification('Analytics', 'Advanced analytics feature coming soon', 'info');
+}
+
+// 5. Add custom notification system
+function showNotification(title, message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `toast show notification-${type}`;
+    notification.setAttribute('role', 'alert');
+    notification.setAttribute('aria-live', 'assertive');
+    notification.setAttribute('aria-atomic', 'true');
+    
+    // Get appropriate icon based on type
+    let iconClass = 'fa-info-circle text-info';
+    if (type === 'success') iconClass = 'fa-check-circle text-success';
+    if (type === 'warning') iconClass = 'fa-exclamation-triangle text-warning';
+    if (type === 'error') iconClass = 'fa-exclamation-circle text-danger';
+    
+    notification.innerHTML = `
+        <div class="toast-header">
+            <i class="fas ${iconClass} me-2"></i>
+            <strong class="me-auto">${title}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            ${message}
+        </div>
+    `;
+    
+    // Add to container (create if it doesn't exist)
     let container = document.querySelector('.toast-container');
     if (!container) {
         container = document.createElement('div');
@@ -1828,18 +4754,6 @@ function showNotification(title, message, type = 'info') {
         }, 500);
     }, 5000);
 }
-
-function getIconForNotificationType(type) {
-    switch(type) {
-        case 'success': return 'fa-check-circle text-success';
-        case 'error': return 'fa-exclamation-circle text-danger';
-        case 'warning': return 'fa-exclamation-triangle text-warning';
-        case 'info':
-        default: return 'fa-info-circle text-info';
-    }
-}
-
-// Include the remaining function implementations that were in your original code...
 </script>
 {% endblock %}
 
