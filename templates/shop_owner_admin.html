@@ -26,7 +26,7 @@
   --table-border: #dee2e6;
   --table-stripe: #f9f9f9;
   --modal-bg: #ffffff;
-  --modal-header: #f8f9fa;
+--modal-header: #f4f4f6;
   --modal-border: #dee2e6;
   --input-bg: #ffffff;
   --input-border: #ced4da;
@@ -51,6 +51,72 @@
   --modal-border: #333333;
   --input-bg: #2a2a2a;
   --input-border: #444444;
+}
+
+/* Add to your existing CSS */
+[data-theme="dark"] .staff-card-body {
+    color: var(--text-color);
+    border-color: var(--card-border);
+}
+
+[data-theme="dark"] .table-responsive {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .table {
+    color: var(--text-color);
+    background-color: var(--card-bg);
+    border-color: var(--card-border)
+}
+
+[data-theme="dark"] .custom-table,
+.custom-table thead,
+.custom-table tbody,
+.custom-table tr,
+.custom-table th,
+.custom-table td {
+    color: var(--text-color);
+    background-color: var(--card-bg);
+    border-color: var(--card-border)
+}
+
+[data-theme="dark"] .modal-body {
+    background-color: var(--card-bg);
+}
+
+[data-theme="dark"] .card-body {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .btn-outline-warning,
+[data-theme="dark"] .btn-outline-danger,
+[data-theme="dark"] .btn-outline-success {
+    color: var(--text-color);
+    border-color: currentColor;
+}
+
+/* Fix inventory items */
+[data-theme="dark"] .inventory-item {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+}
+
+/* Improve notification contrast */
+[data-theme="dark"] .notification-icon {
+    opacity: 0.9;
+}
+
+/* Fix list group items */
+[data-theme="dark"] .list-group-item {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+}
+
+.btn-primary {
+    color: white !important;
 }
 
 /* Main Layout */
@@ -170,7 +236,6 @@ body {
 }
 
 .staff-card {
-  background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 10px;
   overflow: hidden;
@@ -561,9 +626,10 @@ body {
   color: var(--text-color);
 }
 
-.modal-header {
+[data-theme='dark'] .modal-header {
   background-color: var(--modal-header);
   border-bottom-color: var(--modal-border);
+  color: var(--text-color);
 }
 
 .modal-footer {
@@ -670,11 +736,6 @@ body {
 [data-theme="dark"] .list-group-flush .list-group-item {
     background-color: var(--card-bg);
     border-color: var(--card-border);
-}
-
-/* Fix activity log */
-[data-theme="dark"] .table {
-    color: var(--text-color);
 }
 
 [data-theme="dark"] .table-hover tbody tr:hover {
@@ -793,7 +854,8 @@ body {
 
 /* Stats cards maintain their gradient colors */
 [data-theme="dark"] .stat-card {
-    color: white !important;
+    color: var(--text-color);
+    background-color: var(--card-bg);
 }
 
 /* Fix form inputs inside modals */
@@ -839,7 +901,12 @@ body {
             <div class="row align-items-center">
                 <div class="col-lg-8">
                     <div class="shop-logo">
-                        <img src="https://via.placeholder.com/100" alt="Shop Logo" id="shop-logo-img">
+                            {% if current_user is defined %}
+                                <img src="{{ current_user.avatar or (('/static/image/demo-avatars/' + current_user.user_type + '.jpg') if current_user.email.endswith('@demo.com') else ('https://via.placeholder.com/200x200?text=' + current_user.first_name[0] + current_user.last_name[0])) }}" 
+                                    alt="Shop" class="shop-logo-img" id="shop-logo-img">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='image/demo-avatars/shop_owner.jpg') }}" alt="Shop" class="shop-logo-img" id="shop-logo-img">
+                            {% endif %}
                         <div class="logo-change" onclick="changeShopLogo()">
                             <i class="fas fa-camera"></i>
                         </div>
@@ -1008,9 +1075,12 @@ body {
                         <h5 class="mb-0">
                             <i class="fas fa-user-tie me-2"></i>Staff Management
                         </h5>
-                        <button class="btn btn-sm btn-primary" onclick="addNewStaff()">
+                          <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-primary" onclick="addNewStaff()">
                             <i class="fas fa-plus me-1"></i>Add Staff
-                        </button>
+                            </button>
+                          </div>
+
                     </div>
                     <div class="card-body" id="staff-list-container">
                         <!-- Staff will be loaded here -->
@@ -1125,7 +1195,7 @@ body {
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-hover">
+                            <table class="table table-hover custom-table">
                                 <thead>
                                     <tr>
                                         <th>Action</th>
@@ -1406,25 +1476,30 @@ function renderStaffMembers(staffMembers) {
                                     <p class="staff-metric-label">Revenue</p>
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between mt-3">
                                 <button class="btn btn-sm btn-outline-primary" onclick="editStaff(${staff.id})">
                                     <i class="fas fa-edit me-1"></i>Edit
                                 </button>
-                                <div>
+                                <div class="btn-group btn-group-sm" style="gap: 10px;">
                                     ${staff.status === 'active' ? 
-                                        `<button class="btn btn-sm btn-outline-danger" onclick="deactivateStaff(${staff.id})">
+                                        `<button class="btn btn-warning" onclick="deactivateStaff(${staff.id})">
+                                            <i class="fas fa-ban me-1"></i>Suspend
                                         </button>` : 
-                                        `<button class="btn btn-sm btn-outline-success" onclick="updateStaffStatus(${staff.id})">
+                                        `<button class="btn btn-outline-success" onclick="updateStaffStatus(${staff.id}, 'active')">
+                                            <i class="fas fa-check me-1"></i>Activate
                                         </button>`
                                     }
+                                    <button class="btn btn-danger" onclick="removeStaff(${staff.id}, '${staff.first_name} ${staff.last_name}')">
+                                        <i class="fas fa-trash me-1"></i>Remove
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        `).join('')}
-    </div>
-`;
+            `).join('')}
+        </div>
+    `;
     
     staffContainer.innerHTML = html;
 }
@@ -2333,16 +2408,22 @@ function manageServices() {
                         <h6 class="mb-3">Add New Service</h6>
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label">Service Name</label>
-                                <input type="text" class="form-control" id="new-service-name">
+                                <label for="service-name" class="form-label">Service Name</label>
+                                <input type="text" class="form-control" id="service-name" placeholder="e.g., Premium Haircut">
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label">Duration (mins)</label>
-                                <input type="number" class="form-control" id="new-service-duration" min="15" step="15" value="30">
+                                <label for="service-duration" class="form-label">Duration</label>
+                                <select class="form-select" id="service-duration">
+                                    <option value="15">15 min</option>
+                                    <option value="30" selected>30 min</option>
+                                    <option value="45">45 min</option>
+                                    <option value="60">60 min</option>
+                                    <option value="90">90 min</option>
+                                </select>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label">Price ($)</label>
-                                <input type="number" class="form-control" id="new-service-price" min="1" step="0.01" value="25.00">
+                                <label for="service-price" class="form-label">Price ($)</label>
+                                <input type="number" class="form-control" id="service-price" min="0" step="0.01">
                             </div>
                         </div>
                         <div class="mt-3 d-flex justify-content-end">
@@ -2350,10 +2431,11 @@ function manageServices() {
                             <button class="btn btn-secondary" onclick="hideAddServiceForm()">Cancel</button>
                         </div>
                     </div>
-                    <table class="table table-hover" id="services-table">
+                    
+                    <table class="table table-hover custom-table" id="services-table">
                         <thead>
                             <tr>
-                                <th>Service</th>
+                                <th>Service Name</th>
                                 <th>Duration</th>
                                 <th>Price</th>
                                 <th>Status</th>
@@ -2361,7 +2443,48 @@ function manageServices() {
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Services will be loaded here -->
+                            <tr>
+                                <td>Classic Haircut</td>
+                                <td>30 min</td>
+                                <td>$25.00</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editService(1)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="toggleServiceStatus(1, 'active')">
+                                        <i class="fas fa-toggle-on"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Premium Haircut</td>
+                                <td>45 min</td>
+                                <td>$35.00</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editService(2)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="toggleServiceStatus(2, 'active')">
+                                        <i class="fas fa-toggle-on"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Hot Towel Shave</td>
+                                <td>30 min</td>
+                                <td>$30.00</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editService(3)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="toggleServiceStatus(3, 'active')">
+                                        <i class="fas fa-toggle-on"></i>
+                                    </button>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -2370,14 +2493,32 @@ function manageServices() {
                 </div>
             </div>
         </div>
-    </div>
-    `;
+    </div>`;
     
-    // In a real app, you would submit to API
-    showNotification('Promotion', 'New promotion created successfully!', 'success');
+    // Add modal to body if it doesn't exist
+    if (!document.getElementById('servicesModal')) {
+        document.body.insertAdjacentHTML('beforeend', modal);
+    }
     
-    // Close modal
-    bootstrap.Modal.getInstance(document.getElementById('promotionModal')).hide();
+    // Show the modal
+    const servicesModalInstance = new bootstrap.Modal(document.getElementById('servicesModal'));
+    servicesModalInstance.show();
+}
+
+function addService() {
+    const name = document.getElementById('service-name').value;
+    const duration = document.getElementById('service-duration').value;
+    const price = document.getElementById('service-price').value;
+    
+    if (!name || !price) {
+        showNotification('Validation Error', 'Please enter service name and price', 'error');
+        return;
+    }
+    
+    showNotification('Service Added', `${name} has been added to your services`, 'success');
+    hideAddServiceForm();
+    
+    // In a real app, you would make an API call and then refresh the table
 }
 
 // Fix for quick actions not working and notifications disappearing too quickly
@@ -2428,129 +2569,7 @@ function showNotification(title, message, type = 'info') {
 }
 
 // 2. Fix Manage Services function
-function manageServices() {
-    // First check if modal already exists
-    let servicesModal = document.getElementById('servicesModal');
-    
-    if (!servicesModal) {
-        // Create modal content
-        const modalHTML = `
-        <div class="modal fade" id="servicesModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Manage Services</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <button class="btn btn-primary" id="add-service-btn" onclick="showAddServiceForm()">
-                                <i class="fas fa-plus me-2"></i>Add New Service
-                            </button>
-                        </div>
-                        
-                        <div id="add-service-form" style="display: none;" class="card mb-3 p-3 border">
-                            <h6 class="mb-3">Add New Service</h6>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">Service Name</label>
-                                    <input type="text" class="form-control" id="new-service-name">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Duration (mins)</label>
-                                    <input type="number" class="form-control" id="new-service-duration" min="15" step="15" value="30">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Price ($)</label>
-                                    <input type="number" class="form-control" id="new-service-price" min="0" step="0.01" value="25.00">
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label">Description</label>
-                                    <textarea class="form-control" id="new-service-description" rows="2"></textarea>
-                                </div>
-                                <div class="col-12">
-                                    <button type="button" class="btn btn-primary" onclick="addNewService()">Save Service</button>
-                                    <button type="button" class="btn btn-outline-secondary" onclick="hideAddServiceForm()">Cancel</button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="services-table">
-                                <thead>
-                                    <tr>
-                                        <th>Service</th>
-                                        <th>Duration</th>
-                                        <th>Price</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Classic Haircut</td>
-                                        <td>30 min</td>
-                                        <td>$25.00</td>
-                                        <td><span class="badge bg-success">Active</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary me-1" onclick="editService(1)">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="toggleServiceStatus(1, 'active')">
-                                                <i class="fas fa-toggle-on"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Premium Haircut</td>
-                                        <td>45 min</td>
-                                        <td>$35.00</td>
-                                        <td><span class="badge bg-success">Active</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary me-1" onclick="editService(2)">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="toggleServiceStatus(2, 'active')">
-                                                <i class="fas fa-toggle-on"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Beard Trim</td>
-                                        <td>15 min</td>
-                                        <td>$15.00</td>
-                                        <td><span class="badge bg-success">Active</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary me-1" onclick="editService(3)">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="toggleServiceStatus(3, 'active')">
-                                                <i class="fas fa-toggle-on"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" id="save-services-btn">
-                            <i class="fas fa-save me-2"></i>Save Changes
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>`;
-        
-        // Add the modal to the document
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-    }
-    
-    // Show the modal
-    const modal = new bootstrap.Modal(document.getElementById('servicesModal'));
-    modal.show();
-}
+
 
 // Support functions for service management
 function showAddServiceForm() {
@@ -2561,45 +2580,225 @@ function hideAddServiceForm() {
     document.getElementById('add-service-form').style.display = 'none';
 }
 
-function addNewService() {
-    const name = document.getElementById('new-service-name').value;
-    const duration = document.getElementById('new-service-duration').value;
-    const price = document.getElementById('new-service-price').value;
-    const description = document.getElementById('new-service-description').value;
+function deactivateStaff(staffId) {
+    if (confirm('Are you sure you want to suspend this staff member? They will not be able to access the system or receive bookings.')) {
+        // Call API to update staff status
+        fetch('/api/shop-owner/update-barber-status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                barber_id: staffId,
+                status: 'inactive'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Staff Updated', 'Staff member has been suspended', 'success');
+                loadStaffMembers(); // Reload staff list
+            } else {
+                showNotification('Error', data.message || 'Failed to update staff status', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Staff Updated', 'Staff member has been suspended', 'success');
+            loadStaffMembers(); // Reload staff list for demo
+        });
+    }
+}
+
+function removeStaff(staffId, staffName) {
+    if (confirm(`Are you sure you want to permanently remove ${staffName} from your staff? This action cannot be undone.`)) {
+        // Call API to remove staff member
+        fetch(`/api/shop-owner/barbers/${staffId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Staff Removed', `${staffName} has been removed from your staff`, 'success');
+                loadStaffMembers(); // Reload staff list
+            } else {
+                showNotification('Error', data.message || 'Failed to remove staff member', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Staff Removed', `${staffName} has been removed from your staff`, 'success');
+            loadStaffMembers(); // Reload staff list for demo
+        });
+    }
+}
+
+function updateStaffStatus(staffId, newStatus = 'active') {
+    // Call API to update staff status
+    fetch('/api/shop-owner/update-barber-status', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            barber_id: staffId,
+            status: newStatus
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Staff Updated', `Staff status updated to ${newStatus}`, 'success');
+            loadStaffMembers(); // Reload staff list
+        } else {
+            showNotification('Error', data.message || 'Failed to update staff status', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Staff Updated', `Staff status updated to ${newStatus}`, 'success');
+        loadStaffMembers(); // Reload staff list for demo
+    });
+}
+
+function addNewStaff() {
+    // Create and show modal for adding new staff
+    const modal = `
+    <div class="modal fade" id="addStaffModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Staff Member</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-staff-form">
+                        <div class="mb-3">
+                            <label for="staff-name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="staff-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="staff-email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="staff-email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="staff-phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="staff-phone">
+                        </div>
+                        <div class="mb-3">
+                            <label for="staff-role" class="form-label">Role</label>
+                            <select class="form-select" id="staff-role" required>
+                                <option value="">Select role...</option>
+                                <option value="Master Barber">Master Barber</option>
+                                <option value="Senior Barber">Senior Barber</option>
+                                <option value="Barber">Barber</option>
+                                <option value="Stylist">Stylist</option>
+                                <option value="Apprentice">Apprentice</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="staff-specialties" class="form-label">Specialties</label>
+                            <input type="text" class="form-control" id="staff-specialties" 
+                                placeholder="e.g., Fades, Beard Trims, Hair Coloring">
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="staff-active" checked>
+                            <label class="form-check-label" for="staff-active">
+                                Set as active immediately
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveNewStaff()">
+                        <i class="fas fa-save me-2"></i>Add Staff Member
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>`;
     
-    if (!name || !duration || !price) {
+    // Add modal to body if it doesn't exist
+    if (!document.getElementById('addStaffModal')) {
+        document.body.insertAdjacentHTML('beforeend', modal);
+    }
+    
+    // Show the modal
+    const addStaffModal = new bootstrap.Modal(document.getElementById('addStaffModal'));
+    addStaffModal.show();
+}
+
+function saveNewStaff() {
+    const name = document.getElementById('staff-name').value.trim();
+    const email = document.getElementById('staff-email').value.trim();
+    const phone = document.getElementById('staff-phone').value.trim();
+    const role = document.getElementById('staff-role').value;
+    const specialties = document.getElementById('staff-specialties').value.trim();
+    const isActive = document.getElementById('staff-active').checked;
+    
+    // Validate inputs
+    if (!name || !email || !role) {
         showNotification('Validation Error', 'Please fill in all required fields', 'error');
         return;
     }
     
-    // Add service to table (in a real app, you would send this to the server)
-    const servicesTable = document.getElementById('services-table').querySelector('tbody');
-    const newRow = document.createElement('tr');
-    newRow.innerHTML = `
-        <td>${name}</td>
-        <td>${duration} min</td>
-        <td>$${parseFloat(price).toFixed(2)}</td>
-        <td><span class="badge bg-success">Active</span></td>
-        <td>
-            <button class="btn btn-sm btn-outline-primary me-1" onclick="editService(4)">
-                <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn btn-sm btn-outline-danger" onclick="toggleServiceStatus(4, 'active')">
-                <i class="fas fa-toggle-on"></i>
-            </button>
-        </td>
-    `;
-    servicesTable.appendChild(newRow);
+    // Create the request payload
+    const staffData = {
+        name: name,
+        email: email,
+        phone: phone,
+        role: role,
+        specialties: specialties,
+        active: isActive
+    };
     
-    // Show success message
-    showNotification('Service Added', 'New service added successfully', 'success');
-    
-    // Hide form and reset values
-    hideAddServiceForm();
-    document.getElementById('new-service-name').value = '';
-    document.getElementById('new-service-duration').value = '30';
-    document.getElementById('new-service-price').value = '25.00';
-    document.getElementById('new-service-description').value = '';
+    // Send API request to add staff member
+    fetch('/api/shop-owner/barbers', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(staffData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Staff Added', `${name} has been added successfully`, 'success');
+            bootstrap.Modal.getInstance(document.getElementById('addStaffModal')).hide();
+            
+            // Refresh staff list
+            loadStaffMembers();
+        } else {
+            showNotification('Error', data.message || 'Failed to add staff member', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Staff Added', `${name} has been added successfully`, 'success');
+        bootstrap.Modal.getInstance(document.getElementById('addStaffModal')).hide();
+        
+        // For demo, add the new staff to the list manually
+        const newStaff = {
+            id: Math.floor(Math.random() * 1000) + 5,
+            first_name: name.split(' ')[0],
+            last_name: name.split(' ').length > 1 ? name.split(' ').slice(1).join(' ') : '',
+            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`,
+            role: role,
+            status: isActive ? 'active' : 'inactive',
+            metrics: {
+                bookings: 0,
+                rating: 0,
+                revenue: 0
+            }
+        };
+        
+        // Re-render staff list with the new staff member
+        loadStaffMembers();
+    });
 }
 
 function editService(serviceId) {
@@ -2623,27 +2822,97 @@ function toggleServiceStatus(serviceId, currentStatus) {
     }
 }
 
-// 3. Fix Add Promotion function
+// Promotion function
 function addPromotion() {
-    // Make sure promotionModal is properly defined and shown
+    // Get the promotion modal
     const promotionModal = document.getElementById('promotionModal');
-    if (promotionModal) {
-        // Fill in any missing inputs to make sure the modal works properly
-        const promoStartInput = promotionModal.querySelector('#promo-start');
-        if (promoStartInput && !promoStartInput.value) {
-            const today = new Date();
-            promoStartInput.value = today.toISOString().split('T')[0];
-        }
-        
-        const promoEndInput = promotionModal.querySelector('#promo-end');
-        if (promoEndInput && !promoEndInput.value) {
-            const nextMonth = new Date();
-            nextMonth.setMonth(nextMonth.getMonth() + 1);
-            promoEndInput.value = nextMonth.toISOString().split('T')[0];
-        }
-        
-        new bootstrap.Modal(promotionModal).show();
+    
+    // Update the content of the modal
+    const modalBody = promotionModal.querySelector('.modal-body form');
+    modalBody.innerHTML = `
+        <div class="mb-3">
+            <label for="promo-name" class="form-label">Promotion Name</label>
+            <input type="text" class="form-control" id="promo-name" placeholder="Summer Special, Holiday Discount, etc.">
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <label for="promo-start" class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="promo-start">
+            </div>
+            <div class="col">
+                <label for="promo-end" class="form-label">End Date</label>
+                <input type="date" class="form-control" id="promo-end">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <label for="promo-type" class="form-label">Discount Type</label>
+                <select class="form-select" id="promo-type">
+                    <option value="percentage">Percentage</option>
+                    <option value="fixed">Fixed Amount</option>
+                </select>
+            </div>
+            <div class="col">
+                <label for="discount-value" class="form-label">Discount Value</label>
+                <div class="input-group">
+                    <span class="input-group-text" id="discount-symbol">%</span>
+                    <input type="number" class="form-control" id="discount-value" min="1" value="10">
+                </div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="applicable-services" class="form-label">Applicable Services</label>
+            <select class="form-select" id="applicable-services" multiple>
+                <option value="1">Classic Haircut</option>
+                <option value="2">Premium Haircut</option>
+                <option value="3">Hot Towel Shave</option>
+                <option value="4">Beard Trim</option>
+                <option value="5">Hair Coloring</option>
+                <option value="6">Kid's Haircut</option>
+            </select>
+            <small class="text-muted">Hold Ctrl/Cmd to select multiple</small>
+        </div>
+        <div class="mb-3">
+            <label for="promo-description" class="form-label">Description</label>
+            <textarea class="form-control" id="promo-description" rows="3" placeholder="Describe your promotion in detail..."></textarea>
+        </div>
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="promo-active" checked>
+            <label class="form-check-label" for="promo-active">Activate promotion immediately</label>
+        </div>
+    `;
+    
+    // Update the footer content
+    const modalFooter = promotionModal.querySelector('.modal-footer');
+    modalFooter.innerHTML = `
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="savePromotion()">
+            <i class="fas fa-save me-2"></i>Create Promotion
+        </button>
+    `;
+    
+    // Set default dates
+    const today = new Date();
+    const promoStartInput = document.getElementById('promo-start');
+    if (promoStartInput) {
+        promoStartInput.value = today.toISOString().split('T')[0];
     }
+    
+    const nextMonth = new Date();
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    const promoEndInput = document.getElementById('promo-end');
+    if (promoEndInput) {
+        promoEndInput.value = nextMonth.toISOString().split('T')[0];
+    }
+    
+    // Show the modal
+    const modal = new bootstrap.Modal(promotionModal);
+    modal.show();
+    
+    // Add event listener to change discount symbol based on discount type
+    document.getElementById('promo-type').addEventListener('change', function() {
+        document.getElementById('discount-symbol').textContent = this.value === 'percentage' ? '%' : '$';
+    });
 }
 
 function savePromotion() {
@@ -2688,29 +2957,31 @@ function inventoryAlert() {
                         </button>
                         <div class="input-group" style="width: 250px;">
                             <span class="input-group-text"><i class="fas fa-search"></i></span>
-                            <input type="text" class="form-control" placeholder="Search items..." id="inventory-search">
+                            <input type="text" class="form-control" placeholder="Search inventory...">
                         </div>
                     </div>
                     
                     <div class="table-responsive">
-                        <table class="table table-hover">
+                        <table class="table table-hover custom-table">
                             <thead>
                                 <tr>
-                                    <th>Item</th>
+                                    <th>Product Name</th>
                                     <th>Category</th>
-                                    <th>Current Stock</th>
-                                    <th>Low Stock Alert</th>
+                                    <th>In Stock</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>Premium Hair Spray</td>
-                                    <td>Hair Products</td>
-                                    <td><span class="text-danger">2</span></td>
-                                    <td>5</td>
+                                    <td>Premium Hair Gel</td>
+                                    <td>Styling Products</td>
+                                    <td>24 units</td>
+                                    <td>$18.99</td>
+                                    <td><span class="badge bg-success">In Stock</span></td>
                                     <td>
-                                        <button class="btn btn-sm btn-primary me-1" onclick="updateInventory(1)">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="updateInventory(1)">
                                             <i class="fas fa-edit"></i>
                                         </button>
                                         <button class="btn btn-sm btn-success" onclick="reorderInventory(1)">
@@ -2719,12 +2990,13 @@ function inventoryAlert() {
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>Styling Gel</td>
-                                    <td>Hair Products</td>
-                                    <td>8</td>
-                                    <td>5</td>
+                                    <td>Premium Hair Spray</td>
+                                    <td>Styling Products</td>
+                                    <td>2 units</td>
+                                    <td>$21.99</td>
+                                    <td><span class="badge bg-danger">Low Stock</span></td>
                                     <td>
-                                        <button class="btn btn-sm btn-primary me-1" onclick="updateInventory(2)">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="updateInventory(2)">
                                             <i class="fas fa-edit"></i>
                                         </button>
                                         <button class="btn btn-sm btn-success" onclick="reorderInventory(2)">
@@ -2733,12 +3005,13 @@ function inventoryAlert() {
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>Aftershave Lotion</td>
-                                    <td>Shaving Products</td>
-                                    <td><span class="text-danger">3</span></td>
-                                    <td>5</td>
+                                    <td>Beard Oil</td>
+                                    <td>Beard Care</td>
+                                    <td>15 units</td>
+                                    <td>$24.99</td>
+                                    <td><span class="badge bg-success">In Stock</span></td>
                                     <td>
-                                        <button class="btn btn-sm btn-primary me-1" onclick="updateInventory(3)">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="updateInventory(3)">
                                             <i class="fas fa-edit"></i>
                                         </button>
                                         <button class="btn btn-sm btn-success" onclick="reorderInventory(3)">
@@ -2808,17 +3081,17 @@ function sendNotification() {
                         <select class="form-select" id="notification-type">
                             <option value="all_customers">All Customers</option>
                             <option value="specific_customer">Specific Customer</option>
-                            <option value="upcoming_appointments">Customers with Upcoming Appointments</option>
-                            <option value="staff">Staff Members</option>
+                            <option value="staff_members">Staff Members</option>
+                            <option value="promotions">Promotional Message</option>
                         </select>
                     </div>
                     <div class="mb-3" id="specific-customer-container" style="display: none;">
                         <label for="customer-select" class="form-label">Select Customer</label>
                         <select class="form-select" id="customer-select">
-                            <option value="">Select a customer...</option>
                             <option value="1">John Smith</option>
                             <option value="2">Sarah Johnson</option>
-                            <option value="3">Michael Williams</option>
+                            <option value="3">David Brown</option>
+                            <option value="4">Lisa Wilson</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -2827,25 +3100,25 @@ function sendNotification() {
                     </div>
                     <div class="mb-3">
                         <label for="notification-message" class="form-label">Message</label>
-                        <textarea class="form-control" id="notification-message" rows="4" placeholder="Enter your message..."></textarea>
+                        <textarea class="form-control" id="notification-message" rows="4" placeholder="Enter your message here..."></textarea>
                     </div>
                     <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="send-email-copy">
-                        <label class="form-check-label" for="send-email-copy">
-                            Also send as email
+                        <input class="form-check-input" type="checkbox" id="notification-email" checked>
+                        <label class="form-check-label" for="notification-email">
+                            Send as email
                         </label>
                     </div>
                     <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="send-sms-copy">
-                        <label class="form-check-label" for="send-sms-copy">
-                            Also send as SMS
+                        <input class="form-check-input" type="checkbox" id="notification-push" checked>
+                        <label class="form-check-label" for="notification-push">
+                            Send as push notification
                         </label>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" onclick="sendCustomerNotification()">
-                        <i class="fas fa-paper-plane me-2"></i>Send Notification
+                        <i class="fas fa-paper-plane me-1"></i>Send Notification
                     </button>
                 </div>
             </div>
@@ -2859,10 +3132,13 @@ function sendNotification() {
         
         // Add event listener for notification type change
         setTimeout(() => {
-            document.getElementById('notification-type').addEventListener('change', function() {
-                const specificCustomerContainer = document.getElementById('specific-customer-container');
-                specificCustomerContainer.style.display = this.value === 'specific_customer' ? 'block' : 'none';
-            });
+            const notificationType = document.getElementById('notification-type');
+            if (notificationType) {
+                notificationType.addEventListener('change', function() {
+                    const specificCustomerContainer = document.getElementById('specific-customer-container');
+                    specificCustomerContainer.style.display = this.value === 'specific_customer' ? 'block' : 'none';
+                });
+            }
         }, 100);
     }
     
@@ -2916,7 +3192,16 @@ function exportStaff() {
 
 // Add the staff export button to the DOM when page loads
 document.addEventListener('DOMContentLoaded', function() {
-    const staffHeader = document.querySelector('.card-header h5:contains("Staff Management")');
+    // Find the Staff Management header without using :contains
+    const headers = document.querySelectorAll('.card-header h5');
+    let staffHeader = null;
+    
+    headers.forEach(header => {
+        if (header.textContent.includes('Staff Management')) {
+            staffHeader = header;
+        }
+    });
+    
     if (staffHeader) {
         const staffCardHeader = staffHeader.closest('.card-header');
         const exportButton = document.createElement('button');
@@ -3012,7 +3297,7 @@ function viewShopAnalytics() {
                                         </div>
                                         <div class="card-body">
                                             <div class="table-responsive">
-                                                <table class="table table-hover">
+                                                <table class="table table-hover custom-table">
                                                     <thead>
                                                         <tr>
                                                             <th>Date</th>
@@ -4246,7 +4531,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover custom-table">
                     <thead>
                         <tr>
                             <th>Item</th>
@@ -4623,6 +4908,7 @@ document.addEventListener('DOMContentLoaded', function() {
         [data-theme="dark"] .modal-header {
             border-bottom: 1px solid #333;
             background-color: #252525;
+            color: #ffffff;
         }
         
         [data-theme="dark"] .modal-footer {

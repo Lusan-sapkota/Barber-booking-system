@@ -363,14 +363,6 @@ main {
     box-shadow: 0 25px 60px var(--shadow-medium);
 }
 
-.card-header {
-    font-weight: 600;
-    background-color: var(--bg-dark);
-    color: var(--text-inverse);
-    border-bottom: none;
-    padding: 1.25rem 1.5rem;
-}
-
 .card-body {
     background-color: var(--card-bg);
     color: var(--text-primary);
@@ -833,13 +825,6 @@ footer::before {
         transform: scale(1);
         opacity: 1;
     }
-}
-
-.modal-header {
-    background-color: var(--bg-dark);
-    color: var(--text-inverse);
-    border-bottom: none;
-    border-radius: 20px 20px 0 0;
 }
 
 .modal-body {
