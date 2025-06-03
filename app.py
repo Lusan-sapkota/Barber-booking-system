@@ -1101,13 +1101,11 @@ def api_book_appointment():
 # Authentication API Routes
 @app.route('/api/login', methods=['POST'])
 def api_login():
-    """User login API with better error handling"""
     try:
-        # Get JSON data from request
+        # Get data from request
         if request.is_json:
             data = request.get_json()
         else:
-            # Fallback for form data
             data = {
                 'email': request.form.get('email'),
                 'password': request.form.get('password'),
@@ -1121,11 +1119,7 @@ def api_login():
         
         # Validate input
         if not email or not password:
-            return jsonify({
-                "success": False, 
-                "message": "Email and password are required",
-                "error_type": "validation"
-            }), 400
+            return jsonify({"success": False, "message": "Email and password are required"}), 400
         
         # Validate email format
         import re
@@ -1136,7 +1130,7 @@ def api_login():
                 "message": "Please enter a valid email address",
                 "error_type": "validation"
             }), 400
-        
+            
         conn = sqlite3.connect('barbershop.db')
         cursor = conn.cursor()
         
@@ -1144,23 +1138,37 @@ def api_login():
         cursor.execute("PRAGMA table_info(users)")
         columns = [column[1] for column in cursor.fetchall()]
         
-        # Build query based on available columns
-        if 'status' in columns:
-            cursor.execute('''
-                SELECT id, password_hash, first_name, last_name, user_type, status 
-                FROM users 
-                WHERE email = ? AND user_type = ?
-            ''', (email, user_type))
+        # Special case for admin account - check by email only
+        if email == 'admin@demo.com':
+            if 'status' in columns:
+                cursor.execute('''
+                    SELECT id, password_hash, first_name, last_name, user_type, status 
+                    FROM users 
+                    WHERE email = ?
+                ''', (email,))
+            else:
+                cursor.execute('''
+                    SELECT id, password_hash, first_name, last_name, user_type, 'active' as status 
+                    FROM users 
+                    WHERE email = ?
+                ''', (email,))
         else:
-            # Fallback if status column doesn't exist
-            cursor.execute('''
-                SELECT id, password_hash, first_name, last_name, user_type, 'active' as status 
-                FROM users 
-                WHERE email = ? AND user_type = ?
-            ''', (email, user_type))
+            # Regular accounts - check email AND user_type
+            if 'status' in columns:
+                cursor.execute('''
+                    SELECT id, password_hash, first_name, last_name, user_type, status 
+                    FROM users 
+                    WHERE email = ? AND user_type = ?
+                ''', (email, user_type))
+            else:
+                cursor.execute('''
+                    SELECT id, password_hash, first_name, last_name, user_type, 'active' as status 
+                    FROM users 
+                    WHERE email = ? AND user_type = ?
+                ''', (email, user_type))
         
         user = cursor.fetchone()
-        
+
         # Check if user exists
         if not user:
             conn.close()
