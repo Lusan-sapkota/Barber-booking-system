@@ -389,6 +389,9 @@ def home():
 
 @app.route('/booking')
 def booking_page():
+    if session.get('user_type') == 'shop_owner':
+        flash('This page is not accessible to shop owners.', 'warning')
+        return redirect(url_for('shop_owner_admin')) # Or another appropriate page
     # Pass today's date to the template
     today = date.today().strftime('%Y-%m-%d')
     return render_template('booking.html', today_date=today)
@@ -479,6 +482,9 @@ def user_dashboard():
 
 @app.route('/find-nearby')
 def find_nearby():
+    if session.get('user_type') == 'shop_owner':
+        flash('This page is not accessible to shop owners.', 'warning')
+        return redirect(url_for('shop_owner_admin')) # Or another appropriate page
     """Route for finding nearby barbers"""
     location = request.args.get('location', '')
     return render_template('find_nearby.html', location=location)

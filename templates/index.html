@@ -1,15 +1,50 @@
 {% extends "base.html" %}
 
-{% block title %}BookaBarber - Find & Book Barbers Near You{% endblock %}
+{% block title %}
+    {% if session.get('user_type') == 'barber' %}Barber Dashboard - BookaBarber
+    {% elif session.get('user_type') == 'shop_owner' %}Shop Owner Portal - BookaBarber
+    {% elif session.get('user_type') == 'super_admin' %}Super Admin Panel - BookaBarber
+    {% else %}BookaBarber - Find & Book Barbers Near You
+    {% endif %}
+{% endblock %}
 
 {% block extra_css %}
 <style>
     .hero-section {
         background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
         color: white;
-        padding: 80px 0;
+        padding: 60px 0; /* Adjusted padding */
         width: 100%;
         margin: 0;
+        position: relative;
+        min-height: 70vh; /* Ensure hero takes significant space */
+        display: flex;
+        align-items: center;
+    }
+
+    /* Specific hero backgrounds for roles */
+    .hero-barber {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    }
+    .hero-shop-owner {
+        background: linear-gradient(135deg, #fc5c7d 0%, #6a82fb 100%);
+    }
+    .hero-super-admin {
+        background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%);
+    }
+
+
+    .user-specific-banner {
+        background-color: rgba(0,0,0,0.2);
+        padding: 10px;
+        text-align: center;
+        font-size: 0.9rem;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+        position: absolute; /* Position banner at the top of hero */
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 10;
     }
     
     .hover-card {
@@ -65,40 +100,109 @@
         padding-left: 0 !important;
         padding-right: 0 !important;
     }
+
+    .admin-hero-content .display-4 {
+        font-size: 2.8rem; /* Slightly smaller for admin roles */
+    }
+    .admin-hero-content .lead {
+        font-size: 1.1rem; /* Slightly smaller for admin roles */
+    }
+    .admin-hero-content .btn-lg {
+        padding: 0.8rem 1.8rem;
+        font-size: 1.1rem;
+    }
+
 </style>
 {% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
-<section class="hero-section">
+<section class="hero-section 
+    {% if session.get('user_type') == 'barber' %}hero-barber
+    {% elif session.get('user_type') == 'shop_owner' %}hero-shop-owner
+    {% elif session.get('user_type') == 'super_admin' %}hero-super-admin
+    {% endif %}
+">
+    {% if session.get('user_type') == 'customer' %}
+    <div class="user-specific-banner">
+        Welcome back, {{ session.get('user_name', 'Customer') }}! Ready for your next great haircut?
+    </div>
+    {% elif session.get('user_type') == 'barber' %}
+    <div class="user-specific-banner" style="background-color: rgba(0,0,0,0.3);">
+        Hello {{ session.get('user_name', 'Barber') }}! Manage your appointments and profile.
+    </div>
+    {% elif session.get('user_type') == 'shop_owner' %}
+    <div class="user-specific-banner" style="background-color: rgba(0,0,0,0.3);">
+        Welcome {{ session.get('user_name', 'Shop Owner') }}! Access your shop dashboard.
+    </div>
+    {% elif session.get('user_type') == 'super_admin' %}
+    <div class="user-specific-banner" style="background-color: rgba(0,0,0,0.3);">
+        Super Admin Dashboard Access.
+    </div>
+    {% else %}
+    <!-- No specific banner for guests, or a generic one -->
+    {% endif %}
+
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-4">Find & Book the Best Barbers Near You</h1>
-                <p class="lead mb-4">Discover top-rated barbers in your area with BookaBarber. Easy online booking, verified professionals, and quality grooming services guaranteed.</p>
-                <div class="d-flex flex-wrap gap-3 mb-4">
-                    <a href="{{ url_for('booking_page') }}" class="btn btn-light btn-lg">
-                        <i class="fas fa-calendar-plus me-2"></i>Book Now
-                    </a>
-                    <a href="{{ url_for('find_nearby') }}" class="btn btn-outline-light btn-lg">
-                        <i class="fas fa-map-marker-alt me-2"></i>Find Nearby
-                    </a>
-                </div>
-                {% if not session.get('user_id') %}
-                <div class="mt-3">
-                    <small class="text-light opacity-75">Join thousands of satisfied customers</small>
-                </div>
+            <div class="col-lg-7 {% if session.get('user_type') in ['shop_owner', 'super_admin'] %}admin-hero-content text-center mx-auto{% endif %}">
+                {% if session.get('user_type') == 'barber' %}
+                    <h1 class="display-4 fw-bold mb-4">Barber Dashboard</h1>
+                    <p class="lead mb-4">Efficiently manage your schedule, client bookings, and professional profile. Access all your tools in one place.</p>
+                    <div class="d-flex flex-wrap gap-3 mb-4 {% if session.get('user_type') in ['shop_owner', 'super_admin'] %}justify-content-center{% endif %}">
+                        <a href="{{ url_for('barber_admin') }}" class="btn btn-light btn-lg">
+                            <i class="fas fa-tools me-2"></i>Go to Barber Panel
+                        </a>
+                        <a href="{{ url_for('find_nearby') }}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-search me-2"></i>Find Services
+                        </a>
+                    </div>
+                {% elif session.get('user_type') == 'shop_owner' %}
+                    <h1 class="display-4 fw-bold mb-4">Shop Owner Portal</h1>
+                    <p class="lead mb-4">Oversee your barbershop's operations, manage staff, track performance, and engage with your customers.</p>
+                    <div class="d-flex flex-wrap gap-3 mb-4 justify-content-center">
+                        <a href="{{ url_for('shop_owner_admin') }}" class="btn btn-light btn-lg">
+                            <i class="fas fa-store me-2"></i>Access Shop Dashboard
+                        </a>
+                    </div>
+                {% elif session.get('user_type') == 'super_admin' %}
+                    <h1 class="display-4 fw-bold mb-4">System Administration</h1>
+                    <p class="lead mb-4">Manage users, shops, system settings, and monitor the overall platform health from the Super Admin Panel.</p>
+                    <div class="d-flex flex-wrap gap-3 mb-4 justify-content-center">
+                        <a href="{{ url_for('super_admin') }}" class="btn btn-light btn-lg">
+                            <i class="fas fa-crown me-2"></i>Open Super Admin Panel
+                        </a>
+                    </div>
+                {% else %} {# Guest or Customer #}
+                    <h1 class="display-4 fw-bold mb-4">Find & Book the Best Barbers Near You</h1>
+                    <p class="lead mb-4">Discover top-rated barbers in your area with BookaBarber. Easy online booking, verified professionals, and quality grooming services guaranteed.</p>
+                    <div class="d-flex flex-wrap gap-3 mb-4">
+                        <a href="{{ url_for('booking_page') }}" class="btn btn-light btn-lg">
+                            <i class="fas fa-calendar-plus me-2"></i>Book Now
+                        </a>
+                        <a href="{{ url_for('find_nearby') }}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-map-marker-alt me-2"></i>Find Nearby
+                        </a>
+                    </div>
+                    {% if not session.get('user_id') %}
+                    <div class="mt-3">
+                        <small class="text-light opacity-75">Join thousands of satisfied customers</small>
+                    </div>
+                    {% endif %}
                 {% endif %}
             </div>
-            <div class="col-lg-6 text-center">
-                <img src="{{ url_for('static', filename='image/logo/logo.png') }}" alt="BookaBarber" class="img-fluid" style="max-height: 350px;">
+            {% if not session.get('user_type') or session.get('user_type') == 'customer' or session.get('user_type') == 'barber' %}
+            <div class="col-lg-5 text-center d-none d-lg-block">
+                <img src="{{ url_for('static', filename='image/logo/logo.png') }}" alt="BookaBarber" class="img-fluid" style="max-height: 300px;">
             </div>
+            {% endif %}
         </div>
     </div>
 </section>
 
+{% if not session.get('user_type') or session.get('user_type') in ['customer', 'barber'] %}
 <!-- Location Search Section -->
-<section class="py-5">
+<section class="py-5 bg-light">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-8">
@@ -108,31 +212,23 @@
                 </div>
                 <div class="card shadow-sm">
                     <div class="card-body p-4">
-                        <div class="row g-3 align-items-end">
-                            <div class="col-md-8">
-                                <label for="location-search" class="form-label">Enter your location</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                    </span>
-                                    <input type="text" class="form-control" id="location-search" placeholder="City, neighborhood or ZIP code">
+                        <form action="{{ url_for('find_nearby') }}" method="GET">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-8">
+                                    <label for="location-search-input" class="form-label">Your Location</label>
+                                    <input type="text" class="form-control form-control-lg" id="location-search-input" name="location" placeholder="e.g., New York, NY or Zip Code">
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                                        <i class="fas fa-search me-2"></i>Search
+                                    </button>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <button class="btn btn-primary w-100" onclick="searchLocation()">
-                                    <i class="fas fa-search me-2"></i>Search
-                                </button>
-                            </div>
-                        </div>
+                        </form>
                         <div class="mt-2 d-flex gap-2 justify-content-center">
-                            <button class="btn btn-sm btn-outline-primary" onclick="useCurrentLocation()">
-                                <i class="fas fa-crosshairs me-1"></i>Use Current Location
+                            <button class="btn btn-sm btn-outline-secondary" onclick="useCurrentLocation()">
+                                <i class="fas fa-map-marker-alt me-1"></i>Use Current Location
                             </button>
-                            {% if session.get('user_id') %}
-                            <button class="btn btn-sm btn-outline-secondary" onclick="useHomeLocation()">
-                                <i class="fas fa-home me-1"></i>Use Home Location
-                            </button>
-                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -149,88 +245,37 @@
             <p class="lead text-muted">Choose from our wide range of professional grooming services</p>
         </div>
         <div class="row g-4">
+            {% set service_images = ['service1.jpg', 'service2.jpg', 'service3.jpg', 'service4.jpg'] %}
+            {% set service_titles = ['Classic Haircut', 'Beard Trim & Style', 'Hot Towel Shave', 'Kids Haircut'] %}
+            {% set service_descs = [
+                'A timeless cut tailored to your style by our expert barbers.',
+                'Shape and style your beard to perfection with our precise trimming.',
+                'Experience the ultimate relaxation with a traditional hot towel shave.',
+                'Fun and friendly haircuts for the little ones.'
+            ] %}
+            {% set service_prices = ['$30 - $45', '$20 - $30', '$35 - $50', '$25 - $35'] %}
+
+            {% for i in range(4) %}
             <div class="col-md-6 col-lg-3">
                 <div class="card h-100 text-center shadow-sm hover-card service-card">
+                    <img src="{{ url_for('static', filename='image/services/' + service_images[i]) }}" class="card-img-top" alt="{{ service_titles[i] }}" style="height: 200px; object-fit: cover;">
                     <div class="card-body">
-                        <div class="service-icon mb-3">
-                            <i class="fas fa-cut fa-3x text-primary"></i>
-                        </div>
-                        <h5 class="card-title">Classic Haircut</h5>
-                        <p class="card-text">Professional haircut tailored to your style preferences and face shape</p>
-                        <div class="price-badge">
-                            <span class="h4 text-primary">From $25</span>
-                        </div>
-                        <small class="text-muted d-block">30-45 minutes</small>
-                        <div class="location-badge mt-3">
-                            <i class="fas fa-map-marker-alt"></i>
-                            Available citywide
-                        </div>
+                        <h5 class="card-title">{{ service_titles[i] }}</h5>
+                        <p class="card-text text-muted small">{{ service_descs[i] }}</p>
+                        <div class="price-badge text-primary fw-bold fs-5">{{ service_prices[i] }}</div>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pb-3">
+                        <a href="{{ url_for('booking_page', service=service_titles[i]) }}" class="btn btn-outline-primary">Book Service</a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="card h-100 text-center shadow-sm hover-card service-card">
-                    <div class="card-body">
-                        <div class="service-icon mb-3">
-                            <i class="fas fa-user-tie fa-3x text-primary"></i>
-                        </div>
-                        <h5 class="card-title">Haircut + Beard</h5>
-                        <p class="card-text">Complete grooming package with precision haircut and beard styling</p>
-                        <div class="price-badge">
-                            <span class="h4 text-primary">From $35</span>
-                        </div>
-                        <small class="text-muted d-block">45-60 minutes</small>
-                        <div class="location-badge mt-3">
-                            <i class="fas fa-map-marker-alt"></i>
-                            Available citywide
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="card h-100 text-center shadow-sm hover-card service-card">
-                    <div class="card-body">
-                        <div class="service-icon mb-3">
-                            <i class="fas fa-spray-can fa-3x text-primary"></i>
-                        </div>
-                        <h5 class="card-title">Beard Styling</h5>
-                        <p class="card-text">Expert beard trimming, shaping, and styling for the perfect look</p>
-                        <div class="price-badge">
-                            <span class="h4 text-primary">From $15</span>
-                        </div>
-                        <small class="text-muted d-block">20-30 minutes</small>
-                        <div class="location-badge mt-3">
-                            <i class="fas fa-map-marker-alt"></i>
-                            Available citywide
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="card h-100 text-center shadow-sm hover-card service-card">
-                    <div class="card-body">
-                        <div class="service-icon mb-3">
-                            <i class="fas fa-crown fa-3x text-primary"></i>
-                        </div>
-                        <h5 class="card-title">Premium Package</h5>
-                        <p class="card-text">Luxury grooming experience with wash, cut, style, and premium treatments</p>
-                        <div class="price-badge">
-                            <span class="h4 text-primary">From $50</span>
-                        </div>
-                        <small class="text-muted d-block">60-90 minutes</small>
-                        <div class="location-badge mt-3">
-                            <i class="fas fa-map-marker-alt"></i>
-                            Available citywide
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
     </div>
 </section>
 
-<!-- Features Section -->
-<section class="py-5">
+<!-- Features Section (Why Choose BookaBarber?) -->
+<section class="py-5 bg-light">
     <div class="container">
         <div class="text-center mb-5">
             <h2 class="fw-bold">Why Choose BookaBarber?</h2>
@@ -238,7 +283,7 @@
         </div>
         <div class="row g-4">
             <div class="col-md-4">
-                <div class="text-center hover-card p-4">
+                <div class="text-center hover-card p-4 bg-white rounded shadow-sm">
                     <div class="feature-icon mb-3">
                         <i class="fas fa-map-marked-alt fa-3x text-primary"></i>
                     </div>
@@ -247,7 +292,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="text-center hover-card p-4">
+                <div class="text-center hover-card p-4 bg-white rounded shadow-sm">
                     <div class="feature-icon mb-3">
                         <i class="fas fa-star fa-3x text-primary"></i>
                     </div>
@@ -256,7 +301,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="text-center hover-card p-4">
+                <div class="text-center hover-card p-4 bg-white rounded shadow-sm">
                     <div class="feature-icon mb-3">
                         <i class="fas fa-mobile-alt fa-3x text-primary"></i>
                     </div>
@@ -264,106 +309,54 @@
                     <p class="text-muted">Book appointments instantly from any device. Manage your bookings and get reminders.</p>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="text-center hover-card p-4">
-                    <div class="feature-icon mb-3">
-                        <i class="fas fa-clock fa-3x text-primary"></i>
-                    </div>
-                    <h5>Flexible Scheduling</h5>
-                    <p class="text-muted">Book appointments that fit your schedule. Many locations offer extended hours and weekend availability.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="text-center hover-card p-4">
-                    <div class="feature-icon mb-3">
-                        <i class="fas fa-shield-alt fa-3x text-primary"></i>
-                    </div>
-                    <h5>Quality Guarantee</h5>
-                    <p class="text-muted">Not satisfied? We'll make it right. Our quality guarantee ensures you're always happy with your service.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="text-center hover-card p-4">
-                    <div class="feature-icon mb-3">
-                        <i class="fas fa-wallet fa-3x text-primary"></i>
-                    </div>
-                    <h5>Transparent Pricing</h5>
-                    <p class="text-muted">See prices upfront with no hidden fees. Compare prices across different shops and barbers.</p>
-                </div>
-            </div>
         </div>
     </div>
 </section>
+{% endif %}
 
+{% if not session.get('user_type') or session.get('user_type') == 'customer' %}
 <!-- Enhanced CTA Section with Stats Animation -->
-<section class="cta-section">
-    <div class="cta-background"></div>
+<section class="cta-section text-white py-5" style="background: linear-gradient(135deg, #0d6efd, #0a58ca);">
     <div class="container position-relative">
         <div class="row">
             <div class="col-12">
                 <div class="text-center">
-                    <h2 class="cta-title mb-4">Ready to Find Your Perfect Barber?</h2>
-                    <p class="cta-subtitle mb-5">Join thousands of satisfied customers who trust BookaBarber for their grooming needs.</p>
+                    <h2 class="cta-title mb-4 fw-bold">Ready to Find Your Perfect Barber?</h2>
+                    <p class="cta-subtitle mb-5 lead">Join thousands of satisfied customers who trust BookaBarber for their grooming needs.</p>
                     
-                    <!-- Animated Stats -->
                     <div class="stats-container mb-5">
                         <div class="row g-4">
                             <div class="col-md-4">
                                 <div class="stat-item">
-                                    <div class="stat-icon">
-                                        <i class="fas fa-users"></i>
-                                    </div>
-                                    <div class="stat-number" data-target="15000">0</div>
+                                    <div class="stat-icon fs-1 mb-2"><i class="fas fa-users"></i></div>
+                                    <div class="stat-number display-5 fw-bold" data-target="15000">0</div>
                                     <div class="stat-label">Happy Customers</div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="stat-item">
-                                    <div class="stat-icon">
-                                        <i class="fas fa-cut"></i>
-                                    </div>
-                                    <div class="stat-number" data-target="850">0</div>
+                                    <div class="stat-icon fs-1 mb-2"><i class="fas fa-cut"></i></div>
+                                    <div class="stat-number display-5 fw-bold" data-target="850">0</div>
                                     <div class="stat-label">Expert Barbers</div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="stat-item">
-                                    <div class="stat-icon">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                    </div>
-                                    <div class="stat-number" data-target="75">0</div>
+                                    <div class="stat-icon fs-1 mb-2"><i class="fas fa-map-marker-alt"></i></div>
+                                    <div class="stat-number display-5 fw-bold" data-target="75">0</div>
                                     <div class="stat-label">Cities Covered</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Action Buttons -->
                     <div class="cta-buttons">
-                        <a href="{{ url_for('booking_page') }}" class="btn btn-primary btn-lg me-3 mb-3">
+                        <a href="{{ url_for('booking_page') }}" class="btn btn-light btn-lg me-md-3 mb-3 mb-md-0">
                             <i class="fas fa-calendar-plus me-2"></i>Book Appointment Now
                         </a>
-                        <a href="{{ url_for('find_nearby') }}" class="btn btn-outline-light btn-lg mb-3">
+                        <a href="{{ url_for('find_nearby') }}" class="btn btn-outline-light btn-lg">
                             <i class="fas fa-search me-2"></i>Find Barbers Near Me
                         </a>
-                    </div>
-
-                    <!-- Trust Indicators -->
-                    <div class="trust-indicators mt-4">
-                        <div class="d-flex flex-wrap justify-content-center align-items-center gap-4">
-                            <div class="trust-item">
-                                <i class="fas fa-shield-check me-2"></i>
-                                <span>Verified Professionals</span>
-                            </div>
-                            <div class="trust-item">
-                                <i class="fas fa-star me-2"></i>
-                                <span>4.9/5 Average Rating</span>
-                            </div>
-                            <div class="trust-item">
-                                <i class="fas fa-clock me-2"></i>
-                                <span>24/7 Support</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -372,232 +365,90 @@
 </section>
 
 <!-- Enhanced Marquee Animation -->
-<section class="marquee-section">
+<section class="marquee-section bg-dark text-light py-3">
     <div class="marquee-track">
         <div class="marquee-content">
-            <span class="marquee-item">
-                <i class="fas fa-cut"></i> Professional Haircuts
-            </span>
-            <span class="marquee-item">
-                <i class="fas fa-star"></i> 5-Star Reviews
-            </span>
-            <span class="marquee-item">
-                <i class="fas fa-map-marker-alt"></i> Location-Based Search
-            </span>
-            <span class="marquee-item">
-                <i class="fas fa-calendar-check"></i> Easy Booking
-            </span>
-            <span class="marquee-item">
-                <i class="fas fa-shield-alt"></i> Quality Guaranteed
-            </span>
-            <span class="marquee-item">
-                <i class="fas fa-mobile-alt"></i> Mobile Friendly
-            </span>
-            <span class="marquee-item">
-                <i class="fas fa-users"></i> Trusted Community
-            </span>
-            <span class="marquee-item">
-                <i class="fas fa-award"></i> Premium Service
-            </span>
+            <span class="marquee-item mx-3"><i class="fas fa-cut me-1"></i> Professional Haircuts</span>
+            <span class="marquee-item mx-3"><i class="fas fa-star me-1"></i> 5-Star Reviews</span>
+            <span class="marquee-item mx-3"><i class="fas fa-map-marker-alt me-1"></i> Location-Based Search</span>
+            <span class="marquee-item mx-3"><i class="fas fa-calendar-check me-1"></i> Easy Booking</span>
+            <span class="marquee-item mx-3"><i class="fas fa-shield-alt me-1"></i> Quality Guaranteed</span>
         </div>
-        <div class="marquee-content" aria-hidden="true">
-            <span class="marquee-item">
-                <i class="fas fa-cut"></i> Professional Haircuts
-            </span>
-            <span class="marquee-item">
-                <i class="fas fa-star"></i> 5-Star Reviews
-            </span>
-            <span class="marquee-item">
-                <i class="fas fa-map-marker-alt"></i> Location-Based Search
-            </span>
-            <span class="marquee-item">
-                <i class="fas fa-calendar-check"></i> Easy Booking
-            </span>
-            <span class="marquee-item">
-                <i class="fas fa-shield-alt"></i> Quality Guaranteed
-            </span>
-            <span class="marquee-item">
-                <i class="fas fa-mobile-alt"></i> Mobile Friendly
-            </span>
-            <span class="marquee-item">
-                <i class="fas fa-users"></i> Trusted Community
-            </span>
-            <span class="marquee-item">
-                <i class="fas fa-award"></i> Premium Service
-            </span>
+        <div class="marquee-content" aria-hidden="true"> <!-- Duplicate for seamless scroll -->
+            <span class="marquee-item mx-3"><i class="fas fa-cut me-1"></i> Professional Haircuts</span>
+            <span class="marquee-item mx-3"><i class="fas fa-star me-1"></i> 5-Star Reviews</span>
+            <span class="marquee-item mx-3"><i class="fas fa-map-marker-alt me-1"></i> Location-Based Search</span>
+            <span class="marquee-item mx-3"><i class="fas fa-calendar-check me-1"></i> Easy Booking</span>
+            <span class="marquee-item mx-3"><i class="fas fa-shield-alt me-1"></i> Quality Guaranteed</span>
         </div>
     </div>
 </section>
+{% endif %}
+
 {% endblock %}
 
 {% block scripts %}
+{{ super() }} {# Include scripts from base.html if any #}
 <script>
-function searchLocation() {
-    const location = document.getElementById('location-search').value;
-    window.location.href = `/find-nearby?location=${encodeURIComponent(location)}`;
-}
-
-function useCurrentLocation() {
-    // Show loading state
-    document.getElementById('location-search').value = "Getting your location...";
-    
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            function(position) {
-                window.location.href = `/find-nearby?lat=${position.coords.latitude}&lon=${position.coords.longitude}`;
-            },
-            function(error) {
-                alert('Unable to get your location. Please enter it manually.');
-                document.getElementById('location-search').value = "";
-            }
-        );
-    } else {
-        alert('Geolocation is not supported by your browser');
-        document.getElementById('location-search').value = "";
-    }
-}
-
-function useHomeLocation() {
-    // Get saved home location from the server
-    fetch('/api/user/home-location')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.location) {
-                window.location.href = `/find-nearby?location=${encodeURIComponent(data.location)}`;
-            } else {
-                alert('No home location saved. Please update your profile first.');
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching home location:', error);
-            alert('Error retrieving home location. Please try again.');
-        });
-}
-
 document.addEventListener('DOMContentLoaded', function() {
-    const locationSearch = document.getElementById('location-search');
-    const searchBtn = document.getElementById('search-location');
-    const currentLocationBtn = document.getElementById('use-current-location');
-
-    // Handle search button click
-    if (searchBtn) {
-        searchBtn.addEventListener('click', function() {
-            const location = locationSearch.value.trim();
-            if (location) {
-                // Add loading state
-                searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Searching...';
-                searchBtn.disabled = true;
-                
-                // Simulate search (replace with actual API call)
-                setTimeout(() => {
-                    window.location.href = `/find-nearby?location=${encodeURIComponent(location)}`;
-                }, 1000);
-            } else {
-                alert('Please enter a location to search');
+    // Animate numbers for CTA section
+    const statNumbers = document.querySelectorAll('.stat-number');
+    const animateStat = (element) => {
+        const target = +element.getAttribute('data-target');
+        const duration = 2000; // 2 seconds
+        const frameDuration = 1000 / 60; // 60 FPS
+        const totalFrames = Math.round(duration / frameDuration);
+        let frame = 0;
+        const counter = setInterval(() => {
+            frame++;
+            const progress = frame / totalFrames;
+            const currentCount = Math.round(target * progress);
+            element.textContent = currentCount.toLocaleString();
+            if (frame === totalFrames) {
+                clearInterval(counter);
+                element.textContent = target.toLocaleString(); // Ensure final value is exact
             }
-        });
-    }
-
-    // Handle current location button
-    if (currentLocationBtn) {
-        // Update the getCurrentLocation function in index.html
-        currentLocationBtn.addEventListener('click', function() {
-            if (navigator.geolocation) {
-                currentLocationBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Getting location...';
-                currentLocationBtn.disabled = true;
-                
-                navigator.geolocation.getCurrentPosition(
-                    async function(position) {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        
-                        try {
-                            // Use backend proxy for reverse geocoding
-                            const response = await fetch(`/api/reverse-geocode?lat=${lat}&lon=${lng}`);
-                            const data = await response.json();
-                            
-                            if (data.success && data.address) {
-                                locationSearch.value = data.address;
-                            } else {
-                                locationSearch.value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-                            }
-                        } catch (error) {
-                            console.log('Geocoding failed, using coordinates:', error);
-                            locationSearch.value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-                        }
-                        
-                        currentLocationBtn.innerHTML = '<i class="fas fa-check me-1"></i>Location found';
-                        
-                        setTimeout(() => {
-                            currentLocationBtn.innerHTML = '<i class="fas fa-crosshairs me-1"></i>Use Current Location';
-                            currentLocationBtn.disabled = false;
-                        }, 2000);
-                    },
-                    function(error) {
-                        console.log('Geolocation error:', error);
-                        alert('Unable to get your location. Please enter manually.');
-                        currentLocationBtn.innerHTML = '<i class="fas fa-crosshairs me-1"></i>Use Current Location';
-                        currentLocationBtn.disabled = false;
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 300000
-                    }
-                );
-            } else {
-                alert('Geolocation is not supported by this browser.');
-            }
-        });
-    }
-
-    // Handle enter key in search input
-    if (locationSearch) {
-        locationSearch.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                searchBtn.click();
-            }
-        });
-    }
-
-    // Animated Counter for Stats
-    const animateCounters = () => {
-        const counters = document.querySelectorAll('.stat-number');
-        
-        counters.forEach(counter => {
-            const target = parseInt(counter.getAttribute('data-target'));
-            const duration = 2000; // 2 seconds
-            const increment = target / (duration / 16); // 60fps
-            let current = 0;
-            
-            const updateCounter = () => {
-                if (current < target) {
-                    current += increment;
-                    counter.textContent = Math.floor(current).toLocaleString();
-                    requestAnimationFrame(updateCounter);
-                } else {
-                    counter.textContent = target.toLocaleString();
-                }
-            };
-            
-            updateCounter();
-        });
+        }, frameDuration);
     };
 
-    // Intersection Observer to trigger animations only once
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
-                entry.target.classList.add('animated');
-                animateCounters();
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.5 });
+    // Intersection Observer to trigger animation when section is visible
+    const ctaSection = document.querySelector('.cta-section');
+    if (ctaSection) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    statNumbers.forEach(stat => animateStat(stat));
+                    observer.unobserve(entry.target); // Animate only once
+                }
+            });
+        }, { threshold: 0.5 }); // Trigger when 50% of the section is visible
+        observer.observe(ctaSection);
+    }
 
-    const statsContainer = document.querySelector('.stats-container');
-    if (statsContainer) {
-        observer.observe(statsContainer);
+    // Function for "Use Current Location" button
+    window.useCurrentLocation = function() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                // You might want to do a reverse geocode here to get a city name,
+                // or pass lat/lon directly to your find_nearby backend.
+                // For simplicity, let's assume find_nearby can handle "lat,lon" string.
+                document.getElementById('location-search-input').value = `${lat},${lon}`;
+                // Optionally, submit the form:
+                // document.querySelector('#location-search-input').closest('form').submit();
+                showSystemNotification('info', 'Location Updated', 'Using your current location coordinates.');
+            }, function(error) {
+                console.error("Error getting location: ", error);
+                let message = 'Could not retrieve your location.';
+                if (error.code === error.PERMISSION_DENIED) {
+                    message = 'Location permission denied. Please enable it in your browser settings.';
+                }
+                showSystemNotification('error', 'Location Error', message);
+            });
+        } else {
+            showSystemNotification('warning', 'Geolocation Not Supported', 'Your browser does not support geolocation.');
+        }
     }
 });
 </script>
