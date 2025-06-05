@@ -13,7 +13,7 @@ import math
 from functools import wraps
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'your-default-secret-key')
+app.secret_key = os.environ.get('FLASK_SECRET', 'your-default-secret-key')
 
 # Add this configuration for better session security
 app.config.update(

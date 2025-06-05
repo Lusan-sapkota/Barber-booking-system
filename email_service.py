@@ -9,10 +9,10 @@ from jinja2 import Environment, FileSystemLoader
 class EmailService:
     def __init__(self):
         # Email configuration - Update these with your SMTP settings
-        self.smtp_server = "sandbox.smtp.mailtrap.io"  # or your SMTP server
-        self.smtp_port = 587
-        self.email_address = "353600283d1aff"  # Update this
-        self.email_password = "e098d48490e01a"    # Update this (use app password for Gmail)
+        self.smtp_server = os.environ.get("SMTP_SERVER", "sandbox.smtp.mailtrap.io")  # or your SMTP server
+        self.smtp_port = int(os.environ.get("SMTP_PORT", 587))
+        self.email_address = os.environ.get("EMAIL_ADDRESS", "353600283d1aff")  # Update this
+        self.email_password = os.environ.get("EMAIL_PASSWORD", "e098d48490e01a")    # Update this (use app password for Gmail)
         
         # Template environment
         self.template_env = Environment(

@@ -889,3 +889,112 @@ class Inventory:
         items = cursor.fetchall()
         conn.close()
         return items
+
+class Favorite:
+    @staticmethod
+    def add(user_id, item_type, item_id):
+        """Add a favorite item for a user"""
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute('''
+                INSERT INTO user_favorites (user_id, item_type, item_id)
+                VALUES (%s, %s, %s)
+                ON CONFLICT (user_id, item_type, item_id) DO NOTHING
+                RETURNING id
+            ''', (user_id, item_type, item_id))
+            
+            result = cursor.fetchone()
+            conn.commit()
+            success = result is not None
+        except psycopg2.Error:
+            # Already exists or other error
+            conn.rollback()
+            success = False
+        finally:
+            conn.close()
+        
+        return success
+
+    @staticmethod
+    def remove(user_id, item_type, item_id):
+        """Remove a favorite item for a user"""
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            DELETE FROM user_favorites
+            WHERE user_id = %s AND item_type = %s AND item_id = %s
+        ''', (user_id, item_type, item_id))
+        
+        removed = cursor.rowcount > 0
+        conn.commit()
+        conn.close()
+        
+        return removed
+    
+    @staticmethod
+    def get_by_user(user_id):
+        """Get all favorites for a user, grouped by type"""
+        conn = get_connection()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        
+        # Get barber favorites
+        cursor.execute('''
+            SELECT f.item_id, b.name, COALESCE(b.image_url, '') as image_url, s.name as shop_name
+            FROM user_favorites f
+            JOIN barbers b ON f.item_id = b.id
+            JOIN shops s ON b.shop_id = s.id
+            WHERE f.user_id = %s AND f.item_type = 'barber'
+        ''', (user_id,))
+        
+        barbers = []
+        for row in cursor.fetchall():
+            barbers.append({
+                'id': row['item_id'],
+                'name': row['name'],
+                'image_url': row['image_url'] if row['image_url'] else f"https://ui-avatars.com/api/?name={row['name'].replace(' ', '+')}&background=random",
+                'shop_name': row['shop_name'],
+                'type': 'barber'
+            })
+        
+        # Get shop favorites
+        cursor.execute('''
+            SELECT f.item_id, s.name, COALESCE(s.logo_url, '') as image_url
+            FROM user_favorites f
+            JOIN shops s ON f.item_id = s.id
+            WHERE f.user_id = %s AND f.item_type = 'shop'
+        ''', (user_id,))
+        
+        shops = []
+        for row in cursor.fetchall():
+            shops.append({
+                'id': row['item_id'],
+                'name': row['name'],
+                'image_url': row['image_url'] if row['image_url'] else f"https://ui-avatars.com/api/?name={row['name'].replace(' ', '+')}&background=random",
+                'type': 'shop'
+            })
+        
+        conn.close()
+        
+        return {
+            'barbers': barbers,
+            'shops': shops
+        }
+    
+    @staticmethod
+    def get_user_favorite_ids_by_type(user_id, item_type):
+        """Get a set of ids that a user has favorited of specific type"""
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT item_id FROM user_favorites
+            WHERE user_id = %s AND item_type = %s
+        ''', (user_id, item_type))
+        
+        ids = {row[0] for row in cursor.fetchall()}
+        conn.close()
+        
+        return ids
