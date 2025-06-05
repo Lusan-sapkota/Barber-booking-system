@@ -66,6 +66,9 @@
   background-color: inherit !important; /* Optional */
   cursor: default !important;          /* Optional */
 }
+.badge {
+  color: white;
+}
 
 .card-header {
   background: linear-gradient(45deg, var(--header-bg) 0%, rgba(52, 58, 64, 0.9) 100%) !important;
@@ -1036,8 +1039,61 @@ body[data-theme="dark"] {
         </div>
     </div>
 </div>
+
+<!-- Hovering Search Button -->
+<div id="hovering-search-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 1050;">
+    <button type="button" class="btn btn-primary btn-lg rounded-circle shadow" data-bs-toggle="modal" data-bs-target="#barberSearchModalBookingPage" title="Search Barber" style="width: 60px; height: 60px; color: white; padding: 0;">
+        <i class="fas fa-search"></i>
+    </button>
+</div>
+
+<!-- Barber Search Modal -->
+<div class="modal fade" id="barberSearchModalBookingPage" tabindex="-1" aria-labelledby="barberSearchModalBookingPageLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="barberSearchModalBookingPageLabel"><i class="fas fa-cut me-2"></i>Search Barber</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="barber-search-input-booking-page" class="form-label">Barber Name</label>
+                    <input type="text" id="barber-search-input-booking-page" class="form-control" placeholder="Enter barber name...">
+                </div>
+                <!-- You can add a div here to display search results dynamically if needed -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="perform-barber-search-btn-booking-page"><i class="fas fa-search me-1"></i>Search</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
+{{ super() }}
 <script src="{{ url_for('static', filename='js/booking.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const performBarberSearchBtn = document.getElementById('perform-barber-search-btn-booking-page');
+    const barberSearchInput = document.getElementById('barber-search-input-booking-page');
+
+    if (performBarberSearchBtn) {
+        performBarberSearchBtn.addEventListener('click', function() {
+            const barberName = barberSearchInput.value.trim();
+            if (barberName) {
+                // Redirect to find_nearby page with barber_name query parameter
+                window.location.href = "{{ url_for('find_nearby') }}?barber_name=" + encodeURIComponent(barberName);
+                var modalInstance = bootstrap.Modal.getInstance(document.getElementById('barberSearchModalBookingPage'));
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            } else {
+                alert('Please enter a barber name.');
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

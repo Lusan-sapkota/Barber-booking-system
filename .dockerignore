@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*egg-info/
+.Python
+env/
+venv/
+pip-cache/
+pip-selfcheck.json
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Environment files
+.env
+*.env
+
+# IDE / Editor specific
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Database files (if not needed in image)
+*.db
+*.sqlite3
+instance/ # Flask instance folder, often contains SQLite db
+
+# Logs
+logs/
+*.log
+
+# Test files (if not run inside the container or needed for runtime)
+tests/
+.pytest_cache/
+coverage.xml
+htmlcov/
+
+# Node.js / Frontend (if built separately or not needed in this image)
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Distribution / packaging
+dist/
+build/
+*.egg
+*.whl

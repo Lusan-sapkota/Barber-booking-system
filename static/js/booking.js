@@ -1,4 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Add this at the beginning of your document ready function
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('openBarberSearch') === 'true') {
+        // Wait a moment for the page to fully load
+        setTimeout(() => {
+            // Open the barber search modal
+            const barberSearchModal = new bootstrap.Modal(document.getElementById('barberSearchModalBookingPage'));
+            if (barberSearchModal) barberSearchModal.show();
+        }, 500);
+    }
+
     // DOM Elements
     const serviceInputs = document.querySelectorAll('input[name="service"]');
     const appointmentDate = document.getElementById('appointment-date');

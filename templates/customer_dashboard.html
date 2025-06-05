@@ -228,31 +228,6 @@ body {
   transition: all 0.3s ease;
 }
 
-/* Dark Mode Toggle Button */
-.dark-mode-toggle {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 1000;
-  width: 50px;
-  height: 50px;
-  background: var(--card-bg);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  color: var(--text-color);
-  font-size: 1.2rem;
-}
-
-.dark-mode-toggle:hover {
-  transform: scale(1.1);
-}
-
 /* Update to prevent hover movement on stat cards and upcoming appointments */
 .stat-card:hover {
     box-shadow: 0 8px 15px rgba(0,0,0,0.15);
@@ -516,7 +491,6 @@ body {
 document.addEventListener('DOMContentLoaded', function() {
     // Create dark mode toggle button
     const toggleButton = document.createElement('button');
-    toggleButton.classList.add('dark-mode-toggle');
     toggleButton.setAttribute('aria-label', 'Toggle dark mode');
     toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
     toggleButton.addEventListener('click', toggleDarkMode);

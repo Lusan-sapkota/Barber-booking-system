@@ -2,8 +2,7 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 import sqlite3
 from datetime import datetime, date, timedelta
 import hashlib
-from models import (init_db, Booking, Barber, Customer, Service, User, Shop, 
-                   Notification, AdminAction, SystemSettings, Review)
+from models import (init_db, User, Barber, Shop, Service, Booking, Favorite, Review, AdminAction, SystemSettings, Notification)
 from algorithms import find_available_slots, optimize_barber_schedule
 import os
 import requests
@@ -11,6 +10,7 @@ import json
 import random
 from typing import Tuple, Optional
 import math
+from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your-default-secret-key')
@@ -63,10 +63,55 @@ def ensure_required_columns():
     
     # Add logo_url column to shops table
     add_column_if_not_exists('shops', 'logo_url', 'TEXT DEFAULT "/static/image/demo-avatars/shop_owner.jpg"')
-    
+
+    conn.commit()
     conn.close()
 
 ensure_required_columns()
+
+def ensure_favorites_tables():
+    """Ensure all tables needed for favorites functionality exist"""
+    conn = sqlite3.connect('barbershop.db')
+    cursor = conn.cursor()
+    
+    # Create user_favorites table if not exists
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS user_favorites (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        item_type TEXT NOT NULL,
+        item_id INTEGER NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, item_type, item_id)
+    )
+    ''')
+    
+    # Add image_url column to barbers if it doesn't exist
+    cursor.execute("PRAGMA table_info(barbers)")
+    barber_columns = [col[1] for col in cursor.fetchall()]
+    
+    if 'image_url' not in barber_columns:
+        try:
+            cursor.execute("ALTER TABLE barbers ADD COLUMN image_url TEXT")
+            print("Added image_url column to barbers table")
+        except sqlite3.OperationalError as e:
+            print(f"Note: {e}")
+    
+    # Add logo_url column to shops if it doesn't exist
+    cursor.execute("PRAGMA table_info(shops)")
+    shop_columns = [col[1] for col in cursor.fetchall()]
+    
+    if 'logo_url' not in shop_columns:
+        try:
+            cursor.execute("ALTER TABLE shops ADD COLUMN logo_url TEXT")
+            print("Added logo_url column to shops table")
+        except sqlite3.OperationalError as e:
+            print(f"Note: {e}")
+    
+    conn.commit()
+    conn.close()
+
+ensure_favorites_tables()
 
 def ensure_bookings_table_columns():
     """Ensure all required columns exist in the bookings table"""
@@ -104,6 +149,15 @@ def hash_password(password):
 def verify_password(password, password_hash):
     """Verify password against hash"""
     return hash_password(password) == password_hash
+
+@app.route('/settings')
+def settings():
+    if not session.get('user_id'):
+        flash('Please log in to access settings.', 'warning')
+        return redirect(url_for('login'))
+    # You can pass user-specific settings data to the template later
+    return render_template('settings.html')
+
 
 # Add user authentication tables
 def init_auth_tables():
@@ -487,7 +541,12 @@ def find_nearby():
         return redirect(url_for('shop_owner_admin')) # Or another appropriate page
     """Route for finding nearby barbers"""
     location = request.args.get('location', '')
-    return render_template('find_nearby.html', location=location)
+    barber_name = request.args.get('barber_name', '')
+    shop_name = request.args.get('shop_name', '')
+    return render_template('find_nearby.html', 
+                           location=location,
+                           barber_name=barber_name,
+                           shop_name=shop_name)
 
 @app.route('/profile')
 def profile():
@@ -2031,8 +2090,7 @@ def get_shop_owner_stats(user_id):
         JOIN customers c ON b.customer_id = c.id
         WHERE br.shop_id = ? AND b.date >= date('now')
         ORDER BY b.date ASC, b.start_time ASC
-        LIMIT 10
-    ''', (shop_id,))
+        LIMIT 10    ''', (shop_id,))
     recent_bookings = cursor.fetchall()
     
     # Get barber performance data - safely handle status column
@@ -2069,6 +2127,7 @@ def get_shop_owner_stats(user_id):
         'month_revenue': round(month_revenue, 2),
         'avg_rating': round(avg_rating, 1),
         'recent_bookings': recent_bookings,
+       
         'barber_performance': barber_performance
     }
 
@@ -2198,7 +2257,7 @@ def api_shop_profile():
         
         # Check what columns exist in the shops table
         cursor.execute("PRAGMA table_info(shops)")
-        shop_columns = [column[1] for column in cursor.fetchall()]
+        shop_columns = [col[1] for col in cursor.fetchall()]
         
         # Check what columns exist in the bookings table
         cursor.execute("PRAGMA table_info(bookings)")
@@ -2708,50 +2767,96 @@ def placeholder():
 # API route for nearby barbers search
 @app.route('/api/nearby-barbers')
 def api_nearby_barbers():
-    """Get nearby barbers based on location"""
     try:
         location = request.args.get('location', '')
         radius = request.args.get('radius', '10')
-        
+        barber_name_filter = request.args.get('barber_name', '')
+        shop_name_filter = request.args.get('shop_name', '')
+        user_id = session.get('user_id') # Get current user
+
         conn = sqlite3.connect('barbershop.db')
         cursor = conn.cursor()
+
+        # First, check if image_url column exists
+        cursor.execute("PRAGMA table_info(barbers)")
+        columns = cursor.fetchall()
+        column_names = [col[1] for col in columns]
         
-        cursor.execute('''
-            SELECT b.id, b.name, b.specialties, b.rating, b.total_bookings, 
-                   b.working_days, b.start_time, b.end_time, s.name as shop_name,
-                   s.address, s.phone
+        # Build query based on available columns
+        select_fields = [
+            "b.id", "b.name", "b.specialties", "b.rating", "b.total_bookings",
+            "b.working_days", "b.start_time", "b.end_time", "s.name as shop_name",
+            "s.address", "s.phone", "s.id as shop_id"
+        ]
+        
+        # Add image_url if it exists
+        if 'image_url' in column_names:
+            select_fields.append("b.image_url")
+        
+        query = f'''
+            SELECT {', '.join(select_fields)}
             FROM barbers b
             JOIN shops s ON b.shop_id = s.id
             WHERE b.status = 'active'
-            ORDER BY b.rating DESC
-        ''')
+        '''
+        params = []
+
+        if barber_name_filter:
+            query += ' AND b.name LIKE ?'
+            params.append(f'%{barber_name_filter}%')
         
-        barbers = cursor.fetchall()
-        conn.close()
+        if shop_name_filter:
+            query += ' AND s.name LIKE ?'
+            params.append(f'%{shop_name_filter}%')
         
-        # Format barber data
+        query += ' ORDER BY b.rating DESC'
+        
+        cursor.execute(query, tuple(params))
+        barbers_data = cursor.fetchall()
+        
+        favorite_barber_ids = set()
+        favorite_shop_ids = set()
+        if user_id:
+            favorite_barber_ids = Favorite.get_user_favorite_ids_by_type(user_id, 'barber')
+            favorite_shop_ids = Favorite.get_user_favorite_ids_by_type(user_id, 'shop')
+
         barber_list = []
-        for barber in barbers:
+        for barber_row in barbers_data:
+            barber_id = barber_row[0]
+            # shop_id is now at a different index due to our dynamic column selection
+            shop_id = barber_row[11]  # Adjust this if needed based on your query
+            
+            # Check if image_url exists in the result
+            image_url = None
+            if 'image_url' in column_names and len(barber_row) > 12:
+                image_url = barber_row[12]
+            
             barber_list.append({
-                'id': barber[0],
-                'name': barber[1],
-                'specialties': barber[2] or 'General Services',
-                'rating': barber[3] or 4.5,
-                'total_bookings': barber[4] or 0,
-                'working_days': barber[5] or 'Monday-Friday',
-                'hours': f"{barber[6] or '10:00'} - {barber[7] or '16:00'}",
-                'shop_name': barber[8] or 'Elite Barber Shop',
-                'address': barber[9] or '123 Main Street',
-                'phone': barber[10] or '+1-555-SHOP',
-                'distance': f"{random.uniform(0.5, 15.0):.1f} km",  # Simulated distance
-                'availability': 'Available' if random.random() > 0.3 else 'Busy'
+                'id': barber_id,
+                'name': barber_row[1],
+                'specialties': barber_row[2] or 'General Services',
+                'rating': barber_row[3] or 4.5,
+                'total_bookings': barber_row[4] or 0,
+                'working_days': barber_row[5] or 'Monday-Friday',
+                'hours': f"{barber_row[6] or '10:00'} - {barber_row[7] or '16:00'}",
+                'shop_name': barber_row[8] or 'Elite Barber Shop',
+                'address': barber_row[9] or '123 Main Street',
+                'phone': barber_row[10] or '+1-555-SHOP',
+                'image_url': image_url or f"https://ui-avatars.com/api/?name={barber_row[1].replace(' ', '+')}&background=random",
+                'shop_id': shop_id,
+                'is_favorite_barber': barber_id in favorite_barber_ids if user_id else False,
+                'is_favorite_shop': shop_id in favorite_shop_ids if user_id else False,
+                'distance': f"{random.uniform(0.5, 15.0):.1f} km",
+                'availability': 'Available' if random.random() > 0.3 else 'Busy' 
             })
         
         return jsonify(barber_list)
         
     except Exception as e:
         print(f"Error in nearby barbers API: {e}")
-        return jsonify([]), 500
+        import traceback
+        traceback.print_exc()  # Print the full traceback for debugging
+        return jsonify({"error": str(e), "message": "Failed to fetch nearby barbers"}), 500
 
 # Geo reverse coding API (for location services)
 @app.route('/api/reverse-geocode')
@@ -2942,56 +3047,342 @@ def inject_global_vars():
         'app_version': '1.0.0'
     }
 
-# Before request handler for session management
-@app.before_request
-def before_request():
-    """Handle session and authentication before each request"""
-    # Make session permanent if user is logged in
-    if session.get('user_id'):
-        session.permanent = True
-    
-    # Add CSRF protection for state-changing requests
-    if request.method in ['POST', 'PUT', 'DELETE']:
-        # Basic CSRF protection (you might want to implement proper CSRF tokens)
-        pass
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get('user_id') is None:
+            flash("You must be logged in to access this page.", "warning")
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
 
-# After request handler for security headers
-@app.after_request
-def after_request(response):
-    """Add security headers to all responses"""
-    # Security headers
-    response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-Frame-Options'] = 'DENY'
-    response.headers['X-XSS-Protection'] = '1; mode=block'
-    
-    # Cache control for static files
-    if request.endpoint == 'static':
-        response.headers['Cache-Control'] = 'public, max-age=31536000'
-    
-    return response
+@app.route('/favorites')
+@login_required
+def favorites():
+    if session.get('user_type') != 'customer':
+        flash('Access denied.', 'danger')
+        return redirect(url_for('home'))
+    return render_template('favorites.html')
 
-# Main application entry point
+@app.route('/barber-favorites')
+@login_required
+def barber_favorites_page():
+    if session.get('user_type') != 'barber':
+        flash('Access denied. This page is for barbers only.', 'danger')
+        return redirect(url_for('home'))
+    return render_template('barber_favorites.html')
+
+@app.route('/api/favorites')
+@login_required
+def api_get_favorites():
+    """Get user's favorites"""
+    user_id = session.get('user_id')
+    
+    try:
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        
+        # Check if user_favorites table exists
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='user_favorites'")
+        if not cursor.fetchone():
+            # Create the table if it doesn't exist
+            cursor.execute('''
+            CREATE TABLE user_favorites (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                item_type TEXT NOT NULL,
+                item_id INTEGER NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(user_id, item_type, item_id)
+            )
+            ''')
+            conn.commit()
+        
+        # First, check what columns exist in barbers table
+        cursor.execute("PRAGMA table_info(barbers)")
+        barber_columns = [col[1] for col in cursor.fetchall()]
+        has_image_url = 'image_url' in barber_columns
+        
+        # Similarly check what columns exist in shops table
+        cursor.execute("PRAGMA table_info(shops)")
+        shop_columns = [col[1] for col in cursor.fetchall()]
+        has_logo_url = 'logo_url' in shop_columns
+        
+        # Get favorite barbers
+        barber_query = f'''
+            SELECT f.item_id, b.name, {('b.image_url' if has_image_url else "''")} as image_url, 
+                   s.name as shop_name, COALESCE(b.specialties, 'General Services') as specialties,
+                   COALESCE(b.rating, 4.5) as rating, COALESCE(b.total_bookings, 0) as total_bookings
+            FROM user_favorites f
+            JOIN barbers b ON f.item_id = b.id
+            JOIN shops s ON b.shop_id = s.id
+            WHERE f.user_id = ? AND f.item_type = 'barber'
+        '''
+        
+        cursor.execute(barber_query, (user_id,))
+        barber_rows = cursor.fetchall()
+        
+        # Get favorite shops
+        shop_query = f'''
+            SELECT f.item_id, s.name, {('s.logo_url' if has_logo_url else "''")} as logo_url, 
+                   s.address, s.phone
+            FROM user_favorites f
+            JOIN shops s ON f.item_id = s.id
+            WHERE f.user_id = ? AND f.item_type = 'shop'
+        '''
+        
+        cursor.execute(shop_query, (user_id,))
+        shop_rows = cursor.fetchall()
+        conn.close()
+        
+        # Format barber data
+        barbers = []
+        for b in barber_rows:
+            barber_name = b[1]
+            image_url = b[2] if b[2] else f"https://ui-avatars.com/api/?name={barber_name.replace(' ', '+')}&background=random"
+            barbers.append({
+                'id': b[0],
+                'name': barber_name,
+                'image_url': image_url,
+                'shop_name': b[3],
+                'specialties': b[4],
+                'rating': b[5],
+                'total_bookings': b[6]
+            })
+        
+        # Format shop data
+        shops = []
+        for s in shop_rows:
+            shop_name = s[1]
+            logo_url = s[2] if s[2] else f"https://ui-avatars.com/api/?name={shop_name.replace(' ', '+')}&background=random&size=250&font-size=0.33"
+            shops.append({
+                'id': s[0],
+                'name': shop_name,
+                'logo_url': logo_url,
+                'address': s[3] or 'Address not available',
+                'phone': s[4] or 'Phone not available'
+            })
+        
+        return jsonify({
+            'barbers': barbers,
+            'shops': shops
+        })
+    except Exception as e:
+        print(f"Error fetching favorites: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'barbers': [],
+            'shops': []
+        })
+
+@app.route('/api/favorites/add', methods=['POST'])
+def add_favorite():
+    """Add an item to user's favorites"""
+    if not session.get('user_id'):
+        return jsonify({"success": False, "message": "Please sign in to add favorites"}), 401
+    
+    try:
+        data = request.json
+        item_type = data.get('item_type')
+        item_id = data.get('item_id')
+        
+        if not item_type or item_id is None:
+            return jsonify({"success": False, "message": "Missing item_type or item_id"}), 400
+        
+        if item_type not in ['barber', 'shop', 'customer']:
+            return jsonify({"success": False, "message": "Invalid item_type"}), 400
+        
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        
+        # Check if user_favorites table exists
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='user_favorites'")
+        if not cursor.fetchone():
+            # Create the table if it doesn't exist
+            cursor.execute('''
+            CREATE TABLE user_favorites (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                item_type TEXT NOT NULL,
+                item_id INTEGER NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(user_id, item_type, item_id)
+            )
+            ''')
+        
+        # Check if already a favorite
+        cursor.execute('''
+            SELECT id FROM user_favorites 
+            WHERE user_id = ? AND item_type = ? AND item_id = ?
+        ''', (session.get('user_id'), item_type, item_id))
+        
+        if cursor.fetchone():
+            conn.close()
+            return jsonify({
+                "success": False, 
+                "message": f"{item_type.capitalize()} is already in your favorites"
+            }), 409
+        
+        # Add to favorites
+        cursor.execute('''
+            INSERT INTO user_favorites (user_id, item_type, item_id)
+            VALUES (?, ?, ?)
+        ''', (session.get('user_id'), item_type, item_id))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            "success": True, 
+            "message": f"{item_type.capitalize()} added to favorites"
+        })
+            
+    except Exception as e:
+        print(f"Error adding to favorites: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            "success": False, 
+            "message": "An error occurred while adding to favorites"
+        }), 500
+
+@app.route('/api/favorites/remove', methods=['POST'])
+def remove_favorite():
+    """Remove an item from user's favorites"""
+    if not session.get('user_id'):
+        return jsonify({"success": False, "message": "Please sign in to manage favorites"}), 401
+    
+    try:
+        data = request.json
+        item_type = data.get('item_type')
+        item_id = data.get('item_id')
+        
+        if not item_type or item_id is None:
+            return jsonify({"success": False, "message": "Missing item_type or item_id"}), 400
+        
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            DELETE FROM user_favorites 
+            WHERE user_id = ? AND item_type = ? AND item_id = ?
+        ''', (session.get('user_id'), item_type, item_id))
+        
+        removed = cursor.rowcount > 0
+        conn.commit()
+        conn.close()
+        
+        if removed:
+            return jsonify({
+                "success": True, 
+                "message": f"{item_type.capitalize()} removed from favorites"
+            })
+        else:
+            return jsonify({
+                "success": False, 
+                "message": f"{item_type.capitalize()} was not in your favorites"
+            }), 404
+            
+    except Exception as e:
+        print(f"Error removing from favorites: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            "success": False, 
+            "message": "An error occurred while removing from favorites"
+        }), 500
+
+@app.route('/api/notifications/preview')
+def api_notifications_preview():
+    """Get a preview of notifications for the current user"""
+    if not session.get('user_id'):
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    try:
+        user_id = session.get('user_id')
+        # Get unread count only
+        unread_count = Notification.get_unread_count(user_id)
+        
+        # Get only the latest 3 notifications
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT id, title, message, created_at, is_read 
+            FROM notifications 
+            WHERE user_id = ? 
+            ORDER BY created_at DESC LIMIT 3
+        ''', (user_id,))
+        
+        recent_notifications = []
+        for note in cursor.fetchall():
+            recent_notifications.append({
+                'id': note[0],
+                'title': note[1],
+                'message': note[2],
+                'created_at': note[3],
+                'is_read': bool(note[4])
+            })
+        
+        conn.close()
+        
+        return jsonify({
+            'unread_count': unread_count,
+            'notifications': recent_notifications
+        })
+    except Exception as e:
+        print(f"Error getting notification preview: {e}")
+        return jsonify({'unread_count': 0, 'notifications': []}), 500
+
 if __name__ == '__main__':
-    # Development settings
-    debug_mode = os.environ.get('FLASK_DEBUG', 'True').lower() in ['true', '1', 'yes']
-    port = int(os.environ.get('PORT', 5000))
-    host = os.environ.get('HOST', '127.0.0.1')
+    import os
+    import logging
     
-    print(f"🚀 Starting BookaBarber application...")
-    print(f"📍 Server: http://{host}:{port}")
-    print(f"🔧 Debug Mode: {debug_mode}")
-    print(f"📊 Database: barbershop.db")
-    print("\n🎯 Demo Accounts:")
-    print("   Customer: customer@demo.com / password")
-    print("   Barber: barber@demo.com / password") 
-    print("   Shop Owner: owner@demo.com / password")
-    print("   Super Admin: admin@demo.com / password")
-    print("\n✨ Happy booking!")
+    # Configure basic logging
+    logging.basicConfig(level=logging.INFO, 
+                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    logger = logging.getLogger(__name__)
     
-    # Run the Flask application
-    app.run(
-        host=host,
-        port=port,
-        debug=debug_mode,
-        threaded=True
-    )
+    # Determine environment (development or production)
+    ENV = os.environ.get('FLASK_ENV', 'development')
+    PORT = int(os.environ.get('PORT', 5000))
+    
+    # Force debug mode if explicitly requested
+    FORCE_DEBUG = os.environ.get('FORCE_DEBUG', '').lower() in ('true', '1', 'yes')
+    
+    logger.info(f"Starting application in {ENV} mode on port {PORT}")
+    
+    if ENV == 'production' and not FORCE_DEBUG:
+        # Production settings
+        app.config['SESSION_COOKIE_SECURE'] = True
+        app.config['DEBUG'] = False
+        app.config['ENV'] = 'production'
+        
+        logger.info("Running with production settings (debug OFF)")
+        
+        # Enable WSGI middleware if needed in production
+        # from werkzeug.middleware.proxy_fix import ProxyFix
+        # app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+        
+        app.run(
+            host='0.0.0.0',
+            port=PORT,
+            debug=False,
+            threaded=True
+        )
+    else:
+        # Development settings with hot reloading enabled
+        app.config['DEBUG'] = True
+        app.config['ENV'] = 'development'
+        app.config['TEMPLATES_AUTO_RELOAD'] = True
+        
+        logger.info("Running with development settings (debug ON, hot reload ENABLED)")
+        
+        # Use Flask's built-in development server with auto-reloader
+        app.run(
+            host='0.0.0.0',
+            port=PORT,
+            debug=True,  # Enables auto-reloader and debugger
+            use_reloader=True,
+            threaded=True
+        )

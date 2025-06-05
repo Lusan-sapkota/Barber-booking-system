@@ -1,0 +1,503 @@
+{# filepath: templates/settings.html #}
+{% extends "base.html" %}
+
+{% block title %}User Settings - BookaBarber{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --settings-section-bg: #ffffff;
+        --settings-border: #dee2e6;
+        --settings-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        --icon-bg: rgba(13, 110, 253, 0.1);
+        --toggle-bg: #e9ecef;
+        --toggle-button: #ffffff;
+        --toggle-active-bg: #0d6efd;
+        --section-divider: #f1f1f1;
+    }
+
+    [data-theme="dark"] {
+        --settings-section-bg: #1e1e1e;
+        --settings-border: #333333;
+        --settings-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+        --icon-bg: rgba(13, 110, 253, 0.15);
+        --toggle-bg: #333333;
+        --toggle-button: #444444;
+        --toggle-active-bg: #0d6efd;
+        --section-divider: #333333;
+    }
+
+    .settings-page {
+        padding-bottom: 3rem;
+    }
+
+    .settings-header {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 50%, #084298 100%);
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+        color: white;
+    }
+
+    .settings-section {
+        background-color: var(--settings-section-bg);
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--settings-shadow);
+        transition: all 0.3s ease;
+    }
+
+    .settings-section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15);
+    }
+
+    .settings-section-title {
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 600;
+    }
+
+    .icon-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        background-color: var(--icon-bg);
+        color: #0d6efd;
+    }
+
+    .settings-item {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--section-divider);
+    }
+
+    .settings-item:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .setting-title {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .setting-description {
+        margin-bottom: 1rem;
+        opacity: 0.7;
+    }
+
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--toggle-bg);
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: var(--toggle-button);
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+        background-color: var(--toggle-active-bg);
+    }
+
+    input:checked + .toggle-slider:before {
+        transform: translateX(26px);
+    }
+
+    .notification-preview {
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-top: 1rem;
+        border: 1px solid var(--settings-border);
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
+    }
+
+    .notification-preview:hover {
+        opacity: 1;
+    }
+    
+    /* Notification display for testing */
+    .test-notification-btns {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+    }
+    
+    .test-notification-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-page">
+    <!-- Settings Header -->
+    <div class="settings-header">
+        <div class="container">
+            <h1 class="display-5 fw-bold">Account Settings</h1>
+            <p class="lead">Manage your profile, preferences, and notification settings.</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Profile Settings -->
+        <div class="settings-section">
+            <h2 class="settings-section-title">
+                <div class="icon-container">
+                    <i class="fas fa-user fa-lg"></i>
+                </div>
+                Profile Information
+            </h2>
+            
+            <div class="settings-item">
+                <h3 class="setting-title">Personal Information</h3>
+                <p class="setting-description">Update your basic profile information.</p>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="name" value="{{ user.name if user else 'Your Name' }}">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" value="{{ user.email if user else 'your.email@example.com' }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" value="{{ user.phone if user else '555-123-4567' }}">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label for="home_location" class="form-label">Home Location</label>
+                            <input type="text" class="form-control" id="home_location" value="{{ user.location if user else '123 Main St, Anytown USA' }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                    <button class="btn btn-secondary" type="button" id="cancel-profile-btn">Cancel</button>
+                    <button class="btn btn-primary" type="button" id="save-profile-btn">Save Changes</button>
+                </div>
+            </div>
+            
+            <div class="settings-item">
+                <h3 class="setting-title">Password</h3>
+                <p class="setting-description">Update your password regularly to keep your account secure.</p>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label for="current_password" class="form-label">Current Password</label>
+                            <input type="password" class="form-control" id="current_password">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label for="new_password" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="new_password">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" id="confirm_password">
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                    <button class="btn btn-secondary" type="button" id="cancel-password-btn">Cancel</button>
+                    <button class="btn btn-primary" type="button" id="save-password-btn">Update Password</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Settings -->
+        <div class="settings-section">
+            <h2 class="settings-section-title">
+                <div class="icon-container">
+                    <i class="fas fa-bell fa-lg"></i>
+                </div>
+                Notification Preferences
+            </h2>
+            
+            <div class="settings-item">
+                <h3 class="setting-title">Email Notifications</h3>
+                <p class="setting-description">Control which emails you receive from BookaBarber.</p>
+                
+                <div class="mb-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-bold">Booking Confirmations</div>
+                        <div class="text-muted">Receive email when a booking is confirmed</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="email_booking_confirmation" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="mb-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-bold">Reminders</div>
+                        <div class="text-muted">Receive a reminder email before your appointment</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="email_reminders" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="mb-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-bold">Promotions & News</div>
+                        <div class="text-muted">Receive occasional promotions and news</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="email_promotions">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="settings-item">
+                <h3 class="setting-title">Push Notifications</h3>
+                <p class="setting-description">Control which notifications appear in your browser.</p>
+                
+                <div class="mb-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-bold">Booking Updates</div>
+                        <div class="text-muted">Receive notifications when your booking status changes</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="push_booking_updates" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="mb-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-bold">New Features</div>
+                        <div class="text-muted">Be notified when we add new features</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="push_new_features">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-end">
+                <button class="btn btn-primary" type="button" id="save-notifications-btn">Save Notification Settings</button>
+            </div>
+        </div>
+
+        <!-- Test Notifications (helpful for debugging) -->
+        <div class="settings-section">
+            <h2 class="settings-section-title">
+                <div class="icon-container">
+                    <i class="fas fa-vial fa-lg"></i>
+                </div>
+                Test Notifications
+            </h2>
+            <p class="mb-3">Click the buttons below to test notification display on this site.</p>
+            
+            <div class="test-notification-btns">
+                <button class="btn btn-outline-success test-notification-btn" onclick="showSystemNotification('success', 'Success', 'This is a success notification!')">
+                    <i class="fas fa-check-circle me-2"></i>Success
+                </button>
+                <button class="btn btn-outline-danger test-notification-btn" onclick="showSystemNotification('error', 'Error', 'This is an error notification!')">
+                    <i class="fas fa-exclamation-circle me-2"></i>Error
+                </button>
+                <button class="btn btn-outline-warning test-notification-btn" onclick="showSystemNotification('warning', 'Warning', 'This is a warning notification!')">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Warning
+                </button>
+                <button class="btn btn-outline-info test-notification-btn" onclick="showSystemNotification('info', 'Information', 'This is an information notification!')">
+                    <i class="fas fa-info-circle me-2"></i>Info
+                </button>
+                <button class="btn btn-outline-primary test-notification-btn" onclick="showDemoSelectedNotification()">
+                    <i class="fas fa-user me-2"></i>Demo Selected
+                </button>
+                <button class="btn btn-outline-success test-notification-btn" onclick="showLoginSuccessNotification()">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login Success
+                </button>
+            </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="settings-section" style="border: 1px solid #dc3545;">
+            <h2 class="settings-section-title" style="color: #dc3545;">
+                <div class="icon-container" style="background-color: rgba(220, 53, 69, 0.1); color: #dc3545;">
+                    <i class="fas fa-exclamation-triangle fa-lg"></i>
+                </div>
+                Danger Zone
+            </h2>
+            
+            <div class="settings-item">
+                <h3 class="setting-title" style="color: #dc3545;">Delete Account</h3>
+                <p class="setting-description">Permanently delete your account and all associated data.</p>
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    This action cannot be undone. All your data will be permanently deleted.
+                </div>
+                <div class="d-flex justify-content-end">
+                    <button class="btn btn-danger" type="button" id="delete-account-btn">Delete My Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Confirmation Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteAccountModalLabel">Confirm Account Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you absolutely sure you want to delete your account? This action cannot be undone.</p>
+                <p>Please type <strong>DELETE</strong> to confirm:</p>
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="deleteConfirmText" placeholder="Type DELETE here">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn" disabled>Delete Account</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Save profile info
+    const saveProfileBtn = document.getElementById('save-profile-btn');
+    if (saveProfileBtn) {
+        saveProfileBtn.addEventListener('click', function() {
+            showSystemNotification('success', 'Profile Updated', 'Your profile information has been updated successfully.');
+        });
+    }
+    
+    // Save password
+    const savePasswordBtn = document.getElementById('save-password-btn');
+    if (savePasswordBtn) {
+        savePasswordBtn.addEventListener('click', function() {
+            const newPassword = document.getElementById('new_password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            
+            if (!newPassword) {
+                showSystemNotification('error', 'Password Error', 'Please enter a new password.');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showSystemNotification('error', 'Password Mismatch', 'New password and confirmation do not match.');
+                return;
+            }
+            
+            showSystemNotification('success', 'Password Updated', 'Your password has been changed successfully.');
+        });
+    }
+    
+    // Save notification settings
+    const saveNotificationsBtn = document.getElementById('save-notifications-btn');
+    if (saveNotificationsBtn) {
+        saveNotificationsBtn.addEventListener('click', function() {
+            showSystemNotification('success', 'Settings Saved', 'Your notification preferences have been updated.');
+        });
+    }
+    
+    // Delete account handling
+    const deleteAccountBtn = document.getElementById('delete-account-btn');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const deleteConfirmText = document.getElementById('deleteConfirmText');
+    
+    if (deleteAccountBtn) {
+        deleteAccountBtn.addEventListener('click', function() {
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteAccountModal'));
+            deleteModal.show();
+        });
+    }
+    
+    if (deleteConfirmText) {
+        deleteConfirmText.addEventListener('input', function() {
+            if (this.value === 'DELETE') {
+                confirmDeleteBtn.disabled = false;
+            } else {
+                confirmDeleteBtn.disabled = true;
+            }
+        });
+    }
+    
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', function() {
+            showSystemNotification('success', 'Account Deleted', 'Your account has been successfully deleted.');
+            
+            // In a real app, redirect to home after short delay
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 2000);
+        });
+    }
+    
+    // Functions for testing specific notifications
+    window.showDemoSelectedNotification = function() {
+        showSystemNotification('info', 'Demo Account Selected', 'Customer demo account credentials have been filled in.');
+    }
+    
+    window.showLoginSuccessNotification = function() {
+        showSystemNotification('success', 'Login Successful', 'You have been logged in successfully!');
+    }
+});
+</script>
+{% endblock %}

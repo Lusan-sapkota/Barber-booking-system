@@ -55,6 +55,8 @@ def init_db():
         end_time TEXT DEFAULT '16:00',
         rating REAL DEFAULT 0.0,
         total_bookings INTEGER DEFAULT 0,
+        image_url TEXT,
+        role TEXT DEFAULT 'Barber',
         FOREIGN KEY (user_id) REFERENCES users (id),
         FOREIGN KEY (shop_id) REFERENCES shops (id)
     )
@@ -232,6 +234,19 @@ def init_db():
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (shop_id) REFERENCES shops (id)
+    )
+    ''')
+    
+    # Create user_favorites table
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS user_favorites (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        item_type TEXT NOT NULL, -- 'barber' or 'shop'
+        item_id INTEGER NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+        UNIQUE (user_id, item_type, item_id)
     )
     ''')
     
@@ -629,6 +644,22 @@ class Barber:
         barbers = cursor.fetchall()
         conn.close()
         return barbers
+        
+    @staticmethod
+    def update_image(barber_id, image_url):
+        """Update barber's image URL"""
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        try:
+            cursor.execute('UPDATE barbers SET image_url = ? WHERE id = ?', 
+                        (image_url, barber_id))
+            conn.commit()
+            return True
+        except Exception as e:
+            print(f"Error updating barber image: {e}")
+            return False
+        finally:
+            conn.close()
 
 class Customer:
     @staticmethod
@@ -816,3 +847,119 @@ class Inventory:
         items = cursor.fetchall()
         conn.close()
         return items
+
+class Favorite:
+    @staticmethod
+    def add(user_id, item_type, item_id):
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        
+        # First, check if the table exists
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='user_favorites'")
+        if not cursor.fetchone():
+            # Create the table if it doesn't exist
+            cursor.execute('''
+            CREATE TABLE user_favorites (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                item_type TEXT NOT NULL,
+                item_id INTEGER NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(user_id, item_type, item_id)
+            )
+            ''')
+        
+        try:
+            cursor.execute('''
+                INSERT INTO user_favorites (user_id, item_type, item_id)
+                VALUES (?, ?, ?)
+            ''', (user_id, item_type, item_id))
+            conn.commit()
+            success = cursor.rowcount > 0
+        except sqlite3.IntegrityError:
+            # Already exists
+            success = False
+        finally:
+            conn.close()
+            
+        return success
+    
+    @staticmethod
+    def remove(user_id, item_type, item_id):
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            DELETE FROM user_favorites
+            WHERE user_id = ? AND item_type = ? AND item_id = ?
+        ''', (user_id, item_type, item_id))
+        
+        removed = cursor.rowcount > 0
+        conn.commit()
+        conn.close()
+        
+        return removed
+    
+    @staticmethod
+    def get_by_user(user_id):
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        
+        # Get barber favorites
+        cursor.execute('''
+            SELECT f.item_id, b.name, COALESCE(b.image_url, '') as image_url, s.name as shop_name
+            FROM user_favorites f
+            JOIN barbers b ON f.item_id = b.id
+            JOIN shops s ON b.shop_id = s.id
+            WHERE f.user_id = ? AND f.item_type = 'barber'
+        ''', (user_id,))
+        
+        barbers = []
+        for row in cursor.fetchall():
+            barbers.append({
+                'id': row[0],
+                'name': row[1],
+                'image_url': row[2] if row[2] else f"https://ui-avatars.com/api/?name={row[1].replace(' ', '+')}&background=random",
+                'shop_name': row[3],
+                'type': 'barber'
+            })
+        
+        # Get shop favorites
+        cursor.execute('''
+            SELECT f.item_id, s.name, COALESCE(s.logo_url, '') as logo_url, s.address
+            FROM user_favorites f
+            JOIN shops s ON f.item_id = s.id
+            WHERE f.user_id = ? AND f.item_type = 'shop'
+        ''', (user_id,))
+        
+        shops = []
+        for row in cursor.fetchall():
+            shops.append({
+                'id': row[0],
+                'name': row[1],
+                'logo_url': row[2] if row[2] else f"https://ui-avatars.com/api/?name={row[1].replace(' ', '+')}&background=random&size=250&font-size=0.33",
+                'address': row[3],
+                'type': 'shop'
+            })
+        
+        conn.close()
+        
+        return {
+            'barbers': barbers,
+            'shops': shops
+        }
+    
+    @staticmethod
+    def get_user_favorite_ids_by_type(user_id, item_type):
+        conn = sqlite3.connect('barbershop.db')
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT item_id FROM user_favorites
+            WHERE user_id = ? AND item_type = ?
+        ''', (user_id, item_type))
+        
+        ids = {row[0] for row in cursor.fetchall()}
+        conn.close()
+        
+        return ids

@@ -621,13 +621,6 @@ footer::before {
     transform: translateX(5px);
 }
 
-.social-links {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    margin-top: 1rem;
-}
-
 .social-links a {
     display: flex;
     align-items: center;
@@ -3108,7 +3101,8 @@ footer::before {
 .location-content {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    justify-content: center;
+    align-items: center;
 }
 
 .location-header {
@@ -3138,10 +3132,11 @@ footer::before {
     opacity: 0.9;
     transition: all 0.3s ease;
     cursor: help;
-    max-width: 200px;
+    width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+
 }
 
 .location-text:hover {

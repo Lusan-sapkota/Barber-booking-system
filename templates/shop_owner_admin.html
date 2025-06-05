@@ -569,9 +569,16 @@ body {
   margin-bottom: 1rem;
 }
 
+.shop-header {
+  background: var(--header-bg);
+  color: var(--header-text);
+  padding: 1rem 0; 
+  margin-bottom: 1.5rem; 
+}
+
 .shop-logo img {
-  width: 100px;
-  height: 100px;
+  width: 70px;
+  height: 70px;
   border-radius: 10px;
   object-fit: cover;
   border: 3px solid white;
@@ -580,12 +587,12 @@ body {
 
 .shop-logo .logo-change {
   position: absolute;
-  bottom: 5px;
-  right: 5px;
+  width: 24px;  
+  height: 24px;
+  bottom: 3px;
+  right: 3px;
   background: var(--primary-color);
   color: white;
-  width: 30px;
-  height: 30px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -859,10 +866,6 @@ body {
     border-color: var(--secondary-color);
 }
 
-/* Ensure proper dark mode spacing at bottom of page */
-[data-theme="dark"] .container {
-    margin-bottom: 80px;
-}
 </style>
 {% endblock %}
 
@@ -4925,9 +4928,6 @@ document.addEventListener('DOMContentLoaded', function() {
             min-height: 100vh;
         }
         
-        .container {
-            margin-bottom: 50px;
-        }
     `;
     
     document.head.appendChild(enhancedStyle);

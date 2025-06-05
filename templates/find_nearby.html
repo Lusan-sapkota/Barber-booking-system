@@ -232,6 +232,44 @@
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
 
+/* Notification Dark Mode Styling */
+[data-theme="dark"] .system-notification,
+[data-theme="dark"] .login-required-notification {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .notification-title {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .notification-message {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="dark"] .notification-btn-primary {
+  background: linear-gradient(135deg, #0d6efd, #0a58ca);
+  color: white;
+}
+
+[data-theme="dark"] .notification-btn-secondary {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Fix the test notification styles in dark mode */
+[data-theme="dark"] .test-notification-btn {
+  color: #e0e0e0;
+  border-color: #444;
+  background-color: #2d2d2d;
+}
+
+[data-theme="dark"] .test-notification-btn:hover {
+  background-color: #3d3d3d;
+}
+
 /* Search Section Styling */
 .search-section {
   background-color: var(--card-bg);
@@ -561,29 +599,30 @@
   padding: 1.5rem;
 }
 
-/* Dark Mode Toggle Button */
-.dark-mode-toggle {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 1000;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: var(--card-bg);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  color: var(--text-color);
+/* Favorite Button Styles */
+.favorite-btn {
+    background: transparent;
+    border: none;
+    color: #ccc; /* Default color for non-favorite */
+    cursor: pointer;
+    font-size: 1.5rem; /* Adjust size as needed */
+    padding: 0.25rem 0.5rem;
+    transition: color 0.2s ease-in-out, transform 0.2s ease;
 }
-
-.dark-mode-toggle:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+.favorite-btn.is-favorite {
+    color: #dc3545; /* Red color for favorite */
+}
+.favorite-btn:hover {
+    transform: scale(1.1);
+}
+.barber-card-list .card-body, .barber-card-grid .card-body {
+    position: relative; /* For absolute positioning of favorite button */
+}
+.favorite-btn-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
 }
 
 /* Responsive Adjustments */
@@ -745,6 +784,13 @@ body[data-theme="dark"] {
                     <i class="fas fa-search me-2"></i>Search
                 </button>
             </div>
+
+            <!-- Add shop search notification -->
+            <div class="mt-3 text-center">
+                <small class="text-muted">Looking for a specific barbershop? Try our 
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#shopSearchModalFindNearbyPage">Shop Search</a>
+                </small>
+            </div>
             
             <div class="location-actions">
                 <button class="use-location-btn" id="use-location-btn">
@@ -830,12 +876,41 @@ body[data-theme="dark"] {
         </div>
     </div>
 </div>
+
+<!-- Hovering Shop Search Button -->
+<div id="hovering-shop-search-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 1050;">
+    <button type="button" class="btn btn-info btn-lg rounded-circle shadow" data-bs-toggle="modal" data-bs-target="#shopSearchModalFindNearbyPage" title="Search Shop" style="width: 60px; height: 60px; color: white; padding: 0;">
+        <i class="fas fa-store-alt"></i>
+    </button>
+</div>
+
+<!-- Shop Search Modal -->
+<div class="modal fade" id="shopSearchModalFindNearbyPage" tabindex="-1" aria-labelledby="shopSearchModalFindNearbyPageLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="shopSearchModalFindNearbyPageLabel"><i class="fas fa-store me-2"></i>Search Shop</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                 <div class="mb-3">
+                    <label for="shop-search-input-find-nearby-page" class="form-label">Shop Name</label>
+                    <input type="text" id="shop-search-input-find-nearby-page" class="form-control" placeholder="Enter shop name...">
+                </div>
+                <!-- You can add a div here to display search results dynamically if needed -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="perform-shop-search-btn-find-nearby-page"><i class="fas fa-search me-1"></i>Search</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Original functionality
     const locationInput = document.getElementById('location-input');
     const radiusSelect = document.getElementById('radius-select');
     const searchBtn = document.getElementById('search-btn');
@@ -849,136 +924,236 @@ document.addEventListener('DOMContentLoaded', function() {
     const gridView = document.getElementById('grid-view');
     const listView = document.getElementById('list-view');
     
+    const performShopSearchBtn = document.getElementById('perform-shop-search-btn-find-nearby-page');
+    const shopSearchInput = document.getElementById('shop-search-input-find-nearby-page');
+
     let allBarbers = [];
     let filteredBarbers = [];
-    let currentView = 'list'; // Default view
+    let currentView = 'list';
 
-    // Create dark mode toggle
-    const toggleButton = document.createElement('button');
-    toggleButton.classList.add('dark-mode-toggle');
-    toggleButton.setAttribute('aria-label', 'Toggle dark mode');
-    toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
-    toggleButton.addEventListener('click', toggleDarkMode);
-    document.body.appendChild(toggleButton);
+    const initialBarberName = "{{ barber_name or '' }}";
+    const initialShopName = "{{ shop_name or '' }}";
+    const initialLocation = "{{ location or '' }}";
+    const isLoggedIn = "{{ 'true' if session.get('user_id') else 'false' }}" === 'true';
+
+
+    if (locationInput && initialLocation && !initialBarberName && !initialShopName) {
+        locationInput.value = initialLocation;
+    }
     
-    // Check for saved theme preference
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        toggleButton.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    async function loadNearbyBarbers(params = {}) {
+        const searchLocation = params.location !== undefined ? params.location : (locationInput ? locationInput.value.trim() : '');
+        const searchRadius = radiusSelect ? radiusSelect.value : '10';
+        const searchBarberName = params.barberName !== undefined ? params.barberName : '';
+        const searchShopName = params.shopName !== undefined ? params.shopName : '';
+
+        let queryParams = new URLSearchParams();
+        let searchingBySpecifics = false;
+
+        if (searchBarberName) {
+            queryParams.append('barber_name', searchBarberName);
+            searchingBySpecifics = true;
+        }
+        if (searchShopName) {
+            queryParams.append('shop_name', searchShopName);
+            searchingBySpecifics = true;
+        }
+        
+        // Only add location if not searching by specific barber/shop name, or if you want to combine
+        if (searchLocation && !searchingBySpecifics) { 
+            queryParams.append('location', searchLocation);
+            queryParams.append('radius', searchRadius);
+        }
+
+
+        if (queryParams.toString() === "") {
+             if (barbersContainer) {
+                 barbersContainer.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-map-signs fa-3x text-muted mb-3"></i>
+                        <h4>Enter a location or search by name</h4>
+                        <p class="text-muted">Use the search bar above or the shop search to get started.</p>
+                    </div>
+                `;
+            }
+            if(resultsCount) resultsCount.textContent = '0';
+            return;
+        }
+
+        if(searchBtn) {
+            searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Searching...';
+            searchBtn.disabled = true;
+        }
+        if(barbersContainer) barbersContainer.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-muted">Searching...</p>
+            </div>
+        `;
+
+        try {
+            const response = await fetch(`/api/nearby-barbers?${queryParams.toString()}`);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: `HTTP error! status: ${response.status}` }));
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+            const barbers = await response.json();
+            allBarbers = barbers;
+            applyFilters();
+
+        } catch (error) {
+            console.error('Error loading barbers:', error);
+            showSystemNotification('error', 'Search Error', `Failed to load barbers: ${error.message}`);
+            if(barbersContainer) barbersContainer.innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error loading barbers: ${error.message}. Please try again.
+                </div>
+            `;
+            updateResultsCount(0);
+        } finally {
+            if(searchBtn) {
+                searchBtn.innerHTML = '<i class="fas fa-search me-2"></i>Search';
+                searchBtn.disabled = false;
+            }
+        }
     }
 
-    // Load barbers on page load
-    loadNearbyBarbers();
+    if (initialBarberName) {
+        loadNearbyBarbers({ barberName: initialBarberName });
+    } else if (initialShopName) {
+        loadNearbyBarbers({ shopName: initialShopName });
+    } else if (initialLocation) {
+        loadNearbyBarbers({ location: initialLocation });
+    } else {
+        if (barbersContainer) {
+             barbersContainer.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="fas fa-map-signs fa-3x text-muted mb-3"></i>
+                    <h4>Enter a location or search by name</h4>
+                    <p class="text-muted">Use the search bar above or the shop search to get started.</p>
+                </div>
+            `;
+        }
+        if(resultsCount) resultsCount.textContent = '0';
+    }
 
-    // Event listeners
-    searchBtn.addEventListener('click', loadNearbyBarbers);
-    useLocationBtn.addEventListener('click', getUserLocation);
-    serviceFilter.addEventListener('change', applyFilters);
-    ratingFilter.addEventListener('change', applyFilters);
-    availabilityFilter.addEventListener('change', applyFilters);
-    clearFiltersBtn.addEventListener('click', clearFilters);
+    // Handle false search scenario
+    function handleEmptySearch() {
+        if(locationInput && locationInput.value.trim() === '') {
+            showSystemNotification('warning', 'Search Error', 'Please enter a location or search term to find barbers.');
+            return false;
+        }
+        return true;
+    }
     
-    // View toggle handlers
-    gridView.addEventListener('change', function() {
+    // Update your search button click handler
+    if (searchBtn) {
+        searchBtn.addEventListener('click', () => {
+            if(handleEmptySearch()) {
+                if(locationInput) locationInput.value = locationInput.value.trim(); 
+                loadNearbyBarbers({ location: locationInput ? locationInput.value : '' });
+            }
+        });
+    }
+    if (locationInput) {
+        locationInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                locationInput.value = locationInput.value.trim();
+                loadNearbyBarbers({ location: locationInput.value });
+            }
+        });
+    }
+    
+    if (performShopSearchBtn) {
+        performShopSearchBtn.addEventListener('click', function() {
+            const shopNameVal = shopSearchInput.value.trim();
+            if (shopNameVal) {
+                if(locationInput) locationInput.value = ''; 
+                loadNearbyBarbers({ shopName: shopNameVal });
+                var modalInstance = bootstrap.Modal.getInstance(document.getElementById('shopSearchModalFindNearbyPage'));
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            } else {
+                alert('Please enter a shop name.');
+            }
+        });
+    }
+    
+    if (useLocationBtn) useLocationBtn.addEventListener('click', getUserLocation);
+    if (serviceFilter) serviceFilter.addEventListener('change', applyFilters);
+    if (ratingFilter) ratingFilter.addEventListener('change', applyFilters);
+    if (availabilityFilter) availabilityFilter.addEventListener('change', applyFilters);
+    if (clearFiltersBtn) clearFiltersBtn.addEventListener('click', clearAndReloadFilters);
+    
+    if (gridView) gridView.addEventListener('change', function() {
         if (this.checked) {
             currentView = 'grid';
             displayBarbers(filteredBarbers);
         }
     });
     
-    listView.addEventListener('change', function() {
+    if (listView) listView.addEventListener('change', function() {
         if (this.checked) {
             currentView = 'list';
             displayBarbers(filteredBarbers);
         }
     });
 
-    // Handle enter key in location input
-    locationInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            loadNearbyBarbers();
-        }
-    });
-
-    async function loadNearbyBarbers() {
-        const location = locationInput.value.trim();
-        const radius = radiusSelect.value;
-
-        if (!location) {
-            alert('Please enter a location');
-            return;
-        }
-
-        // Show loading state
-        searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Searching...';
-        searchBtn.disabled = true;
-        
-        barbersContainer.innerHTML = `
-            <div class="text-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <p class="mt-3 text-muted">Searching for barbers near ${location}...</p>
-            </div>
-        `;
-
-        try {
-            const response = await fetch(`/api/nearby-barbers?location=${encodeURIComponent(location)}&radius=${radius}`);
-            const barbers = await response.json();
-
-            allBarbers = barbers;
-            filteredBarbers = barbers;
-            
-            displayBarbers(barbers);
-            updateResultsCount(barbers.length);
-
-        } catch (error) {
-            console.error('Error loading barbers:', error);
-            barbersContainer.innerHTML = `
-                <div class="alert alert-danger" role="alert">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    Error loading barbers. Please try again.
-                </div>
-            `;
-        } finally {
-            // Reset button
-            searchBtn.innerHTML = '<i class="fas fa-search me-2"></i>Search';
-            searchBtn.disabled = false;
-        }
-    }
-
-    function displayBarbers(barbers) {
-        if (barbers.length === 0) {
+    function displayBarbers(barbersToDisplay) {
+        if (!barbersContainer) return;
+        if (barbersToDisplay.length === 0) {
             barbersContainer.innerHTML = `
                 <div class="text-center py-5">
                     <i class="fas fa-search fa-3x text-muted mb-3"></i>
                     <h4>No barbers found</h4>
-                    <p class="text-muted">Try expanding your search radius or changing your location.</p>
+                    <p class="text-muted">Try expanding your search radius or changing your location/filters.</p>
                 </div>
             `;
+            updateResultsCount(0);
             return;
         }
-
+        updateResultsCount(barbersToDisplay.length);
         if (currentView === 'grid') {
-            displayGridView(barbers);
+            displayGridView(barbersToDisplay);
         } else {
-            displayListView(barbers);
+            displayListView(barbersToDisplay);
         }
     }
 
     function displayListView(barbers) {
+        if (!barbersContainer) return;
         const barbersHtml = barbers.map(barber => `
-            <div class="card mb-3">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <h5 class="card-title mb-2">
-                                <i class="fas fa-cut me-2 text-primary"></i>${barber.name}
-                            </h5>
+            <div class="card mb-3 shadow-sm barber-card-list">
+                <div class="row g-0">
+                    <div class="col-md-3">
+                        <img src="${barber.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(barber.name)}&background=random&color=fff&size=200`}" class="img-fluid rounded-start barber-list-image" alt="${barber.name}" style="object-fit: cover; height: 100%; width: 100%;">
+                    </div>
+                    <div class="col-md-9">
+                        <div class="card-body">
+                            ${isLoggedIn ? `
+                            <div class="favorite-btn-container">
+                                <button class="favorite-btn ${barber.is_favorite_barber ? 'is-favorite' : ''}" data-item-id="${barber.id}" data-item-type="barber" title="${barber.is_favorite_barber ? 'Remove from favorites' : 'Add to favorites'}">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                                <button class="favorite-btn ${barber.is_favorite_shop ? 'is-favorite' : ''}" data-item-id="${barber.shop_id}" data-item-type="shop" title="${barber.is_favorite_shop ? 'Remove shop from favorites' : 'Add shop to favorites'}">
+                                    <i class="fas fa-store"></i> <!-- Using store icon for shop favorite -->
+                                </button>
+                            </div>
+                            ` : ''}
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h5 class="card-title mb-1"><i class="fas fa-cut me-2 text-primary"></i>${barber.name}</h5>
+                                <span class="badge bg-success ms-2">${barber.distance || 'N/A'}</span>
+                            </div>
+                            <p class="card-text mb-1">
+                                <small class="text-muted"><i class="fas fa-store me-1"></i>${barber.shop_name || 'Independent'}</small>
+                            </p>
                             <p class="card-text mb-2">
-                                <strong>${barber.shop_name}</strong><br>
-                                <i class="fas fa-map-marker-alt me-1 text-muted"></i>${barber.address}
+                                <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>${barber.address || 'Address not available'}</small>
                             </p>
                             ${barber.specialties ? `
                                 <p class="card-text mb-2">
@@ -987,22 +1162,19 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </small>
                                 </p>
                             ` : ''}
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="rating">
-                                    ${generateStars(barber.rating)}
-                                    <span class="ms-1">${barber.rating}</span>
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="rating me-2">
+                                    ${generateStars(barber.rating || 0)}
+                                    <span class="ms-1">${(barber.rating || 0).toFixed(1)}</span>
                                 </div>
-                                <span class="badge bg-success">${barber.distance}</span>
+                                <small class="text-muted">(${barber.total_bookings || 0} bookings)</small>
                             </div>
-                        </div>
-                        <div class="col-md-4 text-end">
-                            <div class="mb-2">
-                                <a href="/booking?barber_id=${barber.id}" class="btn btn-primary">
+                             <p class="card-text mb-2"><small class="text-muted"><i class="fas fa-clock me-1"></i>Hours: ${barber.hours || 'N/A'}</small></p>
+                            <div class="mt-auto">
+                                <a href="/booking?barber_id=${barber.id}" class="btn btn-primary btn-sm">
                                     <i class="fas fa-calendar-plus me-2"></i>Book Now
                                 </a>
-                            </div>
-                            <div>
-                                <button class="btn btn-outline-secondary btn-sm" onclick="viewBarberDetails(${barber.id})">
+                                <button class="btn btn-outline-secondary btn-sm ms-2" onclick="viewBarberDetails(${barber.id})">
                                     <i class="fas fa-info-circle me-1"></i>Details
                                 </button>
                             </div>
@@ -1011,233 +1183,374 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `).join('');
-
         barbersContainer.innerHTML = barbersHtml;
+        attachFavoriteButtonListeners();
     }
 
     function displayGridView(barbers) {
+        if (!barbersContainer) return;
         const barbersHtml = `
-            <div class="grid-view-container">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                 ${barbers.map(barber => `
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title mb-2">
-                                <i class="fas fa-cut me-2 text-primary"></i>${barber.name}
-                            </h5>
-                            <p class="card-text mb-2">
-                                <strong>${barber.shop_name}</strong><br>
-                                <i class="fas fa-map-marker-alt me-1 text-muted"></i>${barber.address}
-                            </p>
-                            ${barber.specialties ? `
-                                <p class="card-text mb-2">
-                                    <small class="text-muted">
-                                        <i class="fas fa-star me-1"></i>Specialties: ${barber.specialties}
-                                    </small>
-                                </p>
-                            ` : ''}
-                            <div class="d-flex align-items-center gap-3 mb-3">
-                                <div class="rating">
-                                    ${generateStars(barber.rating)}
-                                    <span class="ms-1">${barber.rating}</span>
+                    <div class="col">
+                        <div class="card h-100 shadow-sm barber-card-grid">
+                            <img src="${barber.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(barber.name)}&background=random&color=fff&size=250`}" class="card-img-top barber-grid-image" alt="${barber.name}" style="height: 200px; object-fit: cover;">
+                            <div class="card-body d-flex flex-column">
+                                ${isLoggedIn ? `
+                                <div class="favorite-btn-container">
+                                    <button class="favorite-btn ${barber.is_favorite_barber ? 'is-favorite' : ''}" data-item-id="${barber.id}" data-item-type="barber" title="${barber.is_favorite_barber ? 'Remove from favorites' : 'Add to favorites'}">
+                                        <i class="fas fa-heart"></i>
+                                    </button>
+                                     <button class="favorite-btn ${barber.is_favorite_shop ? 'is-favorite' : ''}" data-item-id="${barber.shop_id}" data-item-type="shop" title="${barber.is_favorite_shop ? 'Remove shop from favorites' : 'Add shop to favorites'}">
+                                        <i class="fas fa-store"></i>
+                                    </button>
                                 </div>
-                                <span class="badge bg-success">${barber.distance}</span>
-                            </div>
-                            <div class="d-grid gap-2">
-                                <a href="/booking?barber_id=${barber.id}" class="btn btn-primary">
-                                    <i class="fas fa-calendar-plus me-2"></i>Book Now
-                                </a>
-                                <button class="btn btn-outline-secondary btn-sm" onclick="viewBarberDetails(${barber.id})">
-                                    <i class="fas fa-info-circle me-1"></i>Details
-                                </button>
+                                ` : ''}
+                                <h5 class="card-title mb-1"><i class="fas fa-cut me-2 text-primary"></i>${barber.name}</h5>
+                                <p class="card-text mb-1"><small class="text-muted"><i class="fas fa-store me-1"></i>${barber.shop_name || 'Independent'}</small></p>
+                                <p class="card-text mb-2"><small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>${barber.distance || 'N/A'}</small></p>
+                                ${barber.specialties ? `
+                                    <p class="card-text mb-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-star me-1"></i>${barber.specialties.length > 30 ? barber.specialties.substring(0, 27) + '...' : barber.specialties}
+                                        </small>
+                                    </p>
+                                ` : ''}
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="rating me-2">
+                                        ${generateStars(barber.rating || 0)}
+                                        <span class="ms-1">${(barber.rating || 0).toFixed(1)}</span>
+                                    </div>
+                                </div>
+                                <div class="mt-auto">
+                                    <a href="/booking?barber_id=${barber.id}" class="btn btn-primary btn-sm w-100 mb-2">
+                                        <i class="fas fa-calendar-plus me-2"></i>Book Now
+                                    </a>
+                                    <button class="btn btn-outline-secondary btn-sm w-100" onclick="viewBarberDetails(${barber.id})">
+                                        <i class="fas fa-info-circle me-1"></i>Details
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 `).join('')}
             </div>
         `;
-
         barbersContainer.innerHTML = barbersHtml;
+        attachFavoriteButtonListeners();
     }
 
+    function attachFavoriteButtonListeners() {
+        document.querySelectorAll('.favorite-btn').forEach(button => {
+            button.addEventListener('click', async function() {
+                if (!isLoggedIn) {
+                    showSystemNotification('info', 'Login Required', 
+                        'Please sign in to add favorites. Would you like to login now?', true);
+                    return;
+                }
+                
+                const itemId = this.dataset.itemId;
+                const itemType = this.dataset.itemType;
+                const isCurrentlyFavorite = this.classList.contains('is-favorite');
+                const action = isCurrentlyFavorite ? 'remove' : 'add';
+                
+                // Visual feedback - add loading state
+                const originalIcon = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                this.disabled = true;
+                
+                try {
+                    console.log(`Sending ${action} favorite request for ${itemType} ${itemId}`);
+                    
+                    const response = await fetch(`/api/favorites/${action}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            item_id: parseInt(itemId), 
+                            item_type: itemType 
+                        })
+                    });
+                    
+                    console.log('Response status:', response.status);
+                    const data = await response.json();
+                    console.log('Response data:', data);
+                    
+                    if (data.success) {
+                        this.classList.toggle('is-favorite');
+                        this.title = this.classList.contains('is-favorite') 
+                            ? `Remove ${itemType} from favorites` 
+                            : `Add ${itemType} to favorites`;
+                        
+                        // Update icon back to heart/store but with correct color now
+                        this.innerHTML = itemType === 'barber' 
+                            ? '<i class="fas fa-heart"></i>' 
+                            : '<i class="fas fa-store"></i>';
+                        
+                        // Update allBarbers array to maintain state
+                        const barberInList = allBarbers.find(b => 
+                            (itemType === 'barber' && b.id == itemId) || 
+                            (itemType === 'shop' && b.shop_id == itemId)
+                        );
+                        
+                        if (barberInList) {
+                            if (itemType === 'barber') barberInList.is_favorite_barber = !isCurrentlyFavorite;
+                            if (itemType === 'shop') barberInList.is_favorite_shop = !isCurrentlyFavorite;
+                        }
+                        
+                        // Show success notification
+                        const message = isCurrentlyFavorite 
+                            ? `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} removed from favorites` 
+                            : `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} added to favorites`;
+                            
+                        showSystemNotification('success', 
+                            isCurrentlyFavorite ? 'Removed from Favorites' : 'Added to Favorites', 
+                            message);
+                            
+                    } else {
+                        // Restore original icon state and show error
+                        this.innerHTML = originalIcon;
+                        showSystemNotification('error', 'Favorite Error', data.message || 'Error processing favorite action');
+                    }
+                } catch (error) {
+                    console.error('Favorite toggle error:', error);
+                    // Restore original icon state and show error
+                    this.innerHTML = originalIcon;
+                    showSystemNotification('error', 'Connection Error', 'Could not connect to the server. Please try again.');
+                } finally {
+                    this.disabled = false;
+                }
+            });
+        });
+    }
+    
     function generateStars(rating) {
+        let stars = '';
         const fullStars = Math.floor(rating);
-        const hasHalfStar = rating % 1 !== 0;
-        let starsHtml = '';
-
-        for (let i = 0; i < fullStars; i++) {
-            starsHtml += '<i class="fas fa-star text-warning"></i>';
-        }
-
-        if (hasHalfStar) {
-            starsHtml += '<i class="fas fa-star-half-alt text-warning"></i>';
-        }
-
-        const emptyStars = 5 - Math.ceil(rating);
-        for (let i = 0; i < emptyStars; i++) {
-            starsHtml += '<i class="far fa-star text-warning"></i>';
-        }
-
-        return starsHtml;
+        const halfStar = rating % 1 >= 0.5;
+        const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+        for (let i = 0; i < fullStars; i++) stars += '<i class="fas fa-star text-warning"></i>';
+        if (halfStar) stars += '<i class="fas fa-star-half-alt text-warning"></i>';
+        for (let i = 0; i < emptyStars; i++) stars += '<i class="far fa-star text-warning"></i>';
+        return stars;
     }
 
     function updateResultsCount(count) {
-        resultsCount.textContent = count;
+        if (resultsCount) resultsCount.textContent = count;
     }
 
     function applyFilters() {
-        const serviceType = serviceFilter.value;
-        const minRating = parseFloat(ratingFilter.value) || 0;
-        const availability = availabilityFilter.value;
+        if (!allBarbers) {
+            filteredBarbers = [];
+        } else {
+            const serviceType = serviceFilter ? serviceFilter.value.toLowerCase() : '';
+            const minRating = ratingFilter ? (parseFloat(ratingFilter.value) || 0) : 0;
+            const availability = availabilityFilter ? availabilityFilter.value : '';
 
-        filteredBarbers = allBarbers.filter(barber => {
-            // Service filter
-            if (serviceType && !barber.specialties.toLowerCase().includes(serviceType)) {
-                return false;
-            }
-
-            // Rating filter
-            if (barber.rating < minRating) {
-                return false;
-            }
-
-            // Availability filter (simplified - in real app would check actual availability)
-            if (availability && Math.random() < 0.3) {
-                return false;
-            }
-
-            return true;
-        });
-
+            filteredBarbers = allBarbers.filter(barber => {
+                if (serviceType && barber.specialties && !barber.specialties.toLowerCase().includes(serviceType)) {
+                    return false;
+                }
+                if ((barber.rating || 0) < minRating) {
+                    return false;
+                }
+                if (availability === 'today' && barber.availability !== 'Available Today' && Math.random() > 0.7) return false; 
+                if (availability === 'weekend' && !['Saturday', 'Sunday'].some(day => (barber.working_days || '').includes(day)) && Math.random() > 0.5) return false; 
+                return true;
+            });
+        }
         displayBarbers(filteredBarbers);
-        updateResultsCount(filteredBarbers.length);
     }
 
-    function clearFilters() {
-        serviceFilter.value = '';
-        ratingFilter.value = '';
-        availabilityFilter.value = '';
-        filteredBarbers = allBarbers;
-        displayBarbers(filteredBarbers);
-        updateResultsCount(filteredBarbers.length);
+    function clearAndReloadFilters() {
+        if(serviceFilter) serviceFilter.value = '';
+        if(ratingFilter) ratingFilter.value = '';
+        if(availabilityFilter) availabilityFilter.value = '';
+        // Re-apply filters which will now be empty, effectively showing all 'allBarbers'
+        applyFilters(); 
     }
 
     function getUserLocation() {
-        if (!navigator.geolocation) {
-            alert('Geolocation is not supported by your browser');
-            return;
-        }
-
-        useLocationBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Getting location...';
-        useLocationBtn.disabled = true;
-
-        navigator.geolocation.getCurrentPosition(
-            async function(position) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
                 const lat = position.coords.latitude;
-                const lng = position.coords.longitude;
-                
-                try {
-                    // Use backend proxy for reverse geocoding
-                    const response = await fetch(`/api/reverse-geocode?lat=${lat}&lon=${lng}`);
-                    const data = await response.json();
-                    
-                    if (data.success && data.address) {
-                        locationInput.value = data.address;
-                    } else {
-                        locationInput.value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-                    }
-                } catch (error) {
-                    console.log('Geocoding failed, using coordinates:', error);
-                    locationInput.value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                const lon = position.coords.longitude;
+                const userLocation = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+                if(locationInput) {
+                    locationInput.value = userLocation;
                 }
-                
-                useLocationBtn.innerHTML = '<i class="fas fa-check me-1"></i>Location found';
-                
-                setTimeout(() => {
-                    useLocationBtn.innerHTML = '<i class="fas fa-crosshairs me-1"></i>Use My Current Location';
-                    useLocationBtn.disabled = false;
-                    loadNearbyBarbers();
-                }, 1500);
-            },
-            function(error) {
-                console.log('Geolocation error:', error);
-                let errorMessage = 'Unable to get your location. Please enter manually.';
-                
-                switch(error.code) {
-                    case error.PERMISSION_DENIED:
-                        errorMessage = 'Location access denied. Please enable location services.';
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        errorMessage = 'Location information is unavailable.';
-                        break;
-                    case error.TIMEOUT:
-                        errorMessage = 'Location request timed out.';
-                        break;
-                }
-                
-                alert(errorMessage);
-                useLocationBtn.innerHTML = '<i class="fas fa-crosshairs me-1"></i>Use My Current Location';
-                useLocationBtn.disabled = false;
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 300000
-            }
-        );
-    }
-
-    // Function to toggle dark mode
-    function toggleDarkMode() {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        if (currentTheme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'light');
-            localStorage.setItem('theme', 'light');
-            toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+                loadNearbyBarbers({ location: userLocation });
+            }, error => {
+                console.error("Error getting location:", error);
+                alert("Could not retrieve your location. Please enter it manually or check browser permissions.");
+            });
         } else {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            localStorage.setItem('theme', 'dark');
-            toggleButton.innerHTML = '<i class="fas fa-sun"></i>';
+            alert("Geolocation is not supported by your browser.");
         }
-    }
-
-    // Global function for barber details
-    window.viewBarberDetails = function(barberId) {
-        alert(`Viewing details for barber ID: ${barberId}`);
-        // In a real app, this would open a modal or navigate to a details page
-    };
-
-    // Add handler for home location button
-    const useHomeLocationBtn = document.getElementById('use-home-location-btn');
-    if (useHomeLocationBtn) {
-        useHomeLocationBtn.addEventListener('click', useHomeLocation);
     }
     
-    // Function to use home location
-    function useHomeLocation() {
-        // Show loading state
-        useHomeLocationBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Loading...';
-        useHomeLocationBtn.disabled = true;
+    window.viewBarberDetails = function(barberId) {
+        alert(`View details for barber ID: ${barberId} (Implementation needed)`);
+    }
+
+    // Enhanced showSystemNotification function that works better with dark mode
+    function showSystemNotification(type, title, message, withAction = false) {
+        const notificationId = `notification-${Date.now()}`;
+        const container = document.getElementById('notification-container') || document.createElement('div');
         
-        // Get saved home location from the server
-        fetch('/api/user/home-location')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.location) {
-                    locationInput.value = data.location;
-                    loadNearbyBarbers(); // Use existing function to search
-                } else {
-                    alert('No home location saved. Please update your profile first.');
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching home location:', error);
-                alert('Error retrieving home location. Please try again.');
-            })
-            .finally(() => {
-                // Reset button
-                useHomeLocationBtn.innerHTML = '<i class="fas fa-home me-1"></i>Use My Home Location';
-                useHomeLocationBtn.disabled = false;
+        if (!document.getElementById('notification-container')) {
+            container.id = 'notification-container';
+            container.style = 'position: fixed; top: 20px; right: 20px; z-index: 9999; pointer-events: none;';
+            document.body.appendChild(container);
+        }
+        
+        const notification = document.createElement('div');
+        notification.id = notificationId;
+        notification.className = `system-notification ${type}`;
+        notification.style.cssText = `
+            pointer-events: auto;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            padding: 15px;
+            width: 300px;
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary-color);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        `;
+        
+        // Set appropriate colors based on type
+        let iconClass = 'fa-info-circle';
+        
+        switch(type) {
+            case 'success':
+                notification.style.borderLeftColor = '#28a745';
+                iconClass = 'fa-check-circle';
+                break;
+            case 'error': 
+                notification.style.borderLeftColor = '#dc3545';
+                iconClass = 'fa-exclamation-circle';
+                break;
+            case 'warning':
+                notification.style.borderLeftColor = '#ffc107';
+                iconClass = 'fa-exclamation-triangle';
+                break;
+            case 'info':
+                notification.style.borderLeftColor = '#17a2b8';
+                iconClass = 'fa-info-circle';
+                break;
+        }
+        
+        const actionHtml = withAction ? `
+            <div class="notification-actions" style="display: flex; gap: 0.5rem; margin-top: 10px;">
+                <button class="notification-action-btn primary" style="
+                    background: var(--primary-color);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 5px 10px;
+                    flex: 1;
+                    cursor: pointer;
+                ">Login</button>
+                <button class="notification-action-close" style="
+                    background: rgba(0,0,0,0.1);
+                    color: var(--text-color);
+                    border: none;
+                    border-radius: 4px;
+                    padding: 5px 10px;
+                    flex: 1;
+                    cursor: pointer;
+                ">Dismiss</button>
+            </div>
+        ` : '';
+        
+        notification.innerHTML = `
+            <div style="display: flex; align-items: flex-start; gap: 12px;">
+                <div style="margin-right: 10px; flex-shrink: 0;">
+                    <i class="fas ${iconClass}" style="font-size: 20px;"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; margin-bottom: 5px;">${title}</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">${message}</div>
+                    ${actionHtml}
+                </div>
+                <button class="notification-close" style="background: none; border: none; cursor: pointer; padding: 0; font-size: 16px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        
+        container.appendChild(notification);
+        
+        // Force browser reflow to ensure the transition works
+        notification.getBoundingClientRect();
+        
+        // Animate in
+        notification.style.opacity = '1';
+        notification.style.transform = 'translateX(0)';
+        
+        // Set up close button
+        const closeBtn = notification.querySelector('.notification-close');
+        closeBtn.addEventListener('click', () => {
+            closeNotification(notification);
+        });
+        
+        // If we have action buttons
+        if (withAction) {
+            const actionBtns = notification.querySelectorAll('.notification-action-btn');
+            actionBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    window.location.href = '/login';
+                    closeNotification(notification);
+                });
             });
+            
+            const dismissBtn = notification.querySelector('.notification-action-close');
+            if (dismissBtn) {
+                dismissBtn.addEventListener('click', () => {
+                    closeNotification(notification);
+                });
+            }
+        }
+        
+        // Auto remove after duration
+        const timeoutId = setTimeout(() => {
+            closeNotification(notification);
+        }, 5000);
+        
+        notification.dataset.timeoutId = timeoutId;
+        
+        function closeNotification(element) {
+            // Cancel timeout if it exists
+            if (element.dataset.timeoutId) {
+                clearTimeout(parseInt(element.dataset.timeoutId));
+            }
+            
+            // Animate out
+            element.style.opacity = '0';
+            element.style.transform = 'translateX(50px)';
+            
+            // Remove after animation completes
+            setTimeout(() => {
+                if (element.parentNode) {
+                    element.parentNode.removeChild(element);
+                }
+            }, 300);
+        }
+
+        return notification;
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('openShopSearch') === 'true') {
+        // Wait a moment for the page to fully load
+        setTimeout(() => {
+            // Open the shop search modal
+            const shopSearchModal = new bootstrap.Modal(document.getElementById('shopSearchModalFindNearbyPage'));
+            if (shopSearchModal) shopSearchModal.show();
+        }, 500);
     }
 });
 </script>

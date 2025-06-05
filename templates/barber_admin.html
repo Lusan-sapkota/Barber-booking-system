@@ -1355,7 +1355,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupDarkModeToggle() {
         // Add dark mode toggle functionality
         const toggleButton = document.createElement('button');
-        toggleButton.classList.add('dark-mode-toggle');
         toggleButton.setAttribute('aria-label', 'Toggle dark mode');
         toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
         toggleButton.addEventListener('click', toggleDarkMode);
@@ -1374,11 +1373,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentTheme === 'dark') {
             document.documentElement.setAttribute('data-theme', 'light');
             localStorage.setItem('theme', 'light');
-            document.querySelector('.dark-mode-toggle').innerHTML = '<i class="fas fa-moon"></i>';
         } else {
             document.documentElement.setAttribute('data-theme', 'dark');
             localStorage.setItem('theme', 'dark');
-            document.querySelector('.dark-mode-toggle').innerHTML = '<i class="fas fa-sun"></i>';
         }
         
         // Update chart theme

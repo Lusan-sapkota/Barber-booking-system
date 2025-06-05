@@ -180,10 +180,6 @@
     color: var(--auth-left-text);
 }
 
-.auth-welcome-panel {
-
-}
-
 .login-right-panel {
     animation: slideInRight 1.2s cubic-bezier(0.23, 1, 0.32, 1) 0.3s both;
     position: relative;
@@ -1062,7 +1058,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 150);
     });
     
-    // Enhanced Demo Account Selection
+    // Enhanced Demo Account Selection (KEEP ONLY THIS ONE, REMOVE THE DUPLICATE)
     demoAccounts.forEach(account => {
         account.addEventListener('click', function() {
             // Add loading state
@@ -1097,12 +1093,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.classList.remove('loading');
                 
                 // Show notification
-                showNotification('info', `Demo account selected: ${this.querySelector('.left-demo-role').textContent}`);
-            }, 800);
+                showSystemNotification('info', 'Demo Account Selected', 
+                    `${userType.charAt(0).toUpperCase() + userType.slice(1)} demo account credentials have been filled in.`);
+            }, 500);
         });
     });
     
-    // FIXED: Enhanced Form Submission
+    // FIXED: Enhanced Form Submission with actual API call
     loginForm.addEventListener('submit', async function(e) {
         e.preventDefault(); // Prevent default form submission
         
@@ -1117,7 +1114,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Validate form data
         if (!email || !password) {
-            showNotification('error', 'Please fill in all required fields');
+            showSystemNotification('error', 'Missing Information', 'Please fill in all required fields');
             return;
         }
         
@@ -1127,11 +1124,11 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.classList.add('loading');
         
         try {
+            // Make actual API call to login
             const response = await fetch('/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json'
                 },
                 body: JSON.stringify({
                     email: email,
@@ -1141,120 +1138,39 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
             });
             
-            // Check if response is ok
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            const data = await response.json();
             
-            const result = await response.json();
-            
-            if (result.success) {
-                // Success animation
-                submitBtn.classList.remove('loading');
-                submitBtn.classList.add('success');
-                submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Welcome Back!';
+            if (data.success) {
+                // Show success notification
+                showSystemNotification('success', 'Login Successful', 'You have been logged in successfully!');
                 
-                showNotification('success', 'Login successful! Redirecting...');
-                
-                // Redirect after success
+                // Redirect after short delay
                 setTimeout(() => {
-                    window.location.href = result.redirect || '/';
+                    window.location.href = data.redirect_url || '/';
                 }, 1500);
             } else {
-                // Handle API error response
-                throw new Error(result.message || 'Login failed');
+                // Show appropriate error message
+                showSystemNotification('error', 'Login Failed', data.message || 'Invalid credentials. Please try again.');
+                
+                // Reset button state
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
             }
         } catch (error) {
             console.error('Login error:', error);
+            showSystemNotification('error', 'Login Error', 'An error occurred during login. Please try again.');
             
-            // Show specific error message based on error type
-            let errorTitle = 'Login Failed';
-            let errorMessage = 'Please check your credentials and try again.';
-            
-            if (error.message) {
-                // Check for specific error types
-                if (error.message.includes('password')) {
-                    errorTitle = 'Incorrect Password';
-                    errorMessage = 'The password you entered is incorrect. Please try again.';
-                } else if (error.message.includes('email') || error.message.includes('account')) {
-                    errorTitle = 'Account Not Found';
-                    errorMessage = error.message;
-                } else if (error.message.includes('deactivated')) {
-                    errorTitle = 'Account Deactivated';
-                    errorMessage = error.message;
-                } else {
-                    errorMessage = error.message;
-                }
-            }
-            
-            showSystemNotification('error', errorTitle, errorMessage);
-            
-            // Reset button immediately on error
+            // Reset button state
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
-            submitBtn.classList.remove('loading', 'success');
+            submitBtn.classList.remove('loading');
         }
     });
     
-    // Add this to your login form handling
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        
-        // Add loading state
-        submitBtn.disabled = true;
-        submitBtn.classList.add('loading');
-        submitBtn.innerHTML = 'Signing in...';
-        
-        try {
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData);
-            
-            const response = await fetch('/api/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                showSystemNotification('success', 'Login Successful', result.message);
-                setTimeout(() => {
-                    window.location.href = result.redirect || '/';
-                }, 1000);
-            } else {
-                // Show specific error messages
-                let errorTitle = 'Login Failed';
-                let errorMessage = result.message;
-                
-                if (result.error_type === 'wrong_password') {
-                    errorTitle = 'Incorrect Password';
-                    errorMessage = 'The password you entered is incorrect. Please try again.';
-                } else if (result.error_type === 'user_not_found') {
-                    errorTitle = 'Account Not Found';
-                    errorMessage = result.message;
-                } else if (result.error_type === 'account_inactive') {
-                    errorTitle = 'Account Deactivated';
-                    errorMessage = result.message;
-                }
-                
-                showSystemNotification('error', errorTitle, errorMessage);
-            }
-        } catch (error) {
-            console.error('Login error:', error);
-            showSystemNotification('error', 'Connection Error', 'Unable to connect to server. Please try again.');
-        } finally {
-            // Reset button state
-            submitBtn.disabled = false;
-            submitBtn.classList.remove('loading');
-            submitBtn.innerHTML = originalText;
-        }
-    });
+    // REMOVE THIS DUPLICATE SECTION (lines ~1160-1186)
+    // // DEMO: Enhance demo account selection to show notification 
+    // demoAccounts.forEach(account => { ... }); 
     
     // Enhanced Location Detection
     detectLocation();

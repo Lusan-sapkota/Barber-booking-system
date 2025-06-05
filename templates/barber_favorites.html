@@ -1,0 +1,832 @@
+{# filepath: templates/barber_favorites.html #}
+{% extends "base.html" %}
+
+{% block title %}My Favorites - Barber Panel{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        /* Base variables */
+        --card-radius: 12px;
+        --transition-normal: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        
+        /* Light mode colors */
+        --primary-color: var(--primary, #3b82f6);
+        --primary-light: rgba(59, 130, 246, 0.1);
+        --danger-color: var(--danger, #ef4444);
+        --danger-light: rgba(239, 68, 68, 0.1);
+        --bg-primary: #f9fafb;
+        --bg-card: #ffffff;
+        --bg-badge: #10b981;
+        --text-primary: #1f2937;
+        --text-secondary: #4b5563;
+        --text-muted: #6b7280;
+        --border-light: #e5e7eb;
+        --border-dashed: #d1d5db;
+        
+        /* Light mode shadows */
+        --shadow-elevation-1: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-elevation-2: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --shadow-elevation-3: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        --shadow-colored: 0 4px 10px rgba(139, 92, 246, 0.3);
+        --shadow-btn: 0 4px 8px rgba(59, 130, 246, 0.3);
+        --shadow-btn-danger: 0 4px 8px rgba(239, 68, 68, 0.3);
+    }
+
+    /* Dark mode variables */
+    [data-theme="dark"] {
+        --bg-primary: #111827;
+        --bg-card: #1f2937;
+        --bg-badge: #059669;
+        --text-primary: #f9fafb;
+        --text-secondary: #d1d5db;
+        --text-muted: #9ca3af;
+        --border-light: #374151;
+        --border-dashed: #4b5563;
+        --primary-light: rgba(59, 130, 246, 0.15);
+        --danger-light: rgba(239, 68, 68, 0.15);
+        
+        /* Dark mode shadows (less intense) */
+        --shadow-elevation-1: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+        --shadow-elevation-2: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+        --shadow-elevation-3: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        --shadow-colored: 0 4px 10px rgba(139, 92, 246, 0.2);
+        --shadow-btn: 0 4px 8px rgba(59, 130, 246, 0.2);
+        --shadow-btn-danger: 0 4px 8px rgba(239, 68, 68, 0.2);
+    }
+
+    /* Page Container */
+    .favorites-container {
+        background: var(--bg-primary);
+        min-height: 80vh;
+        border-radius: var(--card-radius);
+        padding: 2rem;
+        box-shadow: var(--shadow-elevation-1);
+        transition: var(--transition-normal);
+    }
+
+    /* Page Header */
+    .page-header {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: clamp(1.5rem, 5vw, 2rem);
+        font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: -0.025em;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: var(--transition-normal);
+    }
+
+    .page-title .icon {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #8b5cf6 100%);
+        color: white;
+        width: clamp(40px, 10vw, 50px);
+        height: clamp(40px, 10vw, 50px);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: clamp(1.25rem, 3vw, 1.5rem);
+        box-shadow: var(--shadow-colored);
+        transition: var(--transition-normal);
+    }
+
+    /* Tab Navigation - Modern Design */
+    .favorites-tabs {
+        background: var(--bg-card);
+        border-radius: var(--card-radius);
+        padding: 0.5rem;
+        box-shadow: var(--shadow-elevation-1);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        transition: var(--transition-normal);
+    }
+
+    .nav-tabs {
+        display: flex;
+        gap: 0.5rem;
+        border-bottom: none;
+        padding: 0.25rem;
+    }
+
+    .nav-tabs .nav-item {
+        flex: 1;
+    }
+
+    .nav-tabs .nav-link {
+        color: var(--text-secondary);
+        border: none;
+        border-radius: 8px;
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        text-align: center;
+        transition: var(--transition-normal);
+        width: 100%;
+    }
+
+    .nav-tabs .nav-link:hover:not(.active) {
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+    }
+
+    .nav-tabs .nav-link.active {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #8b5cf6 100%);
+        color: white;
+        box-shadow: 0 4px 10px rgba(139, 92, 246, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .tab-content {
+        padding-top: 1.5rem;
+    }
+
+    /* Cards */
+    .favorite-card {
+        background: var(--bg-card);
+        border-radius: var(--card-radius);
+        border: 1px solid var(--border-light);
+        overflow: hidden;
+        transition: var(--transition-normal);
+        height: 100%;
+        position: relative;
+    }
+
+    .favorite-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-elevation-2);
+    }
+
+    .favorite-card:after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color) 0%, #8b5cf6 100%);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .favorite-card:hover:after {
+        transform: scaleX(1);
+    }
+
+    .card-body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    /* Avatar/Logo */
+    .avatar-container {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .favorite-card img.customer-avatar,
+    .favorite-card img.shop-logo {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 50%;
+        box-shadow: var(--shadow-elevation-1);
+        border: 3px solid var(--bg-card);
+        transition: var(--transition-normal);
+    }
+
+    .favorite-card:hover img.customer-avatar,
+    .favorite-card:hover img.shop-logo {
+        transform: scale(1.05);
+        box-shadow: var(--shadow-elevation-2);
+    }
+
+    .avatar-badge {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background: var(--bg-badge);
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.75rem;
+        border: 2px solid var(--bg-card);
+        box-shadow: var(--shadow-elevation-1);
+        transition: var(--transition-normal);
+    }
+
+    /* Card Content */
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+        transition: var(--transition-normal);
+    }
+
+    .card-meta {
+        margin-bottom: 1.25rem;
+        width: 100%;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0.5rem;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        transition: var(--transition-normal);
+        word-break: break-word;
+    }
+
+    .meta-item i {
+        min-width: 16px;
+        margin-right: 0.5rem;
+        color: var(--primary-color);
+        opacity: 0.8;
+    }
+
+    /* Card Actions */
+    .card-actions {
+        margin-top: auto;
+        display: flex;
+        gap: 0.75rem;
+        width: 100%;
+    }
+
+    .btn-card {
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: var(--transition-normal);
+        cursor: pointer;
+        border: none;
+        box-shadow: none;
+    }
+
+    .btn-card-primary {
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+        flex: 1;
+    }
+
+    .btn-card-primary:hover {
+        background-color: var(--primary-color);
+        color: white;
+        box-shadow: var(--shadow-btn);
+    }
+
+    .btn-card-danger {
+        background-color: var(--danger-light);
+        color: var(--danger-color);
+        flex: 1;
+    }
+
+    .btn-card-danger:hover {
+        background-color: var(--danger-color);
+        color: white;
+        box-shadow: var(--shadow-btn-danger);
+    }
+
+    /* Loading & Empty States */
+    .loading-container {
+        text-align: center;
+        padding: 3rem 0;
+        background: var(--bg-card);
+        border-radius: var(--card-radius);
+        box-shadow: var(--shadow-elevation-1);
+        transition: var(--transition-normal);
+    }
+
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid var(--primary-light);
+        border-top: 3px solid var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .empty-favorites {
+        text-align: center;
+        padding: 3rem 1.5rem;
+        border: 2px dashed var(--border-dashed);
+        border-radius: var(--card-radius);
+        background-color: var(--bg-card);
+        transition: var(--transition-normal);
+    }
+
+    .empty-favorites:hover {
+        border-color: var(--primary-color);
+        background-color: var(--primary-light);
+        transform: translateY(-4px);
+    }
+
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition-normal);
+    }
+
+    .empty-favorites i {
+        color: var(--primary-color);
+        font-size: 2rem;
+        transition: var(--transition-normal);
+    }
+
+    .empty-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+        transition: var(--transition-normal);
+    }
+
+    /* Improved Responsive adjustments */
+    @media (max-width: 1200px) {
+        .favorites-container {
+            padding: 1.75rem;
+        }
+    }
+
+    @media (max-width: 991px) {
+        .favorites-container {
+            padding: 1.5rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .favorites-container {
+            padding: 1.25rem;
+            border-radius: var(--card-radius);
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+        }
+
+        .page-title .icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1.25rem;
+        }
+
+        .nav-tabs .nav-link {
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .tab-content {
+            padding-top: 1rem;
+        }
+
+        .empty-favorites {
+            padding: 2rem 1rem;
+        }
+
+        .empty-icon {
+            width: 60px;
+            height: 60px;
+        }
+
+        .empty-favorites i {
+            font-size: 1.5rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .favorites-container {
+            padding: 1rem;
+            border-radius: calc(var(--card-radius) - 2px);
+        }
+
+        .nav-tabs {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-tabs .nav-item {
+            width: 100%;
+        }
+
+        .card-actions {
+            flex-direction: column;
+        }
+
+        .favorite-card img.customer-avatar,
+        .favorite-card img.shop-logo {
+            width: 80px;
+            height: 80px;
+        }
+
+        .favorite-card {
+            transform: none !important;
+        }
+
+        .favorite-card:hover {
+            transform: translateY(-4px) !important;
+        }
+
+        .card-body {
+            padding: 1.25rem;
+        }
+
+        .meta-item {
+            font-size: 0.8125rem;
+        }
+    }
+
+    /* Mobile Optimization */
+    @media (max-width: 480px) {
+        :root {
+            --card-radius: 10px;
+        }
+
+        .page-header {
+            margin-bottom: 1.5rem;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .favorites-tabs {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-tabs .nav-link {
+            padding: 0.625rem 0.75rem;
+            font-size: 0.8125rem;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+        }
+
+        .btn-card {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8125rem;
+        }
+
+        /* Reduce animations for better performance on mobile */
+        .favorite-card:after {
+            display: none;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+        }
+
+        /* Stack cards in a single column */
+        #favorite-customers-container,
+        #favorite-shops-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+    }
+
+    /* Dark mode transitions */
+    @media (prefers-reduced-motion: no-preference) {
+        :root {
+            --transition-theme: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        body, .favorites-container, .favorites-tabs, .favorite-card, .empty-favorites,
+        .card-title, .meta-item, .btn-card, .loading-container, .page-title {
+            transition: var(--transition-theme), var(--transition-normal);
+        }
+    }
+
+    /* Optimize for high-contrast and reduced motion */
+    @media (prefers-contrast: more) {
+        :root, [data-theme="dark"] {
+            --border-light: #555;
+            --border-dashed: #666;
+        }
+
+        .favorite-card {
+            border-width: 2px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+
+        .favorite-card:hover {
+            transform: none !important;
+        }
+
+        .favorite-card:hover img.customer-avatar,
+        .favorite-card:hover img.shop-logo {
+            transform: none;
+        }
+
+        .empty-favorites:hover {
+            transform: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mt-lg-5 py-3 py-lg-5">
+    <div class="favorites-container">
+        <div class="page-header">
+            <h1 class="page-title">
+                <span class="icon"><i class="fas fa-star"></i></span>
+                My Favorites
+            </h1>
+        </div>
+        
+        <div class="favorites-tabs">
+            <ul class="nav nav-tabs" id="favoritesTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="customers-tab" data-bs-toggle="tab" data-bs-target="#customers-content" type="button" role="tab" aria-controls="customers-content" aria-selected="true">
+                        <i class="fas fa-users me-2"></i><span class="tab-text">Favorite Customers</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="shops-tab" data-bs-toggle="tab" data-bs-target="#shops-content" type="button" role="tab" aria-controls="shops-content" aria-selected="false">
+                        <i class="fas fa-store me-2"></i><span class="tab-text">Favorite Shops</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div id="favorites-loading" class="loading-container py-5" aria-live="polite">
+            <div class="loading-spinner" role="status"></div>
+            <p class="mt-3 text-muted">Loading your favorites...</p>
+        </div>
+
+        <div id="favorites-content" class="tab-content" style="display: none;">
+            <!-- Customers Tab Content -->
+            <div class="tab-pane fade show active" id="customers-content" role="tabpanel" aria-labelledby="customers-tab">
+                <div id="favorite-customers-container" class="row g-4">
+                    <!-- Favorite customers will be loaded here -->
+                </div>
+                <div id="no-favorite-customers" class="empty-favorites" style="display: none;">
+                    <div class="empty-icon">
+                        <i class="fas fa-user-slash"></i>
+                    </div>
+                    <h3 class="empty-title">No Favorite Customers Yet</h3>
+                    <p class="text-muted">You haven't added any favorite customers yet.</p>
+                    <p class="text-muted small">You can favorite customers from their appointment details in your dashboard.</p>
+                </div>
+            </div>
+            
+            <!-- Shops Tab Content -->
+            <div class="tab-pane fade" id="shops-content" role="tabpanel" aria-labelledby="shops-tab">
+                <div id="favorite-shops-container" class="row g-4">
+                    <!-- Favorite shops will be loaded here -->
+                </div>
+                <div id="no-favorite-shops" class="empty-favorites" style="display: none;">
+                    <div class="empty-icon">
+                        <i class="fas fa-store-slash"></i>
+                    </div>
+                    <h3 class="empty-title">No Favorite Shops Yet</h3>
+                    <p class="text-muted">You haven't added any favorite shops yet.</p>
+                    <p class="text-muted small">You can favorite shops while browsing the shop directory.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const customersContainer = document.getElementById('favorite-customers-container');
+    const shopsContainer = document.getElementById('favorite-shops-container');
+    const noFavoriteCustomersMsg = document.getElementById('no-favorite-customers');
+    const noFavoriteShopsMsg = document.getElementById('no-favorite-shops');
+    const loadingDiv = document.getElementById('favorites-loading');
+    const contentDiv = document.getElementById('favorites-content');
+    
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    async function loadFavorites() {
+        try {
+            // Get all favorites
+            const response = await fetch('/api/favorites');
+            if (!response.ok) {
+                throw new Error('Failed to load favorites');
+            }
+            const data = await response.json(); 
+
+            // Process favorite customers
+            const favoriteCustomers = data.customers || [];
+            renderFavoriteCustomers(favoriteCustomers);
+            
+            // Process favorite shops
+            const favoriteShops = data.shops || [];
+            renderFavoriteShops(favoriteShops);
+
+            // Hide loading and show content with animation if animations are allowed
+            if (!prefersReducedMotion) {
+                loadingDiv.style.opacity = '0';
+                setTimeout(() => {
+                    loadingDiv.style.display = 'none';
+                    contentDiv.style.display = 'block';
+                    setTimeout(() => {
+                        contentDiv.style.opacity = '1';
+                    }, 50);
+                }, 300);
+            } else {
+                // Immediate transition for reduced motion preference
+                loadingDiv.style.display = 'none';
+                contentDiv.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error loading favorites:', error);
+            loadingDiv.innerHTML = '<div class="py-4"><p class="text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Could not load favorites. Please try again later.</p><button class="btn btn-primary mt-3" onclick="window.location.reload()">Retry</button></div>';
+        }
+    }
+
+    function renderFavoriteCustomers(customers) {
+        if (!customers || customers.length === 0) {
+            noFavoriteCustomersMsg.style.display = 'block';
+            customersContainer.innerHTML = '';
+            return;
+        }
+        noFavoriteCustomersMsg.style.display = 'none';
+        customersContainer.innerHTML = customers.map(customer => `
+            <div class="col-md-6 col-lg-4 mb-4" id="fav-customer-${customer.id}">
+                <div class="favorite-card h-100">
+                    <div class="card-body">
+                        <div class="avatar-container">
+                            <img src="${customer.image_url || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(customer.name) + '&background=random&color=fff')}" class="customer-avatar" alt="${customer.name}" loading="lazy">
+                            <span class="avatar-badge" title="Loyal Customer"><i class="fas fa-crown"></i></span>
+                        </div>
+                        <h5 class="card-title">${customer.name}</h5>
+                        <div class="card-meta">
+                            ${customer.email ? `<div class="meta-item"><i class="fas fa-envelope"></i>${customer.email}</div>` : ''}
+                            ${customer.phone ? `<div class="meta-item"><i class="fas fa-phone"></i>${customer.phone}</div>` : ''}
+                            <div class="meta-item"><i class="fas fa-calendar-check"></i>Last visit: ${customer.last_visit || 'N/A'}</div>
+                        </div>
+                        <div class="card-actions">
+                            <a href="/customer/${customer.id}" class="btn-card btn-card-primary">
+                                <i class="fas fa-info-circle"></i><span class="d-none d-sm-inline">View Profile</span><span class="d-inline d-sm-none">Profile</span>
+                            </a>
+                            <button class="btn-card btn-card-danger remove-favorite-btn" data-item-id="${customer.id}" data-item-type="customer">
+                                <i class="fas fa-heart-broken"></i><span class="d-none d-sm-inline">Remove</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        attachRemoveFavoriteListeners();
+    }
+    
+    function renderFavoriteShops(shops) {
+        if (!shops || shops.length === 0) {
+            noFavoriteShopsMsg.style.display = 'block';
+            shopsContainer.innerHTML = '';
+            return;
+        }
+        noFavoriteShopsMsg.style.display = 'none';
+        shopsContainer.innerHTML = shops.map(shop => `
+            <div class="col-md-6 col-lg-4 mb-4" id="fav-shop-${shop.id}">
+                <div class="favorite-card h-100">
+                    <div class="card-body">
+                        <div class="avatar-container">
+                            <img src="${shop.logo_url || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(shop.name) + '&background=random&color=fff&size=256')}" class="shop-logo" alt="${shop.name}" loading="lazy">
+                        </div>
+                        <h5 class="card-title">${shop.name}</h5>
+                        <div class="card-meta">
+                            ${shop.address ? `<div class="meta-item"><i class="fas fa-map-marker-alt"></i>${shop.address}</div>` : ''}
+                            ${shop.phone ? `<div class="meta-item"><i class="fas fa-phone"></i>${shop.phone}</div>` : ''}
+                            <div class="meta-item"><i class="fas fa-star"></i>Rating: ${shop.rating || '4.5'}/5</div>
+                        </div>
+                        <div class="card-actions">
+                            <a href="/shops/${shop.id}" class="btn-card btn-card-primary">
+                                <i class="fas fa-info-circle"></i><span class="d-none d-sm-inline">View Details</span><span class="d-inline d-sm-none">Details</span>
+                            </a>
+                            <button class="btn-card btn-card-danger remove-favorite-btn" data-item-id="${shop.id}" data-item-type="shop">
+                                <i class="fas fa-heart-broken"></i><span class="d-none d-sm-inline">Remove</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        attachRemoveFavoriteListeners();
+    }
+    
+    function attachRemoveFavoriteListeners() {
+        document.querySelectorAll('.remove-favorite-btn').forEach(button => {
+            button.addEventListener('click', async function() {
+                const itemId = this.dataset.itemId;
+                const itemType = this.dataset.itemType;
+                const containerSelector = itemType === 'customer' ? '#fav-customer-' : '#fav-shop-';
+                const emptyMsgElement = itemType === 'customer' ? noFavoriteCustomersMsg : noFavoriteShopsMsg;
+                const containerElement = itemType === 'customer' ? customersContainer : shopsContainer;
+
+                if (confirm(`Are you sure you want to remove this ${itemType} from your favorites?`)) {
+                    try {
+                        const itemElement = document.querySelector(`${containerSelector}${itemId}`);
+                        if (itemElement && !prefersReducedMotion) {
+                            // Apply remove animation if animations are allowed
+                            itemElement.style.transition = 'all 0.5s ease';
+                            itemElement.style.transform = 'scale(0.8)';
+                            itemElement.style.opacity = '0';
+                        }
+                        
+                        const response = await fetch('/api/favorites/remove', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ item_id: parseInt(itemId), item_type: itemType })
+                        });
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            if (!prefersReducedMotion) {
+                                setTimeout(() => {
+                                    itemElement?.remove();
+                                    if (!containerElement.children.length) {
+                                        emptyMsgElement.style.display = 'block';
+                                    }
+                                }, 500);
+                            } else {
+                                // Immediate removal for reduced motion preference
+                                itemElement?.remove();
+                                if (!containerElement.children.length) {
+                                    emptyMsgElement.style.display = 'block';
+                                }
+                            }
+                        } else {
+                            // Restore the element if request failed
+                            if (itemElement) {
+                                itemElement.style.transform = '';
+                                itemElement.style.opacity = '';
+                            }
+                            alert('Error: ' + data.message);
+                        }
+                    } catch (error) {
+                        console.error('Remove favorite error:', error);
+                        alert('An error occurred. Please try again.');
+                    }
+                }
+            });
+        });
+    }
+
+    // Add initial fade-in animation
+    if (!prefersReducedMotion) {
+        contentDiv.style.opacity = '0';
+        contentDiv.style.transition = 'opacity 0.5s ease';
+    }
+
+    // Observe theme changes to update the UI accordingly
+    if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            document.documentElement.setAttribute('data-theme', event.matches ? 'dark' : 'light');
+        });
+    }
+
+    loadFavorites();
+});
+</script>
+{% endblock %}
