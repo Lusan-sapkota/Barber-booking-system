@@ -911,9 +911,9 @@ We welcome contributions! Please follow these steps:
 
 ## 📄 License
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU AFFERO GENERAL PUBLIC LICENSE - see the [LICENSE](LICENSE) file for details.
 
-The project also includes a custom license with additional terms - see [LICENSE-CUSTOM.txt](LICENSE-CUSTOM.txt) for specific requirements and permissions beyond the Apache License 2.0.
+The project also includes a custom license with additional terms - see [LICENSE-CUSTOM.txt](LICENSE-CUSTOM.txt) for specific requirements and permissions beyond the GNU AFFERO GENERAL PUBLIC LICENSE.
 
 Created with ❤️ by Lusan Sapkota. For issues, feature requests, or questions, please open an [issue](https://github.com/Lusan-sapkota/Barber-booking-system/issues).
 ```
